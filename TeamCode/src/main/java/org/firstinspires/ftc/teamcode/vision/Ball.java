@@ -10,5 +10,9 @@ public class Ball {
         this.color = color;
         this.matPoint = matPoint;
     }
+
+    public Point position() { return matPoint;}
+    public String color() { return color;}
+
 }
 

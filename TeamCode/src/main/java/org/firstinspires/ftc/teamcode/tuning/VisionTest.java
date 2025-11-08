@@ -47,8 +47,13 @@ public class VisionTest extends LinearOpMode {
 
                 sleep(100); // Refresh rate
                 List <Ball> detectedBalls = mVision.getPosition();
-                telemetry.addData("List of balls: ",detectedBalls);
-                dashboard.getTelemetry().addData("List of balls ", detectedBalls);
+                for (Ball ball : detectedBalls ) {
+                    telemetry.addData("Color: ",ball.color());
+                    dashboard.getTelemetry().addData("Color ", ball.color());
+                    telemetry.addData("Position: ",ball.position() );
+                    dashboard.getTelemetry().addData("Position ", ball.position());
+                }
+
 
 
             }
