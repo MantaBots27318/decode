@@ -32,18 +32,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-import static android.opengl.ETC1.isValid;
 
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
+
+
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-
-import java.util.List;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.vision.Vision;
 
 /*
  * This OpMode illustrates how to use the Limelight3A Vision Sensor.
@@ -67,95 +65,63 @@ import java.util.List;
  *   and the ip address the Limelight device assigned the Control Hub and which is displayed in small text
  *   below the name of the Limelight on the top level configuration screen.
  */
-@Autonomous(name = "Sensor: Limelight3A")
-public class autonomousMiddleStart extends LinearOpMode {
-private int mId;
-public pattern mColor;
-public enum pattern{
-    PGP,
-    GPP,
-    PPG,
-    NONE
-}
-    private Limelight3A limelight;
+
+@Autonomous (name = "Sensor: Limelight3A")
+public class AutonomousMiddleStart extends LinearOpMode {
+
+    Vision          mVision;
+    MecanumDrive    mDrive;
+    Collecting      mCollecting;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        mColor = pattern.NONE;
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+
 
         telemetry.setMsTransmissionInterval(11);
+        mCollecting = new Collecting();
+        mVision = new Vision(telemetry);
+        mVision.initialize(hardwareMap);
 
-        limelight.pipelineSwitch(0);
-
-
-
-        /*
-         * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
-         */
-        limelight.start();
+        Pose2d beginPose = new Pose2d(0, 0, 0);
+        mDrive = new MecanumDrive(hardwareMap, beginPose);
 
         telemetry.addData(">", "Robot Ready.  Press Play.");
         telemetry.update();
+
         waitForStart();
-        limelight.pipelineSwitch(0);
+
         while (opModeIsActive()) {
-            LLStatus status = limelight.getStatus();
 
-            LLResult result = limelight.getLatestResult();
-            if (result != null) {
-                // Access general information
-                Pose3D botpose = result.getBotpose();
-                double captureLatency = result.getCaptureLatency();
-                double targetingLatency = result.getTargetingLatency();
-                double parseLatency = result.getParseLatency();
-
-                //telemetry.addData(result.isValid());
-                if (result.isValid()) {
-
-                    telemetry.addLine("here");
-                    // Access fiducial results
-                    List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                        telemetry.addLine("" + fr.getFiducialId());
-                        if (fr.getFiducialId() > 20 && fr.getFiducialId() < 24) {
-                            mId = fr.getFiducialId();
-
-                            telemetry.addLine("here2");
-
-                        }
-                    }
-
-
-                }
-            } else {
-                telemetry.addData("Limelight", "No data available");
+            Vision.Pattern pattern = mVision.readPattern();
+            telemetry.addLine("Pattern is " + pattern.text());
+            if (mVision.readPattern() == Vision.Pattern.GPP){
+                Actions.runBlocking(
+                        mDrive.actionBuilder(beginPose)
+                                .splineTo(new Vector2d(36,30), Math.PI/2)
+                                .build());
             }
-            if (mId == 21) {
-                mColor = pattern.GPP;
-                telemetry.addData("ID : ", 21);
-            } else if (mId == 23) {
-                mColor = pattern.PPG;
-                telemetry.addData("ID : ", 23);
-            } else if (mId == 22) {
-                mColor = pattern.PGP;
-                telemetry.addData("ID : ", 22);
+            if (mVision.readPattern() == Vision.Pattern.PGP){
+                Actions.runBlocking(
+                mDrive.actionBuilder(beginPose)
+                        .splineTo(new Vector2d(60,30), Math.PI/2)
+                        .build());
             }
-
-//            telemetry.update();
-//            Pose2d beginPose = new Pose2d(0, 0, Math.PI / 2);
-//            SparkFunOTOSDrive drive = new SparkFunOTOSDrive(hardwareMap, beginPose);
-//            Action action = drive.actionBuilder(beginPose)
-//                    .setTangent(Math.PI)
-//                    .splineTo(new Vector2d(-10.75, -11.25), 5 * Math.PI / 4)
-//                    .build();
-//
-//            while (action.run(new TelemetryPacket())) {
-//                //Do nothing
-//            }
-
+            if (mVision.readPattern() == Vision.Pattern.PPG){
+                Actions.runBlocking(
+                        mDrive.actionBuilder(beginPose)
+                                .splineTo(new Vector2d(84,30), Math.PI/2)
+                                .build());
+            }
+            mCollecting.intake();
+            Actions.runBlocking(
+                    mDrive.actionBuilder(beginPose)
+                            .splineTo(new Vector2d(135,48), Math.PI/4)
+                            .build());
+            mCollecting.shooting();
         }
-        limelight.stop();
+
+        mVision.close();
 
 
     }

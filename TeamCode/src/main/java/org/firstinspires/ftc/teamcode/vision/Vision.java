@@ -11,7 +11,8 @@ import java.util.List;
 
 public class Vision {
 
-    public enum Pattern{
+    public enum Pattern {
+
         GPP("GPP"),
         PPG("PPG"),
         PGP("PGP"),
