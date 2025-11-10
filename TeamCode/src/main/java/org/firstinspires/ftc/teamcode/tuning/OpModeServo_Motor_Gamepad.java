@@ -27,7 +27,7 @@ public class OpModeServo_Motor_Gamepad extends OpMode {
     }
     public void loop(){
         mDriving.control();
-        mServo.setPosition(gamepad1.right_stick_x);
+        mServo.setPosition(gamepad1.right_stick_x+0.1);
         mDcMotor1.setPower(gamepad1.left_stick_y);
         mDcMotor2.setPower(gamepad1.left_stick_x*(-1));
     }
