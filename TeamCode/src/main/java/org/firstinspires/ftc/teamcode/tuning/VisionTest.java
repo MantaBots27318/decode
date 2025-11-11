@@ -46,7 +46,7 @@ public class VisionTest extends LinearOpMode {
                 dashboard.getTelemetry().addData("Pattern ", pattern.text());
 
                 sleep(100); // Refresh rate
-                List <Ball> detectedBalls = mVision.getPosition();
+                List <Ball> detectedBalls = mVision.getArtifactPosition();
                 for (Ball ball : detectedBalls ) {
                     telemetry.addData("Color: ",ball.color());
                     dashboard.getTelemetry().addData("Color ", ball.color());
@@ -54,7 +54,8 @@ public class VisionTest extends LinearOpMode {
                     dashboard.getTelemetry().addData("Position ", ball.position());
                 }
 
-
+                telemetry.addData("Pose3D",mVision.getPosition("blue"));
+                dashboard.getTelemetry().addData("Pose3D",mVision.getPosition("blue"));
 
             }
             catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }

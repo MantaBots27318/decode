@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.opencv.core.Point;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class Vision {
         }
         return pattern;
     }
-    public List<Ball> getPosition(){
+    public List<Ball> getArtifactPosition(){
         List<Ball> detectedBalls = new ArrayList<>();
 
 
@@ -123,7 +124,32 @@ public class Vision {
 
         return detectedBalls ;
     }
-    public void getArtifactPosition(){
+
+    public Pose3D getPosition(String alliance){
+        mLimelight.pipelineSwitch(0);
+        LLResult result = mLimelight.getLatestResult();
+        if (result != null) {
+            //telemetry.addData(result.isValid());
+            if (result.isValid()) {
+                // Access fiducial results
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                if (alliance.equals("blue")){
+                    mTelemetry.addData("alliance",alliance);
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() == 20){
+                            return fr.getRobotPoseFieldSpace();
+                        }
+                    }
+                }else {
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() == 24){
+                            return fr.getRobotPoseFieldSpace() ;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
 
     }
 
