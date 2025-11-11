@@ -9,6 +9,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* Local includes */
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.vision.Ball;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
@@ -46,17 +47,24 @@ public class VisionTest extends LinearOpMode {
                 dashboard.getTelemetry().addData("Pattern ", pattern.text());
 
                 sleep(100); // Refresh rate
-                List <Ball> detectedBalls = mVision.getArtifactPosition();
-                for (Ball ball : detectedBalls ) {
-                    telemetry.addData("Color: ",ball.color());
+                List<Ball> detectedBalls = mVision.getArtifactPosition();
+                for (Ball ball : detectedBalls) {
+                    telemetry.addData("Color: ", ball.color());
                     dashboard.getTelemetry().addData("Color ", ball.color());
-                    telemetry.addData("Position: ",ball.position() );
+                    telemetry.addData("Position: ", ball.position());
                     dashboard.getTelemetry().addData("Position ", ball.position());
                 }
 
-                telemetry.addData("Pose3D",mVision.getPosition("blue"));
-                dashboard.getTelemetry().addData("Pose3D",mVision.getPosition("blue"));
-
+                Pose3D output = mVision.getPosition("blue");
+                Pose3D prevOutput = null;
+                if (output != null) {
+                    telemetry.addData("Pose3D", output);
+                    dashboard.getTelemetry().addData("Pose3D", output);
+                    prevOutput = output;
+                } else {
+                    telemetry.addData("Pose3D", prevOutput);
+                    dashboard.getTelemetry().addData("Pose3D", prevOutput);
+                }
             }
             catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }
 

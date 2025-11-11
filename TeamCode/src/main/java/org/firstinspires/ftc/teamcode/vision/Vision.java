@@ -129,21 +129,18 @@ public class Vision {
         mLimelight.pipelineSwitch(0);
         LLResult result = mLimelight.getLatestResult();
         if (result != null) {
-            //telemetry.addData(result.isValid());
             if (result.isValid()) {
-                // Access fiducial results
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                 if (alliance.equals("blue")){
-                    mTelemetry.addData("alliance",alliance);
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
                         if (fr.getFiducialId() == 20){
-                            return fr.getRobotPoseFieldSpace();
+                            return fr.getRobotPoseTargetSpace();
                         }
                     }
                 }else {
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
                         if (fr.getFiducialId() == 24){
-                            return fr.getRobotPoseFieldSpace() ;
+                            return fr.getRobotPoseTargetSpace();
                         }
                     }
                 }
