@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.vision;
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -6,7 +7,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.opencv.core.Point;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Vision {
@@ -27,16 +30,21 @@ public class Vision {
 
     private Limelight3A  mLimelight;
     private Telemetry    mTelemetry;
+    private Calibration mCalibration;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+
 
     public Vision(Telemetry logger) {
         mTelemetry = logger;
         mTelemetry.addLine("Constructor");
+        mCalibration = new Calibration() ;
     }
 
     public void initialize(HardwareMap hw) {
         mTelemetry.addLine("Initialize");
         mLimelight = hw.get(Limelight3A.class, "limelight");
         mLimelight.start();
+        mCalibration.warp();
     }
 
     public void close() {
@@ -85,10 +93,61 @@ public class Vision {
         }
         return pattern;
     }
-    public void getPosition(){
+    public List<Ball> getArtifactPosition(){
+        List<Ball> detectedBalls = new ArrayList<>();
+
+
+        mLimelight.pipelineSwitch(1);
+        LLResult result = mLimelight.getLatestResult();
+
+        if (result != null) {
+
+            //telemetry.addData(result.isValid());
+            if (result.isValid()) {
+                List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+                for (LLResultTypes.DetectorResult dr : detectorResults) {
+
+                   double pixelX = dr.getTargetXPixels();
+                   double pixelY = dr.getTargetYPixels();
+                    Point inputPixelPoint = new Point(pixelX, pixelY);
+                    Point detectedMatPoint = mCalibration.distance(inputPixelPoint);
+                    String detectedColor = dr.getClassName() ;
+                    mTelemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
+
+                    Ball detected = new Ball(detectedColor,detectedMatPoint) ;
+                    detectedBalls.add(detected);
+
+                }
+
+        }
 
     }
-    public void getArtifactPosition(){
+
+        return detectedBalls ;
+    }
+
+    public Pose3D getPosition(String alliance){
+        mLimelight.pipelineSwitch(0);
+        LLResult result = mLimelight.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                if (alliance.equals("blue")){
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() == 20){
+                            return fr.getRobotPoseTargetSpace();
+                        }
+                    }
+                }else {
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() == 24){
+                            return fr.getRobotPoseTargetSpace();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
 
     }
 

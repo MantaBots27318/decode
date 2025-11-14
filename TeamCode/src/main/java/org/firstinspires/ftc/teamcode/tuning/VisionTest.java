@@ -9,14 +9,18 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* Local includes */
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.vision.Ball;
 import org.firstinspires.ftc.teamcode.vision.Vision;
+
+import java.util.List;
 
 @Config
 @TeleOp
 public class VisionTest extends LinearOpMode {
 
     // Inputs (editable from FTC Dashboard)
-    private Vision vision;
+    private Vision mVision;
 
 
     @Override
@@ -27,8 +31,8 @@ public class VisionTest extends LinearOpMode {
 
         // Example source points (pixels in image)
 
-        vision = new Vision(dashboard.getTelemetry());
-        vision.initialize(hardwareMap);
+        mVision = new Vision(dashboard.getTelemetry());
+        mVision.initialize(hardwareMap);
         dashboard.getTelemetry().update();
 
         waitForStart();
@@ -37,12 +41,30 @@ public class VisionTest extends LinearOpMode {
 
             try {
                 // Transform and send back through dashboard
-                Vision.Pattern pattern = vision.readPattern();
+                Vision.Pattern pattern = mVision.readPattern();
 
                 telemetry.addData("Pattern ", pattern.text());
                 dashboard.getTelemetry().addData("Pattern ", pattern.text());
 
                 sleep(100); // Refresh rate
+                List<Ball> detectedBalls = mVision.getArtifactPosition();
+                for (Ball ball : detectedBalls) {
+                    telemetry.addData("Color: ", ball.color());
+                    dashboard.getTelemetry().addData("Color ", ball.color());
+                    telemetry.addData("Position: ", ball.position());
+                    dashboard.getTelemetry().addData("Position ", ball.position());
+                }
+
+                Pose3D output = mVision.getPosition("blue");
+                Pose3D prevOutput = null;
+                if (output != null) {
+                    telemetry.addData("Pose3D", output);
+                    dashboard.getTelemetry().addData("Pose3D", output);
+                    prevOutput = output;
+                } else {
+                    telemetry.addData("Pose3D", prevOutput);
+                    dashboard.getTelemetry().addData("Pose3D", prevOutput);
+                }
             }
             catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }
 
@@ -50,7 +72,7 @@ public class VisionTest extends LinearOpMode {
             dashboard.getTelemetry().update();
         }
 
-        vision.close();
+        mVision.close();
     }
 
     // Function to transform pixel point and display real-world point
