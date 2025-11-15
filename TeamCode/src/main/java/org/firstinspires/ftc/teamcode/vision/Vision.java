@@ -96,7 +96,7 @@ public class Vision {
         List<Ball> detectedBalls = new ArrayList<>();
 
 
-        mLimelight.pipelineSwitch(1);
+        mLimelight.pipelineSwitch(2);
         LLResult result = mLimelight.getLatestResult();
 
         if (result != null) {

@@ -41,30 +41,35 @@ public class VisionTest extends LinearOpMode {
 
             try {
                 // Transform and send back through dashboard
-                Vision.Pattern pattern = mVision.readPattern();
+//                Vision.Pattern pattern = mVision.readPattern();
+//
+//                telemetry.addData("Pattern ", pattern.text());
+//                dashboard.getTelemetry().addData("Pattern ", pattern.text());
+//
+//                sleep(100); // Refresh rate
 
-                telemetry.addData("Pattern ", pattern.text());
-                dashboard.getTelemetry().addData("Pattern ", pattern.text());
-
-                sleep(100); // Refresh rate
                 List<Ball> detectedBalls = mVision.getArtifactPosition();
+                telemetry.addLine("Passer dans le getArtifact: ");
+                dashboard.getTelemetry().addLine("Passwe dans le getArtifact");
                 for (Ball ball : detectedBalls) {
                     telemetry.addData("Color: ", ball.color());
                     dashboard.getTelemetry().addData("Color ", ball.color());
                     telemetry.addData("Position: ", ball.position());
                     dashboard.getTelemetry().addData("Position ", ball.position());
+                    telemetry.addData("Nombre de artifacts: ", detectedBalls.size());
+                    dashboard.getTelemetry().addData("Nombre de artifacts ", detectedBalls.size());
                 }
 
-                Pose3D output = mVision.getPosition("blue");
-                Pose3D prevOutput = null;
-                if (output != null) {
-                    telemetry.addData("Pose3D", output);
-                    dashboard.getTelemetry().addData("Pose3D", output);
-                    prevOutput = output;
-                } else {
-                    telemetry.addData("Pose3D", prevOutput);
-                    dashboard.getTelemetry().addData("Pose3D", prevOutput);
-                }
+//                Pose3D output = mVision.getPosition("blue");
+//                Pose3D prevOutput = null;
+//                if (output != null) {
+//                    telemetry.addData("Pose3D", output);
+//                    dashboard.getTelemetry().addData("Pose3D", output);
+//                    prevOutput = output;
+//                } else {
+//                    telemetry.addData("Pose3D", prevOutput);
+//                    dashboard.getTelemetry().addData("Pose3D", prevOutput);
+//                }
             }
             catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }
 
