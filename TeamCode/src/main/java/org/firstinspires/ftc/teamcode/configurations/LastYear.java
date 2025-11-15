@@ -9,7 +9,7 @@ package org.firstinspires.ftc.teamcode.configurations;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
-public class V1 extends Configuration {
+public class LastYear extends Configuration {
 
     protected void initialize(){
 
@@ -35,16 +35,19 @@ public class V1 extends Configuration {
         mServos.put("intake-claw", new ConfServo("intakeClaw", false));                     // EH Servo 2     CSIn
 
         /* Outtake configuration */
-       mMotors.put("outtake-slides",new ConfMotor(
+        mMotors.put("outtake-slides",new ConfMotor(
                 "outtakeSlidesLeft",true, false,                              // EH Motor 0
                        "outtakeSlidesRight",false, false));                          // EH Motor 1
 
-       mServos.put("outtake-wrist-roll", new ConfServo("outtakeWristRoll", false));         // CH Servo 0     CSRoOut
-       mServos.put("outtake-claw", new ConfServo("outtakeClaw", false));                    // CH Servo 1     CSOut
-       mServos.put("outtake-elbow-pitch", new ConfServo(
+        mServos.put("outtake-wrist-roll", new ConfServo("outtakeWristRoll", false));         // CH Servo 0     CSRoOut
+        mServos.put("outtake-claw", new ConfServo("outtakeClaw", false));                    // CH Servo 1     CSOut
+        mServos.put("outtake-elbow-pitch", new ConfServo(
                 "outtakeElbowPitchLeft", false,                                               // EH Servo 3     CSPROut
                 "outtakeElbowPitchRight", true)                                                      // CH Servo 3     CSPLOut
-       );
+        );
+
+        mPipelines.put("balls-detector", 1);
+        mPipelines.put("localization", 0);
 
         mMotors.get("intake-slides").addPosition("min",0 );
         mMotors.get("intake-slides").addPosition("transfer",167 );
