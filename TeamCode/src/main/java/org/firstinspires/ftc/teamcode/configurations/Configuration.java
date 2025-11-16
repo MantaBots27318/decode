@@ -17,10 +17,11 @@ abstract public class Configuration {
     protected final  Map<String, ConfMotor> mMotors         = new LinkedHashMap<>();
     protected final  Map<String, ConfImu>   mImus           = new LinkedHashMap<>();
     protected final  Map<String, ConfServo> mServos         = new LinkedHashMap<>();
+    protected final  Map<String, ConfLimelight> mLimelights = new LinkedHashMap<>();
     protected        Map<String, Double>    mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V1() ;
+    public static Configuration s_Current = new LastYear();
 
     // Method to retrieve a motor by its reference name
     public ConfMotor getMotor(String name) {
@@ -31,6 +32,9 @@ abstract public class Configuration {
     public ConfImu getImu(String name) {
         return mImus.getOrDefault(name, null);
     }
+
+    // Method to retrieve a pipeline by its reference name
+    public ConfLimelight getLimelight(String name) { return mLimelights.getOrDefault(name, null);}
 
     // Method to retrieve a servo by its reference name
     public ConfServo getServo(String name) {

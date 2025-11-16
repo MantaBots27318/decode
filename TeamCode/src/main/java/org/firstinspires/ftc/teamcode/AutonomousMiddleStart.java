@@ -40,6 +40,9 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
@@ -80,8 +83,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(11);
         mCollecting = new Collecting();
-        mVision = new Vision(telemetry);
-        mVision.initialize(hardwareMap);
+        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",telemetry);
+        mVision.initialize();
 
         Pose2d beginPose = new Pose2d(0, 0, 0);
         mDrive = new MecanumDrive(hardwareMap, beginPose);
@@ -114,10 +117,30 @@ public class AutonomousMiddleStart extends LinearOpMode {
                                 .build());
             }
             mCollecting.intake();
+
+
             Actions.runBlocking(
                     mDrive.actionBuilder(beginPose)
                             .splineTo(new Vector2d(135,48), Math.PI/4)
                             .build());
+
+
+            Pose3D output = mVision.getPosition();
+            if(output != null) {
+                double x_from_april_tag = -output.getPosition().x;
+                double y_from_april_tag = -output.getPosition().y;
+                double heading_from_april_tag = -output.getOrientation().getYaw() + 180;
+                while(heading_from_april_tag < -180) { heading_from_april_tag += 360; }
+                while(heading_from_april_tag > 180) { heading_from_april_tag -= 360; }
+
+                telemetry.addData("X from april tag",x_from_april_tag);
+                telemetry.addData("Y from april tag",y_from_april_tag);
+                telemetry.addData("Heading from april tag",heading_from_april_tag);
+
+            }
+
+
+
             mCollecting.shooting();
         }
 
