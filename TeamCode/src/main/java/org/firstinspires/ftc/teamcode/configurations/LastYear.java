@@ -46,8 +46,7 @@ public class LastYear extends Configuration {
                 "outtakeElbowPitchRight", true)                                                      // CH Servo 3     CSPLOut
         );
 
-        mPipelines.put("balls-detector", 1);
-        mPipelines.put("localization", 0);
+        mLimelights.put("limelight", new ConfLimelight("limelight"));
 
         mMotors.get("intake-slides").addPosition("min",0 );
         mMotors.get("intake-slides").addPosition("transfer",167 );
@@ -118,6 +117,9 @@ public class LastYear extends Configuration {
         mServos.get("outtake-elbow-pitch").addPosition("vertical", 0.085);
         mServos.get("outtake-elbow-pitch").addPosition("specimen", 0.011);
         mServos.get("outtake-elbow-pitch").addPosition("specimen2", 0.025);
+
+        mLimelights.get("limelight").addPipeline("balls-detector",2);
+        mLimelights.get("limelight").addPipeline("localizer",0);
 
     }
 

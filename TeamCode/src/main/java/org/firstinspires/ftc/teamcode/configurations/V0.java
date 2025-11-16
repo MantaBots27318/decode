@@ -22,8 +22,10 @@ public class V0 extends Configuration {
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("otos", new ConfImu("sensor_otos"));
 
-        mPipelines.put("balls-detector", 1);
-        mPipelines.put("localization", 0);
+        mLimelights.put("limelight", new ConfLimelight("limelight"));
+
+        mLimelights.get("limelight").addPipeline("balls-detector",2);
+        mLimelights.get("limelight").addPipeline("localizer",0);
 
     }
 
