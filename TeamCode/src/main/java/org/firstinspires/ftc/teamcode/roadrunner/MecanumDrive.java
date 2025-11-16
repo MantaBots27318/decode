@@ -70,7 +70,7 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
-        public double inPerTick = 0.00202016; // If you're using OTOS/Pinpoint leave this at 1 (all values will be in inches, 1 tick = 1 inch)
+        public double inPerTick = 0.00202016;
         public double lateralInPerTick = 0.0018350043868211484; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
         public double trackWidthTicks = 7762.516542335624;
 
