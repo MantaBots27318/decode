@@ -36,6 +36,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -69,51 +70,54 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
  *   below the name of the Limelight on the top level configuration screen.
  */
 
-@Autonomous (name = "Sensor: Limelight3A")
+@Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
 
-    Vision          mVision;
-    MecanumDrive    mDrive;
-    Collecting      mCollecting;
+    Vision mVision;
+    MecanumDrive mDrive;
+    Collecting mCollecting;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
 
-
         telemetry.setMsTransmissionInterval(11);
         mCollecting = new Collecting();
-        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",telemetry);
+        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
 
         Pose2d beginPose = new Pose2d(0, 0, 0);
+        Pose2d updatedPose = null;
         mDrive = new MecanumDrive(hardwareMap, beginPose);
 
         telemetry.addData(">", "Robot Ready.  Press Play.");
         telemetry.update();
 
+        double x_shooting_pos = 74;
+        double y_shooting_pos = 0;
+        boolean changePOS = true ;
+
         waitForStart();
 
-        while (opModeIsActive()) {
 
             Vision.Pattern pattern = mVision.readPattern();
             telemetry.addLine("Pattern is " + pattern.text());
             if (mVision.readPattern() == Vision.Pattern.GPP){
                 Actions.runBlocking(
                         mDrive.actionBuilder(beginPose)
-                                .splineTo(new Vector2d(36,30), Math.PI/2)
+                                .splineTo(new Vector2d(30,32), Math.PI/2)
                                 .build());
             }
             if (mVision.readPattern() == Vision.Pattern.PGP){
                 Actions.runBlocking(
                 mDrive.actionBuilder(beginPose)
-                        .splineTo(new Vector2d(60,30), Math.PI/2)
+                        .splineTo(new Vector2d(55,32), Math.PI/2)
                         .build());
             }
             if (mVision.readPattern() == Vision.Pattern.PPG){
                 Actions.runBlocking(
                         mDrive.actionBuilder(beginPose)
-                                .splineTo(new Vector2d(84,30), Math.PI/2)
+                                .splineTo(new Vector2d(70,32), Math.PI/2)
                                 .build());
             }
             mCollecting.intake();
@@ -121,32 +125,74 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(beginPose)
-                            .splineTo(new Vector2d(135,48), Math.PI/4)
+                            .splineTo(new Vector2d(x_shooting_pos ,y_shooting_pos), Math.PI/4)
                             .build());
 
 
             Pose3D output = mVision.getPosition();
-            if(output != null) {
-                double x_from_april_tag = -output.getPosition().x;
-                double y_from_april_tag = -output.getPosition().y;
+
+            if (output != null) {
+                telemetry.addLine("april tag pos not null");
+                double x_from_april_tag = (-output.getPosition().x)*39.37;
+                double y_from_april_tag = (-output.getPosition().y)*39.37;
                 double heading_from_april_tag = -output.getOrientation().getYaw() + 180;
-                while(heading_from_april_tag < -180) { heading_from_april_tag += 360; }
-                while(heading_from_april_tag > 180) { heading_from_april_tag -= 360; }
+                while (heading_from_april_tag < -180) {
+                    heading_from_april_tag += 360;
+                }
+                while (heading_from_april_tag > 180) {
+                    heading_from_april_tag -= 360;
+                }
 
-                telemetry.addData("X from april tag",x_from_april_tag);
-                telemetry.addData("Y from april tag",y_from_april_tag);
-                telemetry.addData("Heading from april tag",heading_from_april_tag);
+               if (changePOS ){
+                    updatedPose = new Pose2d(x_from_april_tag, y_from_april_tag, (heading_from_april_tag) * Math.PI / 180);
+                    mDrive.changeLocalizer(updatedPose);
+                    telemetry.addData("Pos changed to: ",updatedPose ) ;
+                    changePOS=false;
+                }
 
+
+                telemetry.addData("X from april tag", x_from_april_tag);
+                telemetry.addData("Y from april tag", y_from_april_tag);
+                telemetry.addData("Heading from april tag", heading_from_april_tag);
+                telemetry.update() ;
+
+                Actions.runBlocking(
+                        mDrive.actionBuilder(updatedPose)
+                                .waitSeconds(10)
+                                .build());
+//                Actions.runBlocking(
+//                        mDrive.actionBuilder(updatedPose)
+//                                .splineTo(new Vector2d(24, 24), Math.PI / 2)
+//                                .build());
+//                telemetry.addData("New Pose: ", mDrive.updatePoseEstimate());
+//                telemetry.update() ;
+//                mCollecting.shooting();
+
+//                if (mVision.readPattern() != Vision.Pattern.PPG) {
+//                    Actions.runBlocking(
+//                            mDrive.actionBuilder(beginPose)
+//                                    .splineTo(new Vector2d(50, 12), Math.PI / 2)
+//                                    .build());
+//                } else {
+//                    Actions.runBlocking(
+//                            mDrive.actionBuilder(beginPose)
+//                                    .splineTo(new Vector2d(50, -12), Math.PI / 2)
+//                                    .build());
+//                }
+//                mCollecting.intake();
+
+//                Actions.runBlocking(
+//                        mDrive.actionBuilder(beginPose)
+//                                .splineTo(new Vector2d(x_shooting_pos, y_shooting_pos), Math.PI / 4)
+//                                .build());
+
+                mCollecting.shooting();
             }
 
+            mVision.close();
 
 
-            mCollecting.shooting();
         }
-
-        mVision.close();
-
-
     }
-}
+
 
