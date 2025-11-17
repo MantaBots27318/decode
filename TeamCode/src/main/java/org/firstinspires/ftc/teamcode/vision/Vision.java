@@ -85,10 +85,8 @@ public class Vision {
 
                 // Access fiducial results
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                mTelemetry.addLine("Found " + fiducialResults.size() + " April Tags");
 
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    mTelemetry.addLine("" + fr.getFiducialId());
                     if (fr.getFiducialId() > 20 && fr.getFiducialId() < 24) {
                         apriltagId = fr.getFiducialId();
                     }

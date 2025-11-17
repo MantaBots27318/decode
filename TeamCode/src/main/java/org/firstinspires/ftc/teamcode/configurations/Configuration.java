@@ -21,7 +21,7 @@ abstract public class Configuration {
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V1();
+    public static Configuration s_Current = new LastYear();
 
     // Method to retrieve a motor by its reference name
     public ConfMotor getMotor(String name) {

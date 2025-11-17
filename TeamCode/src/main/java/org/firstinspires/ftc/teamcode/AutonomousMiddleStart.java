@@ -94,6 +94,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mCollecting = new Collecting();
 
+        mTimer = new SmartTimer(telemetry);
+
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
         mPattern = Vision.Pattern.NONE;
@@ -127,6 +129,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES - 10,  - 10), -Math.PI / 8)
                             .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
                             .build());
         }
@@ -139,6 +142,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES - 20, Y_PATTERN_INIT_INCHES - 20), -Math.PI / 8)
                             .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
                             .build());
         }
@@ -151,9 +155,27 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES - 20, Y_PATTERN_INIT_INCHES - 20), -Math.PI / 8)
                             .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
                             .build());
         }
+
+        telemetry.addLine("==> INTAKE");
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("==> INTAKE");
+        FtcDashboard.getInstance().getTelemetry().update();
+
+
+        mCollecting.startIntake();
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .waitSeconds(2)
+                        .lineToYConstantHeading(mDrive.getPose().position.y + 30)
+                        .build());
+
+        mCollecting.stopIntake();
+
 
         telemetry.addLine("==> GO TO CALIBRATION");
         telemetry.update();
@@ -162,9 +184,41 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
+                    .waitSeconds(2)
+                    .lineToYConstantHeading(mDrive.getPose().position.y - 50)
                     .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,Y_CALIBRATION_INIT_INCHES), ANGLE_CALIBRATION_INIT_RADIANS)
                     .build());
 
+        updatePoseFromAprilTagIfVisible();
+
+        telemetry.addLine("===== CALIBRATION =====");
+        telemetry.addLine("==> REF POSE : " + mDrive.getPose());
+        telemetry.addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("===== CALIBRATION =====");
+        FtcDashboard.getInstance().getTelemetry().addLine("==> REF POSE : " + mDrive.getPose());
+        FtcDashboard.getInstance().getTelemetry().addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+        FtcDashboard.getInstance().getTelemetry().update();
+
+        telemetry.addLine("======= ACTIONS =======");
+        telemetry.addLine("==> GO TO SHOOTING");
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
+        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO SHOOTING");
+        FtcDashboard.getInstance().getTelemetry().update();
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .splineTo(new Vector2d(mXOffset + X_SHOOTING_FTC_INCHES, mYOffset + Y_SHOOTING_FTC_INCHES), mAngleOffset + ANGLE_SHOOTING_FTC_RADIANS)
+                        .build());
+
+
+        mVision.close();
+
+
+    }
+
+    void updatePoseFromAprilTagIfVisible() {
         // Gather April Tags
         Pose3D output = mVision.getPosition();
         mTimer.arm(100);
@@ -194,32 +248,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mYOffset = - Y_INIT_FTC_INCHES;
             mAngleOffset = - ANGLE_INIT_FTC_RADIANS;
         }
-
-        telemetry.addLine("===== CALIBRATION =====");
-        telemetry.addLine("==> REF POSE : " + mDrive.getPose());
-        telemetry.addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("===== CALIBRATION =====");
-        FtcDashboard.getInstance().getTelemetry().addLine("==> REF POSE : " + mDrive.getPose());
-        FtcDashboard.getInstance().getTelemetry().addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        FtcDashboard.getInstance().getTelemetry().update();
-
-        telemetry.addLine("======= ACTIONS =======");
-        telemetry.addLine("==> GO TO SHOOTING");
-        telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
-        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO SHOOTING");
-        FtcDashboard.getInstance().getTelemetry().update();
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .splineTo(new Vector2d(mXOffset + X_SHOOTING_FTC_INCHES, mYOffset + Y_SHOOTING_FTC_INCHES), mAngleOffset + ANGLE_SHOOTING_FTC_RADIANS)
-                        .build());
-
-
-        mVision.close();
-
-
     }
 }
 

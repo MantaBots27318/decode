@@ -188,6 +188,15 @@ public class Collecting {
         }
     }
 
+    public void startIntake() {
+        mIntakeBrushes.start(1.0);
+    }
+
+    public void stopIntake() {
+        mIntakeBrushes.stop();
+        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+    }
+
 
     public void shoot() {
 
