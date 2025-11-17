@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 public class OuttakeWheels {
 
-    private static final int    sTimeOut = 100; // Timeout in ms
+    private static final int    sTimeOut = 1000; // Timeout in ms
 
     Telemetry                   mLogger;      // Local logger
 
@@ -63,7 +63,7 @@ public class OuttakeWheels {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  OUT WHEELS : OK : " + status); }
+        if (mReady) { logger.addLine("==>  OUT WHEELS : OK"); }
         else        { logger.addLine("==>  OUT WHEELS : KO : " + status); }
 
     }

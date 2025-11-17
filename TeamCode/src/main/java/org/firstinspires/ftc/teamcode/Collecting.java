@@ -20,12 +20,16 @@ import org.firstinspires.ftc.teamcode.outtake.OuttakeWheels;
 import org.firstinspires.ftc.teamcode.outtake.OuttakeLeverArm;
 
 public class Collecting {
+
     public enum ShootingMode {
         NONE,
         WAITING,
         STARTING_WHEELS,
-        SHOOT
-
+        SHOOT1,
+        NEXT1,
+        SHOOT2,
+        NEXT2,
+        SHOOT3
     }
     public enum IntakeMode {
         NONE,
@@ -128,6 +132,21 @@ public class Collecting {
             mIntakeBrushes.stop();
         }
 
+        if(mGamepad.y) {
+            if (!mWasYPressed && (!mIntakeBrushes.isMoving())) {
+                mLogger.addLine("==> STR IN BRS");
+                mIntakeBrushes.start(0.9);
+            }
+            else if (!mWasYPressed && (mIntakeBrushes.isMoving())) {
+                mLogger.addLine("==> STP IN BRS");
+                mIntakeBrushes.stop();
+            }
+            mWasYPressed = true;
+        }
+        else {
+            mWasYPressed = false;
+        }
+
         if (mGamepad.dpad_up) {
             if (!mWasDPadUpPressed) {
                 shoot();
@@ -188,11 +207,35 @@ public class Collecting {
         else if (mShootingMode == ShootingMode.STARTING_WHEELS && !mOuttakeWheels.isTransitioning()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
-                mShootingMode = ShootingMode.SHOOT;
+                mShootingMode = ShootingMode.SHOOT1;
             }
         }
-        else if (mShootingMode == ShootingMode.SHOOT && !mOuttakeLeverArm.isMoving()) {
+        else if (mShootingMode == ShootingMode.SHOOT1 && !mOuttakeLeverArm.isMoving()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+                mShootingMode = ShootingMode.NEXT1;
+            }
+        }
+        else if (mShootingMode == ShootingMode.NEXT1 && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
+                mShootingMode = ShootingMode.SHOOT2;
+            }
+        }
+        else if (mShootingMode == ShootingMode.SHOOT2 && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+                mShootingMode = ShootingMode.NEXT2;
+            }
+        }
+        else if (mShootingMode == ShootingMode.NEXT2 && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
+                mShootingMode = ShootingMode.SHOOT3;
+            }
+        }
+        else if (mShootingMode == ShootingMode.SHOOT3 && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
             mOuttakeWheels.stop();
             mShootingMode = ShootingMode.NONE;
         }

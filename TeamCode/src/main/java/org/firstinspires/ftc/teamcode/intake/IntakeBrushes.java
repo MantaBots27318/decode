@@ -39,14 +39,14 @@ public class IntakeBrushes {
 
         String status = "";
 
-        ConfMotor intake = config.getMotor("intake");
+        ConfMotor intake = config.getMotor("intake-brushes");
         if(intake == null)  { mReady = false; status += " CONF";}
         else {
 
             // Build motor based on configuration
-            if (intake.shallMock()) { mMotor = new MotorMock("intake"); }
-            else if (intake.getHw().size() == 1) { mMotor = new MotorSingle(intake, hwm, "intake", logger); }
-            else if (intake.getHw().size() == 2) { mMotor = new MotorCoupled(intake, hwm, "intake", logger); }
+            if (intake.shallMock()) { mMotor = new MotorMock("intake-brushes"); }
+            else if (intake.getHw().size() == 1) { mMotor = new MotorSingle(intake, hwm, "intake-brushes", logger); }
+            else if (intake.getHw().size() == 2) { mMotor = new MotorCoupled(intake, hwm, "intake-brushes", logger); }
 
             if (!mMotor.isReady()) { mReady = false; status += " HW";}
             else {
@@ -58,8 +58,8 @@ public class IntakeBrushes {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  IN BRUSHES : OK : " + status); }
-        else        { logger.addLine("==>  IN BRUSHES : KO : " + status); }
+        if (mReady) { logger.addLine("==>  IN BRS : OK"); }
+        else        { logger.addLine("==>  IN BRS : KO : " + status); }
 
 
     }
@@ -71,6 +71,7 @@ public class IntakeBrushes {
         {
             mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mMotor.setPower(Power);
+            mIsMoving = true;
         }
 
     }
@@ -79,6 +80,7 @@ public class IntakeBrushes {
     public void stop() {
         if(mReady) {
             mMotor.setPower(0);
+            mIsMoving = false;
         }
     }
 

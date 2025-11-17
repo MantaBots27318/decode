@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.tuning;
 
 /* Qualcomm includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,9 +19,9 @@ public class OpModeServo_Motor extends OpMode {
     public static double MOTOR2 = 0;
 
     public void init(){
-        mServo = hardwareMap.get(Servo.class, "Servo1");
-        mDcMotor1 = hardwareMap.get(DcMotor.class,"DcMotor1");
-        mDcMotor2 = hardwareMap.get(DcMotor.class,"DcMotor2");
+        mServo = hardwareMap.get(Servo.class, "outtakeLeverArm");
+        mDcMotor1 = hardwareMap.get(DcMotor.class,"intakeBrushes");
+        mDcMotor2 = hardwareMap.get(DcMotor.class,"outtakeWheels");
     }
     public void loop(){
         mServo.setPosition(SERVO);

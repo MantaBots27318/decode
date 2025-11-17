@@ -52,15 +52,21 @@ public class ServoTuning extends LinearOpMode {
             /* Load all servos name into list */
             mAllServos.clear();
             mCurrentConf.clear();
+
             ALL_SERVOS = "";
+
             Configuration.s_Current.getForTuning().forEach((key, value) -> {
                 mAllServos.add(key);
                 ALL_SERVOS += key + "; ";
                 mCurrentConf.put(key,new ConfServo(value));
             });
+            FtcDashboard.getInstance().updateConfig();
+
             if(CURRENT_SERVO.isEmpty() && !(mAllServos.isEmpty())) { CURRENT_SERVO = mAllServos.get(0); }
             FtcDashboard.getInstance().updateConfig();
+
             telemetry.update();
+
             mMode = new ModeProvider();
 
             waitForStart();
@@ -171,10 +177,17 @@ public class ServoTuning extends LinearOpMode {
 
     private void updateCurrentServos(String name) {
         mServos.clear();
+        FtcDashboard.getInstance().getTelemetry().addLine("here " + name);
         if(mCurrentConf.containsKey(name)) {
+
+            FtcDashboard.getInstance().getTelemetry().addLine("here 2");
             mCurrentConf.get(name).getHw().forEach((key, value) -> {
+
+                FtcDashboard.getInstance().getTelemetry().addLine(key);
                 Servo servo = hardwareMap.tryGet(Servo.class,key);
                 if (servo != null) {
+
+                    FtcDashboard.getInstance().getTelemetry().addLine("here 3");
                     if(value) { servo.setDirection(Servo.Direction.REVERSE); }
                     else { servo.setDirection(Servo.Direction.FORWARD); }
                     mServos.put(key,servo);

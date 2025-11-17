@@ -14,33 +14,37 @@ public class V1 extends Configuration {
     protected void initialize(){
 
         /* Moving configuration : Positive power makes wheel go forward */
-        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",false));      // CH Motor 0
-        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));        // CH Motor 1
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));     // CH Motor 2
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));       // CH Motor 3
+        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));          // EH Motor 3
+        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));            // EH Motor 2
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));         // CH Motor 2
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));           // CH Motor 3
 
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        mImus.put("pinpoint", new ConfImu("pinpoint"));                                                // EH I2C 3
+        mImus.put("pinpoint", new ConfImu("pinpoint"));                                       // EH I2C 3
 
         /* Intake configuration */
-        mMotors.put("intake",new ConfMotor("intake",false));
+        mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));        // EH Motor 0
 
         /* Outtake configuration */
-        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", false));
-        mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false));
+        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", false));      // CH Motor 1
+        mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false)); // EH Servo 0
 
         /* Camera configuration */
-        mServos.put("camera", new ConfServo("camera", false));
+        mServos.put("camera", new ConfServo("camera", false));                     // CH Servo 0
+        mLimelights.put("limelight", new ConfLimelight("limelight"));
 
         /* Outtake servos reference positions */
-        mServos.get("outtake-wheel").addPosition("open", 0.8);
-        mServos.get("outtake-wheel").addPosition("shoot", 0.4);
-        mServos.get("outtake-wheel").addPosition("next", 0.6);
+        mServos.get("outtake-lever-arm").addPosition("open", 0.9);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.2);
+        mServos.get("outtake-lever-arm").addPosition("next", 0.4);
 
         /* Camera servo reference position */
         mServos.get("camera").addPosition("tag",0.3);
         mServos.get("camera").addPosition("ball",0.18);
 
+        /* Limelight configuration */
+        mLimelights.get("limelight").addPipeline("balls-detector",1);
+        mLimelights.get("limelight").addPipeline("localizer",0);
 
     }
 

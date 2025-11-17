@@ -14,14 +14,14 @@ import java.util.Map;
 abstract public class Configuration {
 
     // Map to store hardware components by reference name
-    protected final  Map<String, ConfMotor> mMotors         = new LinkedHashMap<>();
-    protected final  Map<String, ConfImu>   mImus           = new LinkedHashMap<>();
-    protected final  Map<String, ConfServo> mServos         = new LinkedHashMap<>();
-    protected final  Map<String, ConfLimelight> mLimelights = new LinkedHashMap<>();
-    protected        Map<String, Double>    mInterOpModes   = new LinkedHashMap<>();
+    protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
+    protected final  Map<String, ConfImu>       mImus           = new LinkedHashMap<>();
+    protected final  Map<String, ConfServo>     mServos         = new LinkedHashMap<>();
+    protected final  Map<String, ConfLimelight> mLimelights     = new LinkedHashMap<>();
+    protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new LastYear();
+    public static Configuration s_Current = new V1();
 
     // Method to retrieve a motor by its reference name
     public ConfMotor getMotor(String name) {
