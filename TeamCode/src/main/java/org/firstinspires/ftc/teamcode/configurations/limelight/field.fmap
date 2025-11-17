@@ -1,5 +1,4 @@
 {
-"type":"ftc",
   "fiducials": [
     {
       "id": 20,
@@ -26,7 +25,5 @@
       "unique": 1
     }
   ],
-  "type": "ftc",
-  "fieldlength": 17.5482504,
-  "fieldwidth": 8.0519016
+  "type": "ftc"
 }
