@@ -1,10 +1,236 @@
 package org.firstinspires.ftc.teamcode;
 
+/* Java includes */
+
+/* Qualcomm includes */
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+/* FTC Controller includes */
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+/* Configuration includes */
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Intake includes */
+import org.firstinspires.ftc.teamcode.intake.IntakeBrushes;
+
+/* Outtake includes */
+import org.firstinspires.ftc.teamcode.outtake.OuttakeWheels;
+import org.firstinspires.ftc.teamcode.outtake.OuttakeLeverArm;
+
 public class Collecting {
-    public void shooting(){
+    public enum ShootingMode {
+        NONE,
+        WAITING,
+        STARTING_WHEELS,
+        SHOOT
 
     }
-    public void intake(){
+    public enum IntakeMode {
+        NONE,
+        WAITING,
+        OPEN,
+        INTAKE
+    }
+    public enum NextMode {
+        NONE,
+        WAITING,
+        BACK,
+        FORTH
+    }
+
+
+    Telemetry mLogger;
+
+    IntakeMode      mIntakeMode;
+    ShootingMode    mShootingMode;
+    NextMode        mNextMode;
+
+    IntakeBrushes   mIntakeBrushes;
+    OuttakeWheels   mOuttakeWheels;
+    OuttakeLeverArm mOuttakeLeverArm;
+
+    Gamepad mGamepad;
+    boolean mWasXPressed;
+    boolean mWasAPressed;
+    boolean mWasYPressed;
+    boolean mWasBPressed;
+    boolean mWasDPadUpPressed;
+    boolean mWasDPadDownPressed;
+    boolean mWasDPadLeftPressed;
+    boolean mWasDPadRightPressed;
+    boolean mWasLeftStickXPositivePressed;
+    boolean mWasLeftStickXNegativePressed;
+    boolean mWasRightStickXPositivePressed;
+    boolean mWasRightStickXNegativePressed;
+    boolean mWasRightBumperPressed;
+    boolean mWasLeftBumperPressed;
+    boolean mWasRightStickButtonPressed;
+    boolean mWasLeftStickButtonPressed;
+
+
+    public Collecting() {
+
+        mIntakeBrushes = new IntakeBrushes();
+
+        mOuttakeWheels   = new OuttakeWheels();
+        mOuttakeLeverArm = new OuttakeLeverArm();
+
+        mWasXPressed = false;
+        mWasAPressed = false;
+        mWasYPressed = false;
+        mWasBPressed = false;
+
+        mWasDPadDownPressed = false;
+        mWasDPadUpPressed = false;
+        mWasDPadLeftPressed = false;
+        mWasDPadRightPressed = false;
+
+        mWasLeftStickXPositivePressed = false;
+        mWasLeftStickXNegativePressed = false;
+        mWasRightStickXPositivePressed = false;
+        mWasRightStickXNegativePressed = false;
+
+        mWasRightBumperPressed = false;
+        mWasLeftBumperPressed = false;
+        mWasRightStickButtonPressed = false;
+        mWasLeftStickButtonPressed = false;
+
+        mIntakeMode = IntakeMode.NONE;
+        mShootingMode = ShootingMode.NONE;
+        mNextMode = NextMode.NONE;
+    }
+
+    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Gamepad gamepad) {
+
+        mLogger = logger;
+        mLogger.addLine("======= COLLECTING =======");
+
+        mIntakeBrushes.setHW(config, hwm, mLogger);
+
+        mOuttakeWheels.setHW(config, hwm, mLogger);
+        mOuttakeLeverArm.setHW(config, hwm, mLogger);
+
+        mGamepad = gamepad;
+    }
+
+    public void control() {
+
+        mLogger.addLine("======= COLLECTING =======");
+        mLogger.addLine("-------- FUNCTION --------");
+
+        if (mGamepad.left_bumper && (!mIntakeBrushes.isMoving())) {
+            mLogger.addLine("==> STR IN BRS");
+            mIntakeBrushes.start(0.9);
+        } else if (mGamepad.left_bumper && (mIntakeBrushes.isMoving())) {
+            mLogger.addLine("==> STR IN BRS");
+            mIntakeBrushes.stop();
+        }
+
+        if (mGamepad.dpad_up) {
+            if (!mWasDPadUpPressed) {
+                shoot();
+            }
+            mWasDPadUpPressed = true;
+        } else {
+            mWasDPadUpPressed = false;
+        }
+
+        if (mGamepad.dpad_down) {
+            if (!mWasDPadDownPressed) {
+                next();
+            }
+            mWasDPadDownPressed = true;
+        } else {
+            mWasDPadDownPressed = false;
+        }
+
+        if (mGamepad.dpad_left) {
+            if (!mWasDPadLeftPressed) {
+                mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
+                mOuttakeWheels.stop();
+            }
+            mWasDPadLeftPressed = true;
+        } else {
+            mWasDPadLeftPressed = false;
+        }
+
+        mLogger.addLine("\n--------- MOVING ---------");
+        mLogger.addLine(this.logMovements());
+    }
+
+    public void loop() {
+        if (mShootingMode != ShootingMode.NONE) {
+            this.shoot();
+        }
+        if (mNextMode != NextMode.NONE) {
+            this.next();
+        }
+    }
+
+
+    public void shoot() {
+
+        mLogger.addLine("SHOOTING : " + mShootingMode);
+
+        if (mShootingMode == ShootingMode.NONE) {
+            // Just transition to make sure that even though the first robot part is not yet ready
+            // to move, we won't forget we have to keep on transiting
+            mShootingMode = ShootingMode.WAITING;
+        }
+        else if (mShootingMode == ShootingMode.WAITING) {
+            mOuttakeWheels.start(0.8);
+            if (mOuttakeWheels.isTransitioning()) {
+                mShootingMode = ShootingMode.STARTING_WHEELS;
+            }
+        }
+        else if (mShootingMode == ShootingMode.STARTING_WHEELS && !mOuttakeWheels.isTransitioning()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
+                mShootingMode = ShootingMode.SHOOT;
+            }
+        }
+        else if (mShootingMode == ShootingMode.SHOOT && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+            mOuttakeWheels.stop();
+            mShootingMode = ShootingMode.NONE;
+        }
 
     }
+
+    public void next() {
+        mLogger.addLine("NEXT : " + mNextMode);
+
+        if (mNextMode == NextMode.NONE) {
+            // Just transition to make sure that even though the first robot part is not yet ready
+            // to move, we won't forget we have to keep on transiting
+            mNextMode = NextMode.WAITING;
+        }
+        else if (mNextMode == NextMode.WAITING) {
+
+            mNextMode = NextMode.NONE;
+        }
+
+    }
+
+    public String logMovements() {
+        String result = "";
+        if (mIntakeBrushes.isMoving()) {
+            result += "IN BRS\n";
+        }
+        if (mOuttakeWheels.isMoving()) {
+            result += "OUT WHL\n";
+        }
+        if (mOuttakeLeverArm.isMoving()) {
+            result += "OUT LVR\n";
+        }
+        return result;
+    }
+
+    public void persist(Configuration config) {
+        mIntakeBrushes.persist(config);
+        mOuttakeWheels.persist(config);
+    }
+
 }

@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode;
 /* Qualcomm includes */
 import android.annotation.SuppressLint;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,12 +25,21 @@ import org.firstinspires.ftc.teamcode.configurations.ConfImu;
 /* Component includes */
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
+import org.firstinspires.ftc.teamcode.vision.Vision;
 
 
 public class Driving {
 
-    Telemetry       mLogger;
+    static private double sAprilTagBlueXPositionInch = 144 / 2 - 11;
+    static private double sAprilTagBlueYPositionInch = 144 / 2 - 15;
+    static private double sAprilTagBlueAngleDegrees  = -36 / 180;
 
+    static private double sAprilTagRedXPositionInch  = 144 / 2 - 11;
+    static private double sAprilTagRedYPositionInch  = - 144 / 2 - 15;
+    static private double sAprilTagRedAngleDegrees   = 36 / 180;
+
+    Telemetry       mLogger;
+    Vision          mVision;
     boolean         mReady;
 
     IMU             mImu;
@@ -173,7 +183,11 @@ public class Driving {
             mBackRightMotor.setPower(backRightPower);
         }
     }
-
+    public void shootPosition(){
+        Pose3D april_tag_results = mVision.getPosition();
+        mLogger.addData("Results %s", april_tag_results);
+        mLogger.update();
+    }
     private double applyDeadzone(double value, double deadzone) {
         if (Math.abs(value) < deadzone) {
             return 0.0; // Inside deadzone

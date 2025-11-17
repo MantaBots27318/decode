@@ -20,98 +20,27 @@ public class V1 extends Configuration {
         mMotors.put("back-right-wheel",new ConfMotor("backRight",true));       // CH Motor 3
 
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        mImus.put("otos", new ConfImu("sensor_otos"));                                                // EH I2C 3
+        mImus.put("pinpoint", new ConfImu("pinpoint"));                                                // EH I2C 3
 
         /* Intake configuration */
-        mMotors.put("intake-slides",new ConfMotor(
-                "intakeSlidesLeft",false, false,                            // EH Motor 3
-                "intakeSlidesRight",true, false));                                 // EH Motor 2
-        mServos.put("intake-arm-pitch", new ConfServo(
-                "intakeArmPitchLeft", false,                                                 // CH Servo 5     4bSPL
-                "intakeArmPitchRight", true                                                                     // EH Servo 1     4bSPR
-        ));
-        mServos.put("intake-elbow-pitch", new ConfServo("intakeElbowPitch", false));        // EH Servo 0     CSPIn
-        mServos.put("intake-wrist-roll", new ConfServo("intakeWristRoll", false));          // CH Servo 4     CSRoIn
-        mServos.put("intake-claw", new ConfServo("intakeClaw", false));                     // EH Servo 2     CSIn
+        mMotors.put("intake",new ConfMotor("intake",false));
 
         /* Outtake configuration */
-       mMotors.put("outtake-slides",new ConfMotor(
-                "outtakeSlidesLeft",true, false,                              // EH Motor 0
-                       "outtakeSlidesRight",false, false));                          // EH Motor 1
+        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", false));
+        mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false));
 
-       mServos.put("outtake-wrist-roll", new ConfServo("outtakeWristRoll", false));         // CH Servo 0     CSRoOut
-       mServos.put("outtake-claw", new ConfServo("outtakeClaw", false));                    // CH Servo 1     CSOut
-       mServos.put("outtake-elbow-pitch", new ConfServo(
-                "outtakeElbowPitchLeft", false,                                               // EH Servo 3     CSPROut
-                "outtakeElbowPitchRight", true)                                                      // CH Servo 3     CSPLOut
-       );
-
-        mMotors.get("intake-slides").addPosition("min",0 );
-        mMotors.get("intake-slides").addPosition("transfer",167 );
-        mMotors.get("intake-slides").addPosition("retracted",250 );
-        mMotors.get("intake-slides").addPosition("init",300 );
-        mMotors.get("intake-slides").addPosition("autonomous",280 );
-        mMotors.get("intake-slides").addPosition("max",315 );
-
-        /* Outtake motors reference positions */
-        mMotors.get("outtake-slides").addPosition("min",0 );
-        mMotors.get("outtake-slides").addPosition("transfer",0 );
-        mMotors.get("outtake-slides").addPosition("retracted",1300 );
-        mMotors.get("outtake-slides").addPosition("max",3726 );
-        mMotors.get("outtake-slides").addPosition("highSubmersibleUnder",690 );
-        mMotors.get("outtake-slides").addPosition("highSubmersibleOver",845 );
-        mMotors.get("outtake-slides").addPosition("ascend",710 );
-
-        /* Intake servos reference positions */
-        mServos.get("intake-arm-pitch").addPosition("transfer", 0.97);
-        mServos.get("intake-arm-pitch").addPosition("overSub", 0.6);
-        mServos.get("intake-arm-pitch").addPosition("look", 0.44);
-        mServos.get("intake-arm-pitch").addPosition("grab", 0.39);
-        mServos.get("intake-arm-pitch").addPosition("off", 1.0);
-
-        mServos.get("intake-elbow-pitch").addPosition("transfer", 0.15);
-        mServos.get("intake-elbow-pitch").addPosition("grab", 0.66);
-        mServos.get("intake-elbow-pitch").addPosition("look", 0.68);
-        mServos.get("intake-elbow-pitch").addPosition("overSub", 0.71);
-        mServos.get("intake-elbow-pitch").addPosition("off", 0.66);
-
-        mServos.get("intake-wrist-roll").addPosition("-2", 0.27);
-        mServos.get("intake-wrist-roll").addPosition("-1", 0.335);
-        mServos.get("intake-wrist-roll").addPosition("0", 0.405);
-        mServos.get("intake-wrist-roll").addPosition("1", 0.47);
-        mServos.get("intake-wrist-roll").addPosition("2", 0.54);
-        mServos.get("intake-wrist-roll").addPosition("3", 0.605);
-        mServos.get("intake-wrist-roll").addPosition("4", 0.675);
-        mServos.get("intake-wrist-roll").addPosition("5", 0.74);
-        mServos.get("intake-wrist-roll").addPosition("6", 0.82);
-
-        mServos.get("intake-claw").addPosition("closed", 1.0);
-        mServos.get("intake-claw").addPosition("microrelease", 0.9);
-        mServos.get("intake-claw").addPosition("open", 0.62);
+        /* Camera configuration */
+        mServos.put("camera", new ConfServo("camera", false));
 
         /* Outtake servos reference positions */
-        mServos.get("outtake-wrist-roll").addPosition("-2", 0.0);
-        mServos.get("outtake-wrist-roll").addPosition("-1", 0.0675);
-        mServos.get("outtake-wrist-roll").addPosition("0", 0.135);
-        mServos.get("outtake-wrist-roll").addPosition("1", 0.2075);
-        mServos.get("outtake-wrist-roll").addPosition("2", 0.28);
-        mServos.get("outtake-wrist-roll").addPosition("3", 0.35);
-        mServos.get("outtake-wrist-roll").addPosition("4", 0.42);
-        mServos.get("outtake-wrist-roll").addPosition("5", 0.465);
-        mServos.get("outtake-wrist-roll").addPosition("6",  0.51);
+        mServos.get("outtake-wheel").addPosition("open", 0.8);
+        mServos.get("outtake-wheel").addPosition("shoot", 0.4);
+        mServos.get("outtake-wheel").addPosition("next", 0.6);
 
-        mServos.get("outtake-claw").addPosition("ultraclosed", 0.75);
-        mServos.get("outtake-claw").addPosition("closed", 0.73);
-        mServos.get("outtake-claw").addPosition("microrelease", 0.70);
-        mServos.get("outtake-claw").addPosition("open", 0.36);
+        /* Camera servo reference position */
+        mServos.get("camera").addPosition("tag",0.3);
+        mServos.get("camera").addPosition("ball",0.18);
 
-
-        mServos.get("outtake-elbow-pitch").addPosition("transfer", 0.11);//0.11
-        mServos.get("outtake-elbow-pitch").addPosition("drop", 0.05);
-        mServos.get("outtake-elbow-pitch").addPosition("off", 0.08);
-        mServos.get("outtake-elbow-pitch").addPosition("vertical", 0.085);
-        mServos.get("outtake-elbow-pitch").addPosition("specimen", 0.011);
-        mServos.get("outtake-elbow-pitch").addPosition("specimen2", 0.025);
 
     }
 

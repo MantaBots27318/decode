@@ -32,167 +32,195 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-
-
-
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
+// QUALCOMM includes
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+// FTCController includes
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+// Acmerobotics include
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+
+// Local includes
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Vision;
-
-/*
- * This OpMode illustrates how to use the Limelight3A Vision Sensor.
- *
- * @see <a href="https://limelightvision.io/">Limelight</a>
- *
- * Notes on configuration:
- *
- *   The device presents itself, when plugged into a USB port on a Control Hub as an ethernet
- *   interface.  A DHCP server running on the Limelight automatically assigns the Control Hub an
- *   ip address for the new ethernet interface.
- *
- *   Since the Limelight is plugged into a USB port, it will be listed on the top level configuration
- *   activity along with the Control Hub Portal and other USB devices such as webcams.  Typically
- *   serial numbers are displayed below the device's names.  In the case of the Limelight device, the
- *   Control Hub's assigned ip address for that ethernet interface is used as the "serial number".
- *
- *   Tapping the Limelight's name, transitions to a new screen where the user can rename the Limelight
- *   and specify the Limelight's ip address.  Users should take care not to confuse the ip address of
- *   the Limelight itself, which can be configured through the Limelight settings page via a web browser,
- *   and the ip address the Limelight device assigned the Control Hub and which is displayed in small text
- *   below the name of the Limelight on the top level configuration screen.
- */
 
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
 
-    Vision mVision;
-    MecanumDrive mDrive;
-    Collecting mCollecting;
+    double FIELD_SIZE_INCHES              = 12 * 12;
+    double X_INIT_FTC_INCHES              = - FIELD_SIZE_INCHES / 2 + 9;
+    double Y_INIT_FTC_INCHES              = 10;
+    double ANGLE_INIT_FTC_RADIANS         = 0;
+
+
+    double X_CALIBRATION_INIT_INCHES      = 74;
+    double Y_CALIBRATION_INIT_INCHES      = 0;
+    double ANGLE_CALIBRATION_INIT_RADIANS = Math.PI / 4;
+    double Y_PATTERN_INIT_INCHES          = 32;
+    double ANGLE_PATTERN_INIT_RADIANS     = Math.PI / 2;
+    double X_GPP_PATTERN_INIT_INCHES      = 30;
+    double X_PGP_PATTERN_INIT_INCHES      = 55;
+    double X_PPG_PATTERN_INIT_INCHES      = 70;
+    double X_SHOOTING_FTC_INCHES          = 24;
+    double Y_SHOOTING_FTC_INCHES          = 24;
+    double ANGLE_SHOOTING_FTC_RADIANS     = Math.PI / 4;
+
+    double CM_TO_INCHES             = 39.37;
+
+    Vision          mVision;
+    MecanumDrive    mDrive;
+    Collecting      mCollecting;
+
+    Vision.Pattern  mPattern;
+
+    Pose2d          mReferencePose;
+
+    SmartTimer      mTimer;
+    double          mXOffset        = 0;
+    double          mYOffset        = 0;
+    double          mAngleOffset    = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-
         telemetry.setMsTransmissionInterval(11);
+
         mCollecting = new Collecting();
+
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
+        mPattern = Vision.Pattern.NONE;
 
-        Pose2d beginPose = new Pose2d(0, 0, 0);
-        Pose2d updatedPose = null;
-        mDrive = new MecanumDrive(hardwareMap, beginPose);
+        mReferencePose = new Pose2d(0, 0, 0);
 
-        telemetry.addData(">", "Robot Ready.  Press Play.");
-        telemetry.update();
+        mDrive = new MecanumDrive(hardwareMap, mReferencePose);
 
-        double x_shooting_pos = 74;
-        double y_shooting_pos = 0;
-        boolean changePOS = true ;
-
-        waitForStart();
-
+        while (opModeInInit()) {
 
             Vision.Pattern pattern = mVision.readPattern();
-            telemetry.addLine("Pattern is " + pattern.text());
-            if (mVision.readPattern() == Vision.Pattern.GPP){
-                Actions.runBlocking(
-                        mDrive.actionBuilder(beginPose)
-                                .splineTo(new Vector2d(30,32), Math.PI/2)
-                                .build());
+            if (pattern != Vision.Pattern.NONE) {
+                mPattern = pattern;
+                telemetry.addLine("======= PATTERN =======");
+                telemetry.addLine(mPattern.text());
+                telemetry.update();
+                FtcDashboard.getInstance().getTelemetry().addLine("======= PATTERN =======");
+                FtcDashboard.getInstance().getTelemetry().addLine(mPattern.text());
+                FtcDashboard.getInstance().getTelemetry().update();
             }
-            if (mVision.readPattern() == Vision.Pattern.PGP){
-                Actions.runBlocking(
-                mDrive.actionBuilder(beginPose)
-                        .splineTo(new Vector2d(55,32), Math.PI/2)
-                        .build());
-            }
-            if (mVision.readPattern() == Vision.Pattern.PPG){
-                Actions.runBlocking(
-                        mDrive.actionBuilder(beginPose)
-                                .splineTo(new Vector2d(70,32), Math.PI/2)
-                                .build());
-            }
-            mCollecting.intake();
-
-
-            Actions.runBlocking(
-                    mDrive.actionBuilder(beginPose)
-                            .splineTo(new Vector2d(x_shooting_pos ,y_shooting_pos), Math.PI/4)
-                            .build());
-
-
-            Pose3D output = mVision.getPosition();
-
-            if (output != null) {
-                telemetry.addLine("april tag pos not null");
-                double x_from_april_tag = (-output.getPosition().x)*39.37;
-                double y_from_april_tag = (-output.getPosition().y)*39.37;
-                double heading_from_april_tag = -output.getOrientation().getYaw() + 180;
-                while (heading_from_april_tag < -180) {
-                    heading_from_april_tag += 360;
-                }
-                while (heading_from_april_tag > 180) {
-                    heading_from_april_tag -= 360;
-                }
-
-               if (changePOS ){
-                    updatedPose = new Pose2d(x_from_april_tag, y_from_april_tag, (heading_from_april_tag) * Math.PI / 180);
-                    mDrive.changeLocalizer(updatedPose);
-                    telemetry.addData("Pos changed to: ",updatedPose ) ;
-                    changePOS=false;
-                }
-
-
-                telemetry.addData("X from april tag", x_from_april_tag);
-                telemetry.addData("Y from april tag", y_from_april_tag);
-                telemetry.addData("Heading from april tag", heading_from_april_tag);
-                telemetry.update() ;
-
-                Actions.runBlocking(
-                        mDrive.actionBuilder(updatedPose)
-                                .waitSeconds(10)
-                                .build());
-//                Actions.runBlocking(
-//                        mDrive.actionBuilder(updatedPose)
-//                                .splineTo(new Vector2d(24, 24), Math.PI / 2)
-//                                .build());
-//                telemetry.addData("New Pose: ", mDrive.updatePoseEstimate());
-//                telemetry.update() ;
-//                mCollecting.shooting();
-
-//                if (mVision.readPattern() != Vision.Pattern.PPG) {
-//                    Actions.runBlocking(
-//                            mDrive.actionBuilder(beginPose)
-//                                    .splineTo(new Vector2d(50, 12), Math.PI / 2)
-//                                    .build());
-//                } else {
-//                    Actions.runBlocking(
-//                            mDrive.actionBuilder(beginPose)
-//                                    .splineTo(new Vector2d(50, -12), Math.PI / 2)
-//                                    .build());
-//                }
-//                mCollecting.intake();
-
-//                Actions.runBlocking(
-//                        mDrive.actionBuilder(beginPose)
-//                                .splineTo(new Vector2d(x_shooting_pos, y_shooting_pos), Math.PI / 4)
-//                                .build());
-
-                mCollecting.shooting();
-            }
-
-            mVision.close();
-
 
         }
+
+        telemetry.addLine("======= ACTIONS =======");
+        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
+
+        if (mPattern == Vision.Pattern.GPP) {
+
+            telemetry.addLine("==> GO TO GPP");
+            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO GPP");
+
+            Actions.runBlocking(
+                    mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .build());
+        }
+        if (mPattern == Vision.Pattern.PGP) {
+
+            telemetry.addLine("==> GO TO PGP");
+            telemetry.update();
+            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO PGP");
+            FtcDashboard.getInstance().getTelemetry().update();
+
+            Actions.runBlocking(
+                    mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .build());
+        }
+        if (mPattern == Vision.Pattern.PPG) {
+
+            telemetry.addLine("==> GO TO PPG");
+            telemetry.update();
+            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO PGP");
+            FtcDashboard.getInstance().getTelemetry().update();
+
+            Actions.runBlocking(
+                    mDrive.actionBuilder(mReferencePose)
+                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .build());
+        }
+
+        telemetry.addLine("==> GO TO CALIBRATION");
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO CALIBRATION");
+        FtcDashboard.getInstance().getTelemetry().update();
+
+        Actions.runBlocking(
+            mDrive.actionBuilder(mDrive.getPose())
+                    .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,Y_CALIBRATION_INIT_INCHES), ANGLE_CALIBRATION_INIT_RADIANS)
+                    .build());
+
+        // Gather April Tags
+        Pose3D output = mVision.getPosition();
+        mTimer.arm(100);
+
+        while(output == null && mTimer.isArmed()) { output = mVision.getPosition(); }
+        if (output != null) {
+
+            mReferencePose = new Pose2d(
+                    -output.getPosition().x * CM_TO_INCHES,
+                    -output.getPosition().y * CM_TO_INCHES,
+                    (output.getOrientation().getYaw() + 180) * Math.PI / 180);
+
+            mDrive.updatePose(mReferencePose);
+            mXOffset = 0;
+            mYOffset = 0;
+            mAngleOffset = 0;
+
+            telemetry.addLine("==> NEW POSE : " + mReferencePose);
+            FtcDashboard.getInstance().getTelemetry().addLine("==> NEW POSE : " + mReferencePose);
+            telemetry.update();
+            FtcDashboard.getInstance().getTelemetry().update();
+
+        }
+        else {
+            mReferencePose = new Pose2d(0,0,0);
+            mXOffset = - X_INIT_FTC_INCHES;
+            mYOffset = - Y_INIT_FTC_INCHES;
+            mAngleOffset = - ANGLE_INIT_FTC_RADIANS;
+        }
+
+        telemetry.addLine("===== CALIBRATION =====");
+        telemetry.addLine("==> REF POSE : " + mDrive.getPose());
+        telemetry.addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("===== CALIBRATION =====");
+        FtcDashboard.getInstance().getTelemetry().addLine("==> REF POSE : " + mDrive.getPose());
+        FtcDashboard.getInstance().getTelemetry().addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+        FtcDashboard.getInstance().getTelemetry().update();
+
+        telemetry.addLine("======= ACTIONS =======");
+        telemetry.addLine("==> GO TO SHOOTING");
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
+        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO SHOOTING");
+        FtcDashboard.getInstance().getTelemetry().update();
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .splineTo(new Vector2d(mXOffset + X_SHOOTING_FTC_INCHES, mYOffset + Y_SHOOTING_FTC_INCHES), mAngleOffset + ANGLE_SHOOTING_FTC_RADIANS)
+                        .build());
+
+
+        mVision.close();
+
+
     }
+}
 
 

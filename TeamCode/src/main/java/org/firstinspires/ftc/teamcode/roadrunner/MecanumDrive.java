@@ -238,6 +238,7 @@ public final class MecanumDrive {
         ConfMotor backLeftWheel   = Configuration.s_Current.getMotor("back-left-wheel");
         ConfMotor backRightWheel  = Configuration.s_Current.getMotor("back-right-wheel");
         ConfImu imu               = Configuration.s_Current.getImu("built-in");
+        ConfImu pinpoint          = Configuration.s_Current.getImu("pinpoint");
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -259,13 +260,15 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap,PARAMS.inPerTick,pose);
+        localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
-    public void changeLocalizer (Pose2d newPose ){
+    public void updatePose (Pose2d newPose ){
         localizer.setPose(newPose);
     }
+
+    public Pose2d getPose() { return localizer.getPose(); }
 
     public void setDrivePowers(PoseVelocity2d powers) {
         MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
