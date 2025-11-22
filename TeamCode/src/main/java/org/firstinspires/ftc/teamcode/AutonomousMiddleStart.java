@@ -66,14 +66,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
     public static final double X_PPG_PATTERN_INIT_INCHES      = 70;
 
     public static final double Y_CALIBRATION_INIT_INCHES_BLUE     = 0;
-    public static final double ANGLE_CALIBRATION_INIT_RADIANS_BLUE = Math.PI / 4;
+    public static final double ANGLE_CALIBRATION_INIT_RADIANS_BLUE =  Math.PI / 4;
     public static final double Y_PATTERN_INIT_INCHES_BLUE          = 12;
     public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE     = Math.PI / 2;
 
     public static final double Y_CALIBRATION_INIT_INCHES_RED      = 0;
-    public static final double ANGLE_CALIBRATION_INIT_RADIANS_RED = Math.PI / 4;
-    public static final double Y_PATTERN_INIT_INCHES_RED         = 12;
-    public static final double ANGLE_PATTERN_INIT_RADIANS_RED     = Math.PI / 2;
+    public static final double ANGLE_CALIBRATION_INIT_RADIANS_RED = - Math.PI / 4  ;
+    public static final double Y_PATTERN_INIT_INCHES_RED         = -12;
+    public static final double ANGLE_PATTERN_INIT_RADIANS_RED     = - Math.PI / 2;
 
     double y_calibration_init_inches ;
     double angle_calibration_init_radians;

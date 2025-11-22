@@ -20,7 +20,7 @@ public class ManualOpMode extends LinearOpMode {
         Red,
         None
     }
-    Alliance alliance = Alliance.Blue;
+    double alliance = Configuration.s_Current.retrieve("Alliance") ;;
 
     boolean dpad_rightWasPressed = false;
     boolean dpad_leftWasPressed = false;
@@ -38,22 +38,10 @@ public class ManualOpMode extends LinearOpMode {
 
                 mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, gamepad1, mVision);
                 mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, gamepad2);
-                if (gamepad1.dpad_right && !dpad_rightWasPressed) {
-                    alliance = Alliance.Red;
-                }
-                dpad_rightWasPressed = gamepad1.dpad_right;
 
-                // Toggle BLUE
-                if (gamepad1.dpad_left && !dpad_leftWasPressed) {
-                    alliance = Alliance.Blue;
-                }
-                dpad_leftWasPressed = gamepad1.dpad_left;
 
                 // Display menu
-                telemetry.addLine("=== TELEOP CONFIG MENU ===");
-                telemetry.addLine("Choose Alliance:");
-                telemetry.addData("Right", "RED");
-                telemetry.addData("Left", "BLUE");
+
                 telemetry.addData("Current Selection", alliance);
                 telemetry.update();
 
