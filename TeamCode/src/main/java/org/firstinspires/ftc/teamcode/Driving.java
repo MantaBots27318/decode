@@ -39,7 +39,7 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 public class Driving {
 
-    double CM_TO_INCHES             = 39.37;
+    double M_TO_INCHES             = 39.37;
 
     Telemetry       mLogger;
     Vision          mVision;
@@ -53,6 +53,8 @@ public class Driving {
     SmartTimer      mTimer;
     Action          mAction;
 
+    HardwareMap     mMap;
+
     MotorComponent  mFrontLeftMotor;
     MotorComponent  mBackLeftMotor;
     MotorComponent  mFrontRightMotor;
@@ -60,11 +62,10 @@ public class Driving {
 
     Gamepad         mGamepad;
 
-
-
     boolean         mIsAutomated = false;
     boolean         mIsFieldCentric = true;
     boolean         mWasYPressed = false;
+    boolean         mWasAPressed = false;
 
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Gamepad gp, Vision vision) {
 
@@ -80,9 +81,9 @@ public class Driving {
         ConfMotor backRightWheel  = config.getMotor("back-right-wheel");
         ConfImu imu               = config.getImu("built-in");
 
-        mDrive                    = new MecanumDrive(hwm, new Pose2d(0,0,0));
         mTimer                    = new SmartTimer(mLogger);
         mVision                   = vision;
+        mMap = hwm;
 
         if (mIsFieldCentric) { mLogger.addLine("==>  FIELD CENTRIC"); }
         else                 { mLogger.addLine("==>  ROBOT CENTRIC"); }
@@ -146,6 +147,9 @@ public class Driving {
                 logger.addLine("==>  Heading Offset : " + mHeadingOffset);
             }
 
+            mDrive                    = new MecanumDrive(hwm, new Pose2d(0,0,0));
+
+
         }
 
         mGamepad = gp;
@@ -158,18 +162,27 @@ public class Driving {
     public void control() {
 
         if(mReady) {
-            if(mGamepad.y) {
+            if (mGamepad.y) {
                 if (!mWasYPressed && !mIsAutomated) {
                     mLogger.addLine("==> AUT SHT");
                     shootPosition();
                 }
                 mWasYPressed = true;
-            }
-            else {
+            } else {
                 mWasYPressed = false;
             }
-        }
 
+            if (mGamepad.a) {
+                if (!mWasAPressed && mIsAutomated) {
+                    mLogger.addLine("==> AUT SHT");
+                    mIsAutomated = false;
+                }
+                mWasAPressed = true;
+            } else {
+                mWasAPressed = false;
+            }
+
+        }
         if (mReady && !mIsAutomated) {
 
             mLogger.addLine("======== DRIVING =========");
@@ -210,15 +223,11 @@ public class Driving {
             mBackRightMotor.setPower(backRightPower);
         }
         else if(mIsAutomated && mReady) {
-            FtcDashboard.getInstance().getTelemetry().addLine("Here");
-            automate();
-        }
-    }
-    public void automate() {
 
-        FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED POSE : ", mDrive.getPose());
-        FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED HEADING : ", (Math.asin(mDrive.getPose().heading.imag) / Math.PI * 180));
-        mIsAutomated = mAction.run(new TelemetryPacket());
+            FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED POSE : ", mDrive.getPose());
+            FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED HEADING : ", (Math.asin(mDrive.getPose().heading.imag) / Math.PI * 180));
+            mIsAutomated = mAction.run(new TelemetryPacket());
+        }
     }
 
     public void shootPosition(){
@@ -230,8 +239,8 @@ public class Driving {
         if (output != null) {
 
             Pose2d pose = new Pose2d(
-                    -output.getPosition().x * CM_TO_INCHES,
-                    -output.getPosition().y * CM_TO_INCHES,
+                    -output.getPosition().x * M_TO_INCHES,
+                    -output.getPosition().y * M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(pose);
@@ -249,17 +258,13 @@ public class Driving {
             FtcDashboard.getInstance().getTelemetry().addLine("==> X : " + Configuration.X_SHOOTING_FTC_INCHES);
             FtcDashboard.getInstance().getTelemetry().addLine("==> Y : " + Configuration.Y_SHOOTING_FTC_INCHES);
 
+            mDrive                    = new MecanumDrive(mMap, pose);
+
             mAction = mDrive.actionBuilder(mDrive.getPose())
                     .splineTo(new Vector2d(Configuration.X_SHOOTING_FTC_INCHES, Configuration.Y_SHOOTING_FTC_INCHES), Configuration.ANGLE_SHOOTING_FTC_RADIANS)
                     .build();
 
-                FtcDashboard.getInstance().getTelemetry().addLine("In the while loop");
-                Actions.runBlocking(
-                        mDrive.actionBuilder(mDrive.getPose())
-                                .splineTo(new Vector2d(Configuration.X_SHOOTING_FTC_INCHES, Configuration.Y_SHOOTING_FTC_INCHES), Configuration.ANGLE_SHOOTING_FTC_RADIANS)
-
-                                .build());
-
+            mIsAutomated = mAction.run(new TelemetryPacket());
 
         }
 

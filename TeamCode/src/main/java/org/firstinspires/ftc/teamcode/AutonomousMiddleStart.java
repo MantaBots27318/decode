@@ -276,8 +276,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
         if (output != null) {
 
             mReferencePose = new Pose2d(
-                    -output.getPosition().x * Configuration.CM_TO_INCHES,
-                    -output.getPosition().y * Configuration.CM_TO_INCHES,
+                    -output.getPosition().x * Configuration.M_TO_INCHES,
+                    -output.getPosition().y * Configuration.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(mReferencePose);

@@ -18,7 +18,7 @@ abstract public class Configuration {
     public static final double Y_SHOOTING_FTC_INCHES          = 24;
     public static final double ANGLE_SHOOTING_FTC_RADIANS     = Math.PI / 4;
 
-    public static final double CM_TO_INCHES                   = 39.37;
+    public static final double M_TO_INCHES                    = 39.37;
 
 
     // Map to store hardware components by reference name
