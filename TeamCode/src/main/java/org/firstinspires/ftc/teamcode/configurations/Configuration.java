@@ -13,6 +13,14 @@ import java.util.Map;
 
 abstract public class Configuration {
 
+    public static final double FIELD_SIZE_INCHES              = 12 * 12;
+    public static final double X_SHOOTING_FTC_INCHES          = 24;
+    public static final double Y_SHOOTING_FTC_INCHES          = 24;
+    public static final double ANGLE_SHOOTING_FTC_RADIANS     = Math.PI / 4;
+
+    public static final double CM_TO_INCHES                   = 39.37;
+
+
     // Map to store hardware components by reference name
     protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
     protected final  Map<String, ConfImu>       mImus           = new LinkedHashMap<>();

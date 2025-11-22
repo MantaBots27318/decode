@@ -54,25 +54,18 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
 
-    double FIELD_SIZE_INCHES              = 12 * 12;
-    double X_INIT_FTC_INCHES              = - FIELD_SIZE_INCHES / 2 + 9;
-    double Y_INIT_FTC_INCHES              = 10;
-    double ANGLE_INIT_FTC_RADIANS         = 0;
+    public static final double X_INIT_FTC_INCHES              = - Configuration.FIELD_SIZE_INCHES / 2 + 9;
+    public static final double Y_INIT_FTC_INCHES              = 10;
+    public static final double ANGLE_INIT_FTC_RADIANS         = 0;
 
-
-    double X_CALIBRATION_INIT_INCHES      = 74;
-    double Y_CALIBRATION_INIT_INCHES      = 0;
-    double ANGLE_CALIBRATION_INIT_RADIANS = Math.PI / 4;
-    double Y_PATTERN_INIT_INCHES          = 32;
-    double ANGLE_PATTERN_INIT_RADIANS     = Math.PI / 2;
-    double X_GPP_PATTERN_INIT_INCHES      = 30;
-    double X_PGP_PATTERN_INIT_INCHES      = 55;
-    double X_PPG_PATTERN_INIT_INCHES      = 70;
-    double X_SHOOTING_FTC_INCHES          = 24;
-    double Y_SHOOTING_FTC_INCHES          = 24;
-    double ANGLE_SHOOTING_FTC_RADIANS     = Math.PI / 4;
-
-    double CM_TO_INCHES             = 39.37;
+    public static final double X_CALIBRATION_INIT_INCHES      = 74;
+    public static final double Y_CALIBRATION_INIT_INCHES      = 0;
+    public static final double ANGLE_CALIBRATION_INIT_RADIANS = Math.PI / 4;
+    public static final double Y_PATTERN_INIT_INCHES          = 12;
+    public static final double ANGLE_PATTERN_INIT_RADIANS     = Math.PI / 2;
+    public static final double X_GPP_PATTERN_INIT_INCHES      = 30;
+    public static final double X_PGP_PATTERN_INIT_INCHES      = 55;
+    public static final double X_PPG_PATTERN_INIT_INCHES      = 70;
 
     Vision          mVision;
     MecanumDrive    mDrive;
@@ -89,6 +82,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+
+
 
         telemetry.setMsTransmissionInterval(11);
 
@@ -166,7 +162,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
         FtcDashboard.getInstance().getTelemetry().update();
 
 
-        mCollecting.startIntake();
+        //
+        // mCollecting.startIntake();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -174,7 +171,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .lineToYConstantHeading(mDrive.getPose().position.y + 30)
                         .build());
 
-        mCollecting.stopIntake();
+        //mCollecting.stopIntake();
 
 
         telemetry.addLine("==> GO TO CALIBRATION");
@@ -185,7 +182,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
                     .waitSeconds(2)
-                    .lineToYConstantHeading(mDrive.getPose().position.y - 50)
+                    //.lineToYConstantHeading(mDrive.getPose().position.y - 50)
                     .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,Y_CALIBRATION_INIT_INCHES), ANGLE_CALIBRATION_INIT_RADIANS)
                     .build());
 
@@ -194,11 +191,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
         telemetry.addLine("===== CALIBRATION =====");
         telemetry.addLine("==> REF POSE : " + mDrive.getPose());
         telemetry.addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        telemetry.update();
+        //telemetry.update();
         FtcDashboard.getInstance().getTelemetry().addLine("===== CALIBRATION =====");
         FtcDashboard.getInstance().getTelemetry().addLine("==> REF POSE : " + mDrive.getPose());
         FtcDashboard.getInstance().getTelemetry().addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        FtcDashboard.getInstance().getTelemetry().update();
+        //FtcDashboard.getInstance().getTelemetry().update();
 
         telemetry.addLine("======= ACTIONS =======");
         telemetry.addLine("==> GO TO SHOOTING");
@@ -209,7 +206,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineTo(new Vector2d(mXOffset + X_SHOOTING_FTC_INCHES, mYOffset + Y_SHOOTING_FTC_INCHES), mAngleOffset + ANGLE_SHOOTING_FTC_RADIANS)
+                        .splineTo(new Vector2d(mXOffset + Configuration.X_SHOOTING_FTC_INCHES, mYOffset + Configuration.Y_SHOOTING_FTC_INCHES), mAngleOffset + Configuration.ANGLE_SHOOTING_FTC_RADIANS)
                         .build());
 
 
@@ -227,8 +224,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
         if (output != null) {
 
             mReferencePose = new Pose2d(
-                    -output.getPosition().x * CM_TO_INCHES,
-                    -output.getPosition().y * CM_TO_INCHES,
+                    -output.getPosition().x * Configuration.CM_TO_INCHES,
+                    -output.getPosition().y * Configuration.CM_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(mReferencePose);
@@ -238,8 +235,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             telemetry.addLine("==> NEW POSE : " + mReferencePose);
             FtcDashboard.getInstance().getTelemetry().addLine("==> NEW POSE : " + mReferencePose);
-            telemetry.update();
-            FtcDashboard.getInstance().getTelemetry().update();
+
 
         }
         else {
