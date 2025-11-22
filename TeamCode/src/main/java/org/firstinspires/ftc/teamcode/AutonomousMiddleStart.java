@@ -46,6 +46,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 // Local includes
+import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
@@ -59,13 +60,26 @@ public class AutonomousMiddleStart extends LinearOpMode {
     public static final double ANGLE_INIT_FTC_RADIANS         = 0;
 
     public static final double X_CALIBRATION_INIT_INCHES      = 74;
-    public static final double Y_CALIBRATION_INIT_INCHES      = 0;
-    public static final double ANGLE_CALIBRATION_INIT_RADIANS = Math.PI / 4;
-    public static final double Y_PATTERN_INIT_INCHES          = 12;
-    public static final double ANGLE_PATTERN_INIT_RADIANS     = Math.PI / 2;
+
     public static final double X_GPP_PATTERN_INIT_INCHES      = 30;
     public static final double X_PGP_PATTERN_INIT_INCHES      = 55;
     public static final double X_PPG_PATTERN_INIT_INCHES      = 70;
+
+    public static final double Y_CALIBRATION_INIT_INCHES_BLUE     = 0;
+    public static final double ANGLE_CALIBRATION_INIT_RADIANS_BLUE = Math.PI / 4;
+    public static final double Y_PATTERN_INIT_INCHES_BLUE          = 12;
+    public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE     = Math.PI / 2;
+
+    public static final double Y_CALIBRATION_INIT_INCHES_RED      = 0;
+    public static final double ANGLE_CALIBRATION_INIT_RADIANS_RED = Math.PI / 4;
+    public static final double Y_PATTERN_INIT_INCHES_RED         = 12;
+    public static final double ANGLE_PATTERN_INIT_RADIANS_RED     = Math.PI / 2;
+
+    double y_calibration_init_inches ;
+    double angle_calibration_init_radians;
+    double y_pattern_init_inches;
+    double angle_pattern_init_radians;
+
 
     Vision          mVision;
     MecanumDrive    mDrive;
@@ -79,6 +93,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
     double          mXOffset        = 0;
     double          mYOffset        = 0;
     double          mAngleOffset    = 0;
+    Alliance        mAlliance = Alliance.Blue;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -100,7 +116,28 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mDrive = new MecanumDrive(hardwareMap, mReferencePose);
 
+
+        boolean dpad_rightWasPressed = false;
+        boolean dpad_leftWasPressed = false;
         while (opModeInInit()) {
+            if (gamepad1.dpad_right && !dpad_rightWasPressed) {
+                mAlliance = Alliance.Red;
+            }
+            dpad_rightWasPressed = gamepad1.dpad_right;
+
+            // Toggle BLUE
+            if (gamepad1.dpad_left && !dpad_leftWasPressed) {
+                mAlliance = Alliance.Blue;
+            }
+            dpad_leftWasPressed = gamepad1.dpad_left;
+
+            // Display menu
+            telemetry.addLine("=== TELEOP CONFIG MENU ===");
+            telemetry.addLine("Choose Alliance:");
+            telemetry.addData("Right", "RED");
+            telemetry.addData("Left", "BLUE");
+            telemetry.addData("Current Selection", mAlliance);
+            telemetry.update();
 
             Vision.Pattern pattern = mVision.readPattern();
             if (pattern != Vision.Pattern.NONE) {
@@ -114,6 +151,19 @@ public class AutonomousMiddleStart extends LinearOpMode {
             }
 
         }
+        if (mAlliance == Alliance.Red ){
+             y_calibration_init_inches = Y_CALIBRATION_INIT_INCHES_RED ;
+             angle_calibration_init_radians = ANGLE_CALIBRATION_INIT_RADIANS_RED ;
+             y_pattern_init_inches = Y_PATTERN_INIT_INCHES_RED ;
+             angle_pattern_init_radians = ANGLE_PATTERN_INIT_RADIANS_RED ;
+        }
+
+        if (mAlliance == Alliance.Blue ){
+            y_calibration_init_inches = Y_CALIBRATION_INIT_INCHES_BLUE ;
+            angle_calibration_init_radians = ANGLE_CALIBRATION_INIT_RADIANS_BLUE ;
+            y_pattern_init_inches = Y_PATTERN_INIT_INCHES_BLUE ;
+            angle_pattern_init_radians = ANGLE_PATTERN_INIT_RADIANS_BLUE ;
+        }
 
         telemetry.addLine("======= ACTIONS =======");
         FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
@@ -126,7 +176,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
                             .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES - 10,  - 10), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES, y_pattern_init_inches ),angle_pattern_init_radians )
                             .build());
         }
         if (mPattern == Vision.Pattern.PGP) {
@@ -138,8 +188,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
-                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES - 20, Y_PATTERN_INIT_INCHES - 20), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES - 20, y_pattern_init_inches - 20), -Math.PI / 8)
+                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES, y_pattern_init_inches ), angle_pattern_init_radians )
                             .build());
         }
         if (mPattern == Vision.Pattern.PPG) {
@@ -151,8 +201,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
-                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES - 20, Y_PATTERN_INIT_INCHES - 20), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES), ANGLE_PATTERN_INIT_RADIANS)
+                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES - 20, y_pattern_init_inches  - 20), -Math.PI / 8)
+                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES, y_pattern_init_inches ), angle_pattern_init_radians )
                             .build());
         }
 
@@ -183,7 +233,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mDrive.actionBuilder(mDrive.getPose())
                     .waitSeconds(2)
                     //.lineToYConstantHeading(mDrive.getPose().position.y - 50)
-                    .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,Y_CALIBRATION_INIT_INCHES), ANGLE_CALIBRATION_INIT_RADIANS)
+                    .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,y_calibration_init_inches ), angle_calibration_init_radians )
                     .build());
 
         updatePoseFromAprilTagIfVisible();
@@ -209,6 +259,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineTo(new Vector2d(mXOffset + Configuration.X_SHOOTING_FTC_INCHES, mYOffset + Configuration.Y_SHOOTING_FTC_INCHES), mAngleOffset + Configuration.ANGLE_SHOOTING_FTC_RADIANS)
                         .build());
 
+        Configuration.s_Current.persist("Heading",mDrive.getPose().heading.toDouble()- Math.PI /2 );
+        Configuration.s_Current.persist("Alliance",mAlliance.getValue());
 
         mVision.close();
 
