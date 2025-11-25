@@ -10,6 +10,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 /* FTCController includes */
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -240,6 +241,9 @@ public final class MecanumDrive {
         ConfImu imu               = Configuration.s_Current.getImu("built-in");
         ConfImu pinpoint          = Configuration.s_Current.getImu("pinpoint");
 
+        PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / PARAMS.inPerTick;
+        PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / PARAMS.inPerTick;
+
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         leftFront = hardwareMap.get(DcMotorEx.class, frontLeftWheel.getHw().entrySet().iterator().next().getKey());
@@ -261,7 +265,9 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pose);
-
+        FtcDashboard.getInstance().getTelemetry().addData("parYTicks",PinpointLocalizer.PARAMS.parYTicks);
+        FtcDashboard.getInstance().getTelemetry().addData("perpXTicks",PinpointLocalizer.PARAMS.perpXTicks);
+        FtcDashboard.getInstance().getTelemetry().update();
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
     public void updatePose (Pose2d newPose ){

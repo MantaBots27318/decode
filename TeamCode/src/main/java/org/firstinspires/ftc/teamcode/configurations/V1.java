@@ -20,7 +20,11 @@ public class V1 extends Configuration {
         mMotors.put("back-right-wheel",new ConfMotor("backRight",false));           // CH Motor 3
 
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        mImus.put("pinpoint", new ConfImu("pinpoint"));                                       // EH I2C 3
+        mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
+
+        mImus.get("pinpoint").setParY(3.5);
+        mImus.get("pinpoint").setPerpX(-5.625);
+
 
         /* Intake configuration */
         mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));        // EH Motor 0

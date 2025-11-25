@@ -13,10 +13,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
 
 import java.util.Objects;
 
-@Config
 public final class PinpointLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = -2584.156578947368421; // y position of the parallel encoder (in tick units)
+        public double parYTicks = 0.0; // y position of the parallel encoder (in tick units)
         public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
     }
 
