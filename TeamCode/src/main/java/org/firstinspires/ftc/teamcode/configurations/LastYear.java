@@ -20,7 +20,10 @@ public class LastYear extends Configuration {
         mMotors.put("back-right-wheel",new ConfMotor("backRight",true));       // CH Motor 3
 
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        mImus.put("pinpoint", new ConfImu("pinpoint"));                                                // EH I2C 3
+        mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
+
+        mImus.get("pinpoint").setParY(-5.22);
+        mImus.get("pinpoint").setPerpX(0.0);
 
         /* Intake configuration */
         mMotors.put("intake-slides",new ConfMotor(
