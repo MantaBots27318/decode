@@ -140,11 +140,9 @@ public class Vision {
 
         Pose3D result = null;
         mLimelight.pipelineSwitch(mAprilTagPipeline);
-        mTelemetry.addLine("running getPosition function");
         LLResult llresult = mLimelight.getLatestResult();
         if (llresult != null) {
             if (llresult.isValid()) {
-                mTelemetry.addLine("result is valid");
                 result = llresult.getBotpose();
             }
         }

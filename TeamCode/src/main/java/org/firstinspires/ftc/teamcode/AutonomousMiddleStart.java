@@ -53,6 +53,10 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 import org.firstinspires.ftc.teamcode.components.Controller;
+import org.firstinspires.ftc.teamcode.camera.Camera;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
@@ -64,7 +68,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Vision.Pattern  mPattern;
     Vision.Pattern  mTargetPattern;
     int             mPatternShift = 0;
-    Alliance        mAlliance;
+    Alliance        mAlliance = Alliance.NONE;
     Poses           mPoses;
     double          mWaitingTime = 0.0;
 
@@ -77,8 +81,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
     Controller      mGamepad1;
     Controller      mGamepad2;
+    Camera          mCamera;
 
-    String          mLogs = "";
+    List mLogs = new ArrayList<String>();
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -86,6 +91,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mCollecting     = new Collecting();
 
         mTimer          = new SmartTimer(telemetry);
+
+        mCamera         = new Camera();
+        mCamera.setHW(Configuration.s_Current,hardwareMap,telemetry);
 
         mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
@@ -100,11 +108,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mGamepad1       = new Controller(gamepad1, telemetry);
         mGamepad2       = new Controller(gamepad2, telemetry);
 
-        // Display menu
-        telemetry.addLine("=== TELEOP CONFIG MENU ===");
-        telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
-        telemetry.addLine("Choose Pattern Shift: LEFT STICK X LEFT/RIGHT");
-        telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
 
         while (opModeInInit()) {
 
@@ -139,6 +142,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
                 mPoses.initialize(mAlliance, mTargetPattern);
             }
+            // Display menu
+            telemetry.addLine("=========== MENU ============");
+            telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
+            telemetry.addLine("Choose Pattern Shift: LEFT STICK X LEFT/RIGHT");
+            telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
 
             telemetry.addLine("======= CONFIGURATION =======");
             telemetry.addData("==> PATTERN : " , mPattern.text());
@@ -159,25 +167,25 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         }
 
-        mLogs += "======= ACTIONS =======\n";
-        mLogs += "==> GO TO PATTERN\n";
+        mLogs.add("======= ACTIONS =======");
+        mLogs.add("==> GO TO PATTERN");
 
-        telemetry.addLine(mLogs);
+        for (Object l : mLogs) { telemetry.addLine(l.toString());}
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
+        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
         Actions.runBlocking(
             mDrive.actionBuilder(mReferencePose)
                     .waitSeconds(mWaitingTime)
-                    .splineTo(mPoses.posBeforePatternInitInches(), mPoses.hPatternInitRadians())
+                    .splineTo(mPoses.posBeforePatternInitInches(), mPoses.hBeforePatternInitRadians())
                     .splineTo(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians())
                     .build());
 
-        mLogs += "==> INTAKE";
-        telemetry.addLine(mLogs);
+        mLogs.add("==> INTAKE");
+        for (Object l : mLogs) { telemetry.addLine(l.toString());}
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
+        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
         //
@@ -191,29 +199,29 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         //mCollecting.stopIntake();
 
-        mLogs += "==> GO TO CALIBRATION\n";
-        telemetry.addLine(mLogs);
+        mLogs.add( "==> GO TO CALIBRATION");
+        for (Object l : mLogs) { telemetry.addLine(l.toString());}
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
+        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
                     .waitSeconds(2)
-                    .lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches())
+                    //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches())
                     .splineTo(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians() )
                     .build());
 
         updatePoseFromAprilTagIfVisible();
 
-        mLogs += "==> CALIBRATION\n";
-        mLogs += "REF POSE :" + mDrive.getPose() + "\n";
-        mLogs += "REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset + "\n";
-        mLogs += "==> GO TO SHOOTING\n";
+        mLogs.add("==> CALIBRATION");
+        mLogs.add("REF POSE :" + mDrive.getPose());
+        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+        mLogs.add("==> GO TO SHOOTING");
 
-        telemetry.addLine(mLogs);
+        for (Object l : mLogs) { telemetry.addLine(l.toString());}
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
+        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
         Actions.runBlocking(

@@ -43,8 +43,8 @@ public class V1 extends Configuration {
         mServos.get("outtake-lever-arm").addPosition("next", 0.5);
 
         /* Camera servo reference position */
-        mServos.get("camera").addPosition("tag",0.3);
-        mServos.get("camera").addPosition("ball",0.18);
+        mServos.get("camera").addPosition("tag",0.89);
+        mServos.get("camera").addPosition("ball",0.6);
 
         /* Limelight configuration */
         mLimelights.get("limelight").addPipeline("balls-detector",1);

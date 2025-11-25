@@ -50,21 +50,21 @@ public class Poses {
 
     Telemetry       mLogger;
 
-    Vector2d        mPositionInitFTCInches;
+    Vector2d        mPositionInitFTCInches = new Vector2d(0,0);
     double          mAngleInitFTCRadians = 0;
 
-    Vector2d        mPositionBeforePatternInitInches;
+    Vector2d        mPositionBeforePatternInitInches = new Vector2d(0,0);
     double          mAngleBeforePatternInitRadians = 0;
 
-    Vector2d        mPositionPatternInitInches;
+    Vector2d        mPositionPatternInitInches = new Vector2d(0,0);
     double          mAnglePatternInitRadians = 0;
 
     double          mYDeltaIntakeInches = 0;
 
-    Vector2d        mPositionCalibrationInitInches;
+    Vector2d        mPositionCalibrationInitInches = new Vector2d(0,0);
     double          mAngleCalibrationInitRadians = 0;
 
-    Vector2d        mPositionShootingInches;
+    Vector2d        mPositionShootingInches = new Vector2d(0,0);
     double          mAngleShootingRadians = 0;
 
     double          mAngleAutoToTeleopRadians = 0;
