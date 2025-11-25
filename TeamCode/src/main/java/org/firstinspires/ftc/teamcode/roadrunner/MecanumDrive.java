@@ -71,15 +71,14 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
-        public double inPerTick = 0.00202016;
-        public double lateralInPerTick = 0.0018350043868211484; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 7762.516542335624;
+        public double inPerTick = 0.0019680681;
+        public double lateralInPerTick = 0.0014073703982018582; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 7827.720552591884;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.8957273372481396;
-        public double kV = 0.00036935081354649065;
-        public double kA = 0.0000001
-                ;
+        public double kS = 0.98428244088846;
+        public double kV = 0.00027017991524851717;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -91,9 +90,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 4.0;
-        public double lateralGain = 4.0;
-        public double headingGain = 4.0; // shared with turn
+        public double axialGain = 0.0;
+        public double lateralGain = 0.0;
+        public double headingGain = 0.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -264,7 +263,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pose);
+        localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
         FtcDashboard.getInstance().getTelemetry().addData("parYTicks",PinpointLocalizer.PARAMS.parYTicks);
         FtcDashboard.getInstance().getTelemetry().addData("perpXTicks",PinpointLocalizer.PARAMS.perpXTicks);
         FtcDashboard.getInstance().getTelemetry().update();

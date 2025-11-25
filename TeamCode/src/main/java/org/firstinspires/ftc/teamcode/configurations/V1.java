@@ -22,8 +22,8 @@ public class V1 extends Configuration {
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
 
-        mImus.get("pinpoint").setParY(3.5);
-        mImus.get("pinpoint").setPerpX(-5.625);
+        mImus.get("pinpoint").setPar(3.5, false);
+        mImus.get("pinpoint").setPerp(-5.625, true);
 
 
         /* Intake configuration */

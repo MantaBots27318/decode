@@ -21,6 +21,9 @@ public class ConfImu {
     private Double                                          m_ParY;
     private Double                                          m_PerpX;
 
+    private boolean                                         m_ParReversed = false;
+    private boolean                                         m_PerpReversed = false;
+
     // Constructor
     public ConfImu(String Name, RevHubOrientationOnRobot.LogoFacingDirection Logo, RevHubOrientationOnRobot.UsbFacingDirection Usb) {
         m_name = Name;
@@ -38,14 +41,16 @@ public class ConfImu {
     public void setLogo(RevHubOrientationOnRobot.LogoFacingDirection Logo) { m_logo = Logo;}
     public void setUsb(RevHubOrientationOnRobot.UsbFacingDirection  Usb)   { m_usb = Usb;  }
 
-    public void setParY(Double parY)                                       { m_ParY = parY; }
-    public void setPerpX(Double perpX)                                     { m_PerpX = perpX; }
+    public void setPar(Double parY, boolean isReversed)                     { m_ParY = parY; m_ParReversed = isReversed; }
+    public void setPerp(Double perpX, boolean isReversed)                   { m_PerpX = perpX; m_PerpReversed = isReversed; }
 
-    public String                                       getName()    { return m_name; }
-    public RevHubOrientationOnRobot.LogoFacingDirection getLogo()    { return m_logo; }
-    public RevHubOrientationOnRobot.UsbFacingDirection  getUsb()     { return m_usb;  }
+    public String                                       getName()           { return m_name; }
+    public RevHubOrientationOnRobot.LogoFacingDirection getLogo()           { return m_logo; }
+    public RevHubOrientationOnRobot.UsbFacingDirection  getUsb()            { return m_usb;  }
 
-    public Double                                       getParY()    { return m_ParY; }
-    public Double                                       getPerpX()   { return m_PerpX; }
+    public Double                                       getParY()           { return m_ParY; }
+    public Double                                       getPerpX()          { return m_PerpX; }
 
+    public boolean                                      getParReversed()    { return m_ParReversed; }
+    public boolean                                      getPerpReversed()   { return m_PerpReversed; }
 }
