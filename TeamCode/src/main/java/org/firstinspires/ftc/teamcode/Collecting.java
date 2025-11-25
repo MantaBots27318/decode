@@ -90,21 +90,14 @@ public class Collecting {
         mLogger.addLine("======= COLLECTING =======");
         mLogger.addLine("-------- FUNCTION --------");
 
-        if (mGamepad.buttons.left_bumper.pressedOnce() && (!mIntakeBrushes.isMoving())) {
-            mLogger.addLine("==> STR IN BRS");
-            mIntakeBrushes.start(0.9);
-        } else if (mGamepad.buttons.left_bumper.pressedOnce() && (mIntakeBrushes.isMoving())) {
-            mLogger.addLine("==> STR IN BRS");
-            mIntakeBrushes.stop();
-        }
-
-        if(mGamepad.buttons.y.pressedOnce() && (!mIntakeBrushes.isMoving())) {
-            mLogger.addLine("==> STR IN BRS");
-            mIntakeBrushes.start(0.9);
-        }
-        else if (mGamepad.buttons.y.pressedOnce() && (mIntakeBrushes.isMoving())) {
-            mLogger.addLine("==> STP IN BRS");
-            mIntakeBrushes.stop();
+        if (mGamepad.buttons.left_bumper.pressedOnce()) {
+            if (!mIntakeBrushes.isMoving()) {
+                mLogger.addLine("==> STR IN BRS");
+                mIntakeBrushes.start(0.9);
+            } else {
+                mLogger.addLine("==> STP IN BRS");
+                mIntakeBrushes.stop();
+            }
         }
 
         if (mGamepad.buttons.dpad_up.pressedOnce()) { shoot(); }

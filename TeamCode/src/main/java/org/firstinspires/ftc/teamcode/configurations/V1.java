@@ -38,8 +38,8 @@ public class V1 extends Configuration {
         mLimelights.put("limelight", new ConfLimelight("limelight"));
 
         /* Outtake servos reference positions */
-        mServos.get("outtake-lever-arm").addPosition("open", 0.95);
-        mServos.get("outtake-lever-arm").addPosition("shoot", 0.37);
+        mServos.get("outtake-lever-arm").addPosition("open", 1.0);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.375);
         mServos.get("outtake-lever-arm").addPosition("next", 0.5);
 
         /* Camera servo reference position */
