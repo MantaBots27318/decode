@@ -48,44 +48,25 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 // Local includes
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import org.firstinspires.ftc.teamcode.configurations.Poses;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Vision;
+import org.firstinspires.ftc.teamcode.components.Controller;
 
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
-
-    public static final double X_INIT_FTC_INCHES              = - Configuration.FIELD_SIZE_INCHES / 2 + 9;
-    public static final double Y_INIT_FTC_INCHES              = 10;
-    public static final double ANGLE_INIT_FTC_RADIANS         = 0;
-
-    public static final double X_CALIBRATION_INIT_INCHES      = 74;
-
-    public static final double X_GPP_PATTERN_INIT_INCHES      = 30;
-    public static final double X_PGP_PATTERN_INIT_INCHES      = 55;
-    public static final double X_PPG_PATTERN_INIT_INCHES      = 70;
-
-    public static final double Y_CALIBRATION_INIT_INCHES_BLUE     = 0;
-    public static final double ANGLE_CALIBRATION_INIT_RADIANS_BLUE =  Math.PI / 4;
-    public static final double Y_PATTERN_INIT_INCHES_BLUE          = 12;
-    public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE     = Math.PI / 2;
-
-    public static final double Y_CALIBRATION_INIT_INCHES_RED      = 0;
-    public static final double ANGLE_CALIBRATION_INIT_RADIANS_RED = - Math.PI / 4  ;
-    public static final double Y_PATTERN_INIT_INCHES_RED         = -12;
-    public static final double ANGLE_PATTERN_INIT_RADIANS_RED     = - Math.PI / 2;
-
-    double y_calibration_init_inches ;
-    double angle_calibration_init_radians;
-    double y_pattern_init_inches;
-    double angle_pattern_init_radians;
-
 
     Vision          mVision;
     MecanumDrive    mDrive;
     Collecting      mCollecting;
 
     Vision.Pattern  mPattern;
+    Vision.Pattern  mTargetPattern;
+    int             mPatternShift = 0;
+    Alliance        mAlliance;
+    Poses           mPoses;
+    double          mWaitingTime = 0.0;
 
     Pose2d          mReferencePose;
 
@@ -93,124 +74,111 @@ public class AutonomousMiddleStart extends LinearOpMode {
     double          mXOffset        = 0;
     double          mYOffset        = 0;
     double          mAngleOffset    = 0;
-    Alliance        mAlliance = Alliance.Blue;
 
+    Controller      mGamepad1;
+    Controller      mGamepad2;
+
+    String          mLogs = "";
 
     @Override
     public void runOpMode() throws InterruptedException {
+        
+        mCollecting     = new Collecting();
 
+        mTimer          = new SmartTimer(telemetry);
 
-
-
-        telemetry.setMsTransmissionInterval(11);
-
-        mCollecting = new Collecting();
-
-        mTimer = new SmartTimer(telemetry);
-
-        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
-        mPattern = Vision.Pattern.NONE;
+        mPattern        = Vision.Pattern.NONE;
+        mTargetPattern  = Vision.Pattern.NONE;
 
-        mReferencePose = new Pose2d(0, 0, 0);
+        mPoses          = new Poses(FtcDashboard.getInstance().getTelemetry());
+        mReferencePose  = new Pose2d(0, 0, 0);
 
-        mDrive = new MecanumDrive(hardwareMap, mReferencePose);
+        mDrive          = new MecanumDrive(hardwareMap, mReferencePose);
 
+        mGamepad1       = new Controller(gamepad1, telemetry);
+        mGamepad2       = new Controller(gamepad2, telemetry);
 
-        boolean dpad_rightWasPressed = false;
-        boolean dpad_leftWasPressed = false;
+        // Display menu
+        telemetry.addLine("=== TELEOP CONFIG MENU ===");
+        telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
+        telemetry.addLine("Choose Pattern Shift: LEFT STICK X LEFT/RIGHT");
+        telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
+
         while (opModeInInit()) {
-            if (gamepad1.dpad_right && !dpad_rightWasPressed) {
-                mAlliance = Alliance.Red;
-            }
-            dpad_rightWasPressed = gamepad1.dpad_right;
 
-            // Toggle BLUE
-            if (gamepad1.dpad_left && !dpad_leftWasPressed) {
-                mAlliance = Alliance.Blue;
+            if (mGamepad1.buttons.dpad_right.pressedOnce())         {
+                mAlliance = Alliance.RED;
+                mPoses.initialize(mAlliance,mTargetPattern);
             }
-            dpad_leftWasPressed = gamepad1.dpad_left;
+            if (mGamepad1.buttons.dpad_left.pressedOnce())          {
+                mAlliance = Alliance.BLUE;
+                mPoses.initialize(mAlliance, mTargetPattern);
+            }
 
-            // Display menu
-            telemetry.addLine("=== TELEOP CONFIG MENU ===");
-            telemetry.addLine("Choose Alliance:");
-            telemetry.addData("Right", "RED");
-            telemetry.addData("Left", "BLUE");
-            telemetry.addData("Current Selection", mAlliance);
-            telemetry.update();
+            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; }
+            if (mGamepad1.buttons.dpad_down.pressedOnce())          { mWaitingTime -= 1; mWaitingTime = Math.max(mWaitingTime,0); }
+
+            if (mGamepad1.buttons.left_stick_x_left.pressedOnce())  {
+                mPatternShift -= 1;
+                mPatternShift = Math.max(mPatternShift,0);
+                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                mPoses.initialize(mAlliance, mTargetPattern);
+            }
+            if (mGamepad1.buttons.left_stick_x_right.pressedOnce()) {
+                mPatternShift += 1;
+                mPatternShift = Math.min(mPatternShift,3);
+                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                mPoses.initialize(mAlliance, mTargetPattern);
+            }
 
             Vision.Pattern pattern = mVision.readPattern();
             if (pattern != Vision.Pattern.NONE) {
                 mPattern = pattern;
-                telemetry.addLine("======= PATTERN =======");
-                telemetry.addLine(mPattern.text());
-                telemetry.update();
-                FtcDashboard.getInstance().getTelemetry().addLine("======= PATTERN =======");
-                FtcDashboard.getInstance().getTelemetry().addLine(mPattern.text());
-                FtcDashboard.getInstance().getTelemetry().update();
+                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                mPoses.initialize(mAlliance, mTargetPattern);
             }
 
-        }
-        if (mAlliance == Alliance.Red ){
-             y_calibration_init_inches = Y_CALIBRATION_INIT_INCHES_RED ;
-             angle_calibration_init_radians = ANGLE_CALIBRATION_INIT_RADIANS_RED ;
-             y_pattern_init_inches = Y_PATTERN_INIT_INCHES_RED ;
-             angle_pattern_init_radians = ANGLE_PATTERN_INIT_RADIANS_RED ;
-        }
-
-        if (mAlliance == Alliance.Blue ){
-            y_calibration_init_inches = Y_CALIBRATION_INIT_INCHES_BLUE ;
-            angle_calibration_init_radians = ANGLE_CALIBRATION_INIT_RADIANS_BLUE ;
-            y_pattern_init_inches = Y_PATTERN_INIT_INCHES_BLUE ;
-            angle_pattern_init_radians = ANGLE_PATTERN_INIT_RADIANS_BLUE ;
-        }
-
-        telemetry.addLine("======= ACTIONS =======");
-        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
-
-        if (mPattern == Vision.Pattern.GPP) {
-
-            telemetry.addLine("==> GO TO GPP");
-            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO GPP");
-
-            Actions.runBlocking(
-                    mDrive.actionBuilder(mReferencePose)
-                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES - 10,  - 10), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_GPP_PATTERN_INIT_INCHES, y_pattern_init_inches ),angle_pattern_init_radians )
-                            .build());
-        }
-        if (mPattern == Vision.Pattern.PGP) {
-
-            telemetry.addLine("==> GO TO PGP");
+            telemetry.addLine("======= CONFIGURATION =======");
+            telemetry.addData("==> PATTERN : " , mPattern.text());
+            telemetry.addData("==> PATTERN SHIFT : " , mPatternShift);
+            telemetry.addData("==> PATTERN TARGET : " , mTargetPattern.text());
+            telemetry.addData("==> ALLIANCE : ", mAlliance.name());
+            telemetry.addData("==> WAITING TIME : ", mWaitingTime + " s");
             telemetry.update();
-            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO PGP");
+
+            FtcDashboard.getInstance().getTelemetry().addLine("======= CONFIGURATION =======");
+            FtcDashboard.getInstance().getTelemetry().addData("PATTERN" , mPattern.text());
+            FtcDashboard.getInstance().getTelemetry().addData("PATTERN SHIFT" , mPatternShift);
+            FtcDashboard.getInstance().getTelemetry().addData("PATTERN TARGET" , mTargetPattern.text());
+            FtcDashboard.getInstance().getTelemetry().addData("ALLIANCE" , mAlliance.name());
+            FtcDashboard.getInstance().getTelemetry().addData("WAITING TIME" , mWaitingTime + " s");
+            mPoses.log();
             FtcDashboard.getInstance().getTelemetry().update();
 
-            Actions.runBlocking(
-                    mDrive.actionBuilder(mReferencePose)
-                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES - 20, y_pattern_init_inches - 20), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_PGP_PATTERN_INIT_INCHES, y_pattern_init_inches ), angle_pattern_init_radians )
-                            .build());
-        }
-        if (mPattern == Vision.Pattern.PPG) {
-
-            telemetry.addLine("==> GO TO PPG");
-            telemetry.update();
-            FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO PGP");
-            FtcDashboard.getInstance().getTelemetry().update();
-
-            Actions.runBlocking(
-                    mDrive.actionBuilder(mReferencePose)
-                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES - 20, y_pattern_init_inches  - 20), -Math.PI / 8)
-                            .splineTo(new Vector2d(X_PPG_PATTERN_INIT_INCHES, y_pattern_init_inches ), angle_pattern_init_radians )
-                            .build());
         }
 
-        telemetry.addLine("==> INTAKE");
+        mLogs += "======= ACTIONS =======\n";
+        mLogs += "==> GO TO PATTERN\n";
+
+        telemetry.addLine(mLogs);
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("==> INTAKE");
+        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
         FtcDashboard.getInstance().getTelemetry().update();
 
+        Actions.runBlocking(
+            mDrive.actionBuilder(mReferencePose)
+                    .waitSeconds(mWaitingTime)
+                    .splineTo(mPoses.posBeforePatternInitInches(), mPoses.hPatternInitRadians())
+                    .splineTo(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians())
+                    .build());
+
+        mLogs += "==> INTAKE";
+        telemetry.addLine(mLogs);
+        telemetry.update();
+        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
+        FtcDashboard.getInstance().getTelemetry().update();
 
         //
         // mCollecting.startIntake();
@@ -218,52 +186,45 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .waitSeconds(2)
-                        .lineToYConstantHeading(mDrive.getPose().position.y + 30)
+                        .lineToYConstantHeading(mDrive.getPose().position.y + mPoses.yDeltaIntakeInches())
                         .build());
 
         //mCollecting.stopIntake();
 
-
-        telemetry.addLine("==> GO TO CALIBRATION");
+        mLogs += "==> GO TO CALIBRATION\n";
+        telemetry.addLine(mLogs);
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO CALIBRATION");
+        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
         FtcDashboard.getInstance().getTelemetry().update();
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
                     .waitSeconds(2)
-                    //.lineToYConstantHeading(mDrive.getPose().position.y - 50)
-                    .splineTo(new Vector2d(X_CALIBRATION_INIT_INCHES ,y_calibration_init_inches ), angle_calibration_init_radians )
+                    .lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches())
+                    .splineTo(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians() )
                     .build());
 
         updatePoseFromAprilTagIfVisible();
 
-        telemetry.addLine("===== CALIBRATION =====");
-        telemetry.addLine("==> REF POSE : " + mDrive.getPose());
-        telemetry.addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        //telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("===== CALIBRATION =====");
-        FtcDashboard.getInstance().getTelemetry().addLine("==> REF POSE : " + mDrive.getPose());
-        FtcDashboard.getInstance().getTelemetry().addLine("==> REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        //FtcDashboard.getInstance().getTelemetry().update();
+        mLogs += "==> CALIBRATION\n";
+        mLogs += "REF POSE :" + mDrive.getPose() + "\n";
+        mLogs += "REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset + "\n";
+        mLogs += "==> GO TO SHOOTING\n";
 
-        telemetry.addLine("======= ACTIONS =======");
-        telemetry.addLine("==> GO TO SHOOTING");
+        telemetry.addLine(mLogs);
         telemetry.update();
-        FtcDashboard.getInstance().getTelemetry().addLine("======= ACTIONS =======");
-        FtcDashboard.getInstance().getTelemetry().addLine("==> GO TO SHOOTING");
+        FtcDashboard.getInstance().getTelemetry().addLine(mLogs);
         FtcDashboard.getInstance().getTelemetry().update();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineTo(new Vector2d(mXOffset + Configuration.X_SHOOTING_FTC_INCHES, mYOffset + Configuration.Y_SHOOTING_FTC_INCHES), mAngleOffset + Configuration.ANGLE_SHOOTING_FTC_RADIANS)
+                        .splineTo(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians())
                         .build());
 
-        Configuration.s_Current.persist("Heading",mDrive.getPose().heading.toDouble()- Math.PI /2 );
-        Configuration.s_Current.persist("Alliance",mAlliance.getValue());
+        Configuration.s_Current.persist("heading",mDrive.getPose().heading.toDouble() + mPoses.hAutoToTeleopRadians() );
+        Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
-
 
     }
 
@@ -276,8 +237,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
         if (output != null) {
 
             mReferencePose = new Pose2d(
-                    -output.getPosition().x * Configuration.M_TO_INCHES,
-                    -output.getPosition().y * Configuration.M_TO_INCHES,
+                    -output.getPosition().x * Poses.M_TO_INCHES,
+                    -output.getPosition().y * Poses.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(mReferencePose);
@@ -292,11 +253,32 @@ public class AutonomousMiddleStart extends LinearOpMode {
         }
         else {
             mReferencePose = new Pose2d(0,0,0);
-            mXOffset = - X_INIT_FTC_INCHES;
-            mYOffset = - Y_INIT_FTC_INCHES;
-            mAngleOffset = - ANGLE_INIT_FTC_RADIANS;
+            mXOffset = - mPoses.posInitFTCInches().x;
+            mYOffset = - mPoses.posInitFTCInches().y;
+            mAngleOffset = - mPoses.hInitFTCInches();
         }
     }
+
+    Vision.Pattern  computePattern(Vision.Pattern official, int shift) {
+
+        Vision.Pattern result = Vision.Pattern.NONE;
+
+        if(official != Vision.Pattern.NONE) {
+            int target_identifier = (official.identifier() + shift) % 3;
+            if (target_identifier == Vision.Pattern.GPP.identifier()) {
+                result = Vision.Pattern.GPP;
+            }
+            if (target_identifier == Vision.Pattern.PGP.identifier()) {
+                result = Vision.Pattern.PGP;
+            }
+            if (target_identifier == Vision.Pattern.PPG.identifier()) {
+                result = Vision.Pattern.PPG;
+            }
+        }
+
+        return result;
+    }
+
 }
 
 

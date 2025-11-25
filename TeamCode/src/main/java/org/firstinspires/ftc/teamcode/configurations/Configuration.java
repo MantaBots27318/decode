@@ -13,13 +13,6 @@ import java.util.Map;
 
 abstract public class Configuration {
 
-    public static final double FIELD_SIZE_INCHES              = 12 * 12;
-    public static final double X_SHOOTING_FTC_INCHES          = 24;
-    public static final double Y_SHOOTING_FTC_INCHES          = 24;
-    public static final double ANGLE_SHOOTING_FTC_RADIANS     = Math.PI / 4;
-
-    public static final double M_TO_INCHES                    = 39.37;
-
 
     // Map to store hardware components by reference name
     protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
@@ -29,7 +22,7 @@ abstract public class Configuration {
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new LastYear();
+    public static Configuration s_Current = new V1();
 
     // Method to retrieve a motor by its reference name
     public ConfMotor getMotor(String name) {

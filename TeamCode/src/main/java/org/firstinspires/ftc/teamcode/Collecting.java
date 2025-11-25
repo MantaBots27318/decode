@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /* Configuration includes */
+import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Intake includes */
@@ -55,23 +56,8 @@ public class Collecting {
     OuttakeWheels   mOuttakeWheels;
     OuttakeLeverArm mOuttakeLeverArm;
 
-    Gamepad mGamepad;
-    boolean mWasXPressed;
-    boolean mWasAPressed;
-    boolean mWasYPressed;
-    boolean mWasBPressed;
-    boolean mWasDPadUpPressed;
-    boolean mWasDPadDownPressed;
-    boolean mWasDPadLeftPressed;
-    boolean mWasDPadRightPressed;
-    boolean mWasLeftStickXPositivePressed;
-    boolean mWasLeftStickXNegativePressed;
-    boolean mWasRightStickXPositivePressed;
-    boolean mWasRightStickXNegativePressed;
-    boolean mWasRightBumperPressed;
-    boolean mWasLeftBumperPressed;
-    boolean mWasRightStickButtonPressed;
-    boolean mWasLeftStickButtonPressed;
+    Controller mGamepad;
+
 
 
     public Collecting() {
@@ -81,32 +67,12 @@ public class Collecting {
         mOuttakeWheels   = new OuttakeWheels();
         mOuttakeLeverArm = new OuttakeLeverArm();
 
-        mWasXPressed = false;
-        mWasAPressed = false;
-        mWasYPressed = false;
-        mWasBPressed = false;
-
-        mWasDPadDownPressed = false;
-        mWasDPadUpPressed = false;
-        mWasDPadLeftPressed = false;
-        mWasDPadRightPressed = false;
-
-        mWasLeftStickXPositivePressed = false;
-        mWasLeftStickXNegativePressed = false;
-        mWasRightStickXPositivePressed = false;
-        mWasRightStickXNegativePressed = false;
-
-        mWasRightBumperPressed = false;
-        mWasLeftBumperPressed = false;
-        mWasRightStickButtonPressed = false;
-        mWasLeftStickButtonPressed = false;
-
         mIntakeMode = IntakeMode.NONE;
         mShootingMode = ShootingMode.NONE;
         mNextMode = NextMode.NONE;
     }
 
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Gamepad gamepad) {
+    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gamepad) {
 
         mLogger = logger;
         mLogger.addLine("======= COLLECTING =======");
@@ -124,55 +90,30 @@ public class Collecting {
         mLogger.addLine("======= COLLECTING =======");
         mLogger.addLine("-------- FUNCTION --------");
 
-        if (mGamepad.left_bumper && (!mIntakeBrushes.isMoving())) {
+        if (mGamepad.buttons.left_bumper.pressedOnce() && (!mIntakeBrushes.isMoving())) {
             mLogger.addLine("==> STR IN BRS");
             mIntakeBrushes.start(0.9);
-        } else if (mGamepad.left_bumper && (mIntakeBrushes.isMoving())) {
+        } else if (mGamepad.buttons.left_bumper.pressedOnce() && (mIntakeBrushes.isMoving())) {
             mLogger.addLine("==> STR IN BRS");
             mIntakeBrushes.stop();
         }
 
-        if(mGamepad.y) {
-            if (!mWasYPressed && (!mIntakeBrushes.isMoving())) {
-                mLogger.addLine("==> STR IN BRS");
-                mIntakeBrushes.start(0.9);
-            }
-            else if (!mWasYPressed && (mIntakeBrushes.isMoving())) {
-                mLogger.addLine("==> STP IN BRS");
-                mIntakeBrushes.stop();
-            }
-            mWasYPressed = true;
+        if(mGamepad.buttons.y.pressedOnce() && (!mIntakeBrushes.isMoving())) {
+            mLogger.addLine("==> STR IN BRS");
+            mIntakeBrushes.start(0.9);
         }
-        else {
-            mWasYPressed = false;
+        else if (mGamepad.buttons.y.pressedOnce() && (mIntakeBrushes.isMoving())) {
+            mLogger.addLine("==> STP IN BRS");
+            mIntakeBrushes.stop();
         }
 
-        if (mGamepad.dpad_up) {
-            if (!mWasDPadUpPressed) {
-                shoot();
-            }
-            mWasDPadUpPressed = true;
-        } else {
-            mWasDPadUpPressed = false;
-        }
+        if (mGamepad.buttons.dpad_up.pressedOnce()) { shoot(); }
 
-        if (mGamepad.dpad_down) {
-            if (!mWasDPadDownPressed) {
-                next();
-            }
-            mWasDPadDownPressed = true;
-        } else {
-            mWasDPadDownPressed = false;
-        }
+        if (mGamepad.buttons.dpad_down.pressedOnce()) { next(); }
 
-        if (mGamepad.dpad_left) {
-            if (!mWasDPadLeftPressed) {
-                mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
-                mOuttakeWheels.stop();
-            }
-            mWasDPadLeftPressed = true;
-        } else {
-            mWasDPadLeftPressed = false;
+        if (mGamepad.buttons.dpad_left.pressedOnce()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
+            mOuttakeWheels.stop();
         }
 
         mLogger.addLine("\n--------- MOVING ---------");

@@ -16,10 +16,10 @@ public class V1 extends Configuration {
         /* Moving configuration : Positive power makes wheel go forward */
         mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));          // EH Motor 3
         mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));            // EH Motor 2
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));         // CH Motor 2
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));         // CH Motor 2
         mMotors.put("back-right-wheel",new ConfMotor("backRight",false));           // CH Motor 3
 
-        mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
+        mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
 
         mImus.get("pinpoint").setParY(3.5);
@@ -38,9 +38,9 @@ public class V1 extends Configuration {
         mLimelights.put("limelight", new ConfLimelight("limelight"));
 
         /* Outtake servos reference positions */
-        mServos.get("outtake-lever-arm").addPosition("open", 0.9);
-        mServos.get("outtake-lever-arm").addPosition("shoot", 0.2);
-        mServos.get("outtake-lever-arm").addPosition("next", 0.4);
+        mServos.get("outtake-lever-arm").addPosition("open", 0.95);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.37);
+        mServos.get("outtake-lever-arm").addPosition("next", 0.5);
 
         /* Camera servo reference position */
         mServos.get("camera").addPosition("tag",0.3);

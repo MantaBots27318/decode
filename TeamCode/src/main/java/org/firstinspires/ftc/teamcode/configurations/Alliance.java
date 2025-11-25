@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.configurations;
 
+
 public enum Alliance {
-    Blue(0.0),
-    Red(1.0),
-    None(2.0);
+    BLUE(0.0),
+    RED(1.0),
+    NONE(2.0);
 
-    final Double mValue;
+    final double mValue;
 
-    Alliance(Double value) {
+    Alliance(double value) {
         mValue = value;
     }
 
-    public Double getValue() { return mValue; }
+    public Double getValue() {
+        return mValue;
+    }
 }

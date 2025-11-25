@@ -1,61 +1,72 @@
 package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+/* Acmerobotics includes */
+import com.acmerobotics.dashboard.FtcDashboard;
+
 /* Robot include */
+import org.firstinspires.ftc.teamcode.components.Controller;
+import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import org.firstinspires.ftc.teamcode.configurations.Poses;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @TeleOp
 public class ManualOpMode extends LinearOpMode {
-    Driving mDriving;
-    Collecting mCollecting;
-    Vision mVision;
-    public enum Alliance {
-        Blue,
-        Red,
-        None
-    }
-    double alliance = Configuration.s_Current.retrieve("Alliance") ;;
 
-    boolean dpad_rightWasPressed = false;
-    boolean dpad_leftWasPressed = false;
+    Driving     mDriving;
+    Collecting  mCollecting;
+    Vision      mVision;
+
+    Poses       mPoses;
+
+    Controller  mGamepad1;
+    Controller  mGamepad2;
+
     public void runOpMode() throws InterruptedException {
 
+        Alliance alliance = Alliance.NONE;
 
-        while (opModeInInit()) {
+        Double alliance_value = Configuration.s_Current.retrieve("alliance");
+        if(alliance_value == null) { alliance_value = Alliance.BLUE.getValue(); }
+        telemetry.addData("value",alliance_value);
+        telemetry.addData("red",Alliance.RED.getValue());
+        if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01) { alliance = Alliance.RED;}
+        if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01){ alliance = Alliance.BLUE;}
 
-            try {
-                mDriving = new Driving();
-                mCollecting = new Collecting();
-                mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mGamepad1 = new Controller(gamepad1,telemetry);
+        mGamepad2 = new Controller(gamepad2,telemetry);
 
-                mVision.initialize();
+        mPoses = new Poses(FtcDashboard.getInstance().getTelemetry());
+        mPoses.initialize(alliance, Vision.Pattern.GPP);
 
-                mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, gamepad1, mVision);
-                mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, gamepad2);
+        mDriving = new Driving();
+        mCollecting = new Collecting();
+        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mVision.initialize();
 
 
-                // Display menu
+        mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
+        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
 
-                telemetry.addData("Current Selection", alliance);
-                telemetry.update();
 
-            } catch (Exception e) {
-                telemetry.addLine("INIT error : " + e.getMessage());
-            }
+        // Display menu
 
-        }
+        telemetry.addData("Current Selection", alliance);
+        telemetry.update();
 
+
+        waitForStart();
         while (opModeIsActive()){
+
             try {
+                telemetry.addLine("launching control function");
                 mDriving.control();
                 mCollecting.control();
-
+                telemetry.addData("Current Alliance",Configuration.s_Current.retrieve("alliance"));
                 // Update state machines
                 mCollecting.loop();
                 telemetry.update();

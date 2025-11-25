@@ -25,20 +25,23 @@ import org.opencv.core.Point;
 
 public class Vision {
 
-
-
     public enum Pattern {
 
-        GPP("GPP"),
-        PPG("PPG"),
-        PGP("PGP"),
-        NONE("None");
+        GPP("GPP", 0),
+        PPG("PPG", 1),
+        PGP("PGP", 2),
+        NONE("None", -1);
 
         private final String mText;
+        private final int    mIdentifier;
 
-        Pattern(String text) { mText = text; };
+        Pattern(String text, int identifier) {
+            mText = text;
+            mIdentifier = identifier;
+        };
 
         public String text() { return mText; }
+        public int    identifier() { return mIdentifier; }
     }
 
     private Limelight3A  mLimelight;
