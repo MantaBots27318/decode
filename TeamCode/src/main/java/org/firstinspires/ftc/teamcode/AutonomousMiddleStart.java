@@ -33,6 +33,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 // QUALCOMM includes
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -195,9 +199,18 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mCollecting.startIntake();
 
+        Action intakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                mCollecting.stopIntake();
+                return false;
+            }
+        };
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
-                        .lineToYConstantHeading(mDrive.getPose().position.y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
+                        .afterDisp(0.5 * Math.abs(mPoses.yDeltaIntakeInches()),intakeAction)
+                        .lineToYConstantHeading(mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
         mCollecting.stopIntake();
