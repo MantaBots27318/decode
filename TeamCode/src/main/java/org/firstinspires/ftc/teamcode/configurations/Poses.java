@@ -62,6 +62,18 @@ public class Poses {
     public static final double ANGLE_AUTO_TO_TELEOP_RADIANS_RED = -Math.PI / 4;
     public static final double ANGLE_AUTO_TO_TELEOP_RADIANS_BLUE = Math.PI / 4;
 
+    public static final double X_SHOOTING_POSITION_FROM_GOAL_INCHES = -30*Math.sqrt(2);
+
+    public static final double X_LEAVE_POSITION_FROM_GOAL_INCHES_BLUE = 50;
+    public static final double Y_LEAVE_POSITION_FROM_GOAL_INCHES_BLUE = 20;
+
+
+    public static final double X_LEAVE_POSITION_FROM_GOAL_INCHES_RED = 50;
+    public static final double Y_LEAVE_POSITION_FROM_GOAL_INCHES_RED = -20;
+
+    public static final double ANGLE_LEAVE_POSITION_FROM_GOAL_INCHES = Math.PI ;
+
+
     Telemetry       mLogger;
 
     Vector2d        mPositionInitFTCInches = new Vector2d(0,0);
@@ -90,6 +102,11 @@ public class Poses {
 
 
 
+    double          mShootingPositionFromGoalInches = 0;
+
+    Vector2d        mLeavePositionFromGoalInches = new Vector2d(0,0);
+    double          mAngleLeaveRadians = 0;
+
     public Poses(Telemetry logger) {
         mLogger = logger;
     }
@@ -117,6 +134,7 @@ public class Poses {
             mAngleBeforePatternInitRadians = ANGLE_BEFORE_PATTERN_INIT_RADIANS_RED;
             mAnglePatternInitRadians = ANGLE_PATTERN_INIT_RADIANS_RED;
 
+
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_RED;
 
             mTgtIntakeToCalibrationInitRadians = TGT_INTAKE_TO_CALIBRATION_INIT_RADIANS_RED;
@@ -126,6 +144,8 @@ public class Poses {
 
             mPositionShootingInches = new Vector2d(X_SHOOTING_FTC_INCHES,Y_SHOOTING_FTC_INCHES_RED);
             mAngleShootingRadians = ANGLE_SHOOTING_FTC_RADIANS_RED;
+
+
 
             if(ShallParkInLaunchZone){
                 mPositionParkingFTCInches = new Vector2d(X_PARKING_LAUNCH_ZONE, Y_PARKING_LAUNCH_ZONE_RED);
@@ -138,6 +158,11 @@ public class Poses {
 
             
             mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_RADIANS_RED;
+
+            mShootingPositionFromGoalInches = X_SHOOTING_POSITION_FROM_GOAL_INCHES ;
+            mLeavePositionFromGoalInches = new Vector2d(X_LEAVE_POSITION_FROM_GOAL_INCHES_RED, Y_LEAVE_POSITION_FROM_GOAL_INCHES_RED );
+            mAngleLeaveRadians = ANGLE_LEAVE_POSITION_FROM_GOAL_INCHES ;
+
         }
 
         if (alliance == Alliance.BLUE) {
@@ -182,6 +207,11 @@ public class Poses {
 
             mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_RADIANS_BLUE;
 
+            mShootingPositionFromGoalInches = X_SHOOTING_POSITION_FROM_GOAL_INCHES ;
+
+            mLeavePositionFromGoalInches = new Vector2d(X_LEAVE_POSITION_FROM_GOAL_INCHES_BLUE, Y_LEAVE_POSITION_FROM_GOAL_INCHES_BLUE );
+            mAngleLeaveRadians = ANGLE_LEAVE_POSITION_FROM_GOAL_INCHES ;
+
         }
     }
 
@@ -209,6 +239,11 @@ public class Poses {
     public double hParkingFTCRadians(){return mAngleParkingFTCRadians;}
 
     public double   hAutoToTeleopRadians()       { return mAngleAutoToTeleopRadians; }
+
+    public double xShootingFromGoal ()             {return mShootingPositionFromGoalInches ;}
+
+    public Vector2d posLeaveGoalInches()            {return mLeavePositionFromGoalInches ;}
+    public double hLeaveGoalRadians ()              {return mAngleLeaveRadians ;}
 
     public void selectDistances(Vision.Pattern pattern) {
 
