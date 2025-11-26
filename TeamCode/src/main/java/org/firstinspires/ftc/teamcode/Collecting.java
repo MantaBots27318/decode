@@ -97,12 +97,13 @@ public class Collecting {
             } else {
                 mLogger.addLine("==> STP IN BRS");
                 mIntakeBrushes.stop();
+                mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
             }
         }
 
         if (mGamepad.buttons.dpad_up.pressedOnce()) { shoot(); }
 
-        if (mGamepad.buttons.dpad_down.pressedOnce()) { next(); }
+        if (mGamepad.buttons.dpad_down.pressedOnce()) { next();}
 
         if (mGamepad.buttons.dpad_left.pressedOnce()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
@@ -121,16 +122,6 @@ public class Collecting {
             this.next();
         }
     }
-
-    public void startIntake() {
-        mIntakeBrushes.start(1.0);
-    }
-
-    public void stopIntake() {
-        mIntakeBrushes.stop();
-        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
-    }
-
 
     public void shoot() {
 
@@ -200,6 +191,18 @@ public class Collecting {
 
     }
 
+    public void startIntake() {
+        mLogger.addLine("==> STR IN BRS");
+        mIntakeBrushes.start(0.9);
+    }
+
+    public void stopIntake() {
+        mLogger.addLine("==> STR IN BRS");
+        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+        mIntakeBrushes.stop();
+
+    }
+
     public String logMovements() {
         String result = "";
         if (mIntakeBrushes.isMoving()) {
@@ -212,11 +215,6 @@ public class Collecting {
             result += "OUT LVR\n";
         }
         return result;
-    }
-
-    public void persist(Configuration config) {
-        mIntakeBrushes.persist(config);
-        mOuttakeWheels.persist(config);
     }
 
 }

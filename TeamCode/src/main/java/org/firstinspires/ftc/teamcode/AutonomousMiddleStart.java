@@ -33,6 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode;
 
 // QUALCOMM includes
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -108,6 +110,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mGamepad1       = new Controller(gamepad1, telemetry);
         mGamepad2       = new Controller(gamepad2, telemetry);
 
+        mCollecting     = new Collecting();
+        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
 
         while (opModeInInit()) {
 
@@ -178,8 +182,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Actions.runBlocking(
             mDrive.actionBuilder(mReferencePose)
                     .waitSeconds(mWaitingTime)
-                    .splineTo(mPoses.posBeforePatternInitInches(), mPoses.hBeforePatternInitRadians())
-                    .splineTo(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians())
+                    //.splineTo(mPoses.posBeforePatternInitInches(), mPoses.hBeforePatternInitRadians())
+                    //.splineTo(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians())
+                    .lineToXLinearHeading(mPoses.posPatternInitInches().x,mPoses.hPatternInitRadians())
                     .build());
 
         mLogs.add("==> INTAKE");
@@ -188,16 +193,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
-        //
-        // mCollecting.startIntake();
+        mCollecting.startIntake();
 
         Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .waitSeconds(2)
-                        .lineToYConstantHeading(mDrive.getPose().position.y + mPoses.yDeltaIntakeInches())
+                mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
+                        .lineToYConstantHeading(mDrive.getPose().position.y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
-        //mCollecting.stopIntake();
+        mCollecting.stopIntake();
 
         mLogs.add( "==> GO TO CALIBRATION");
         for (Object l : mLogs) { telemetry.addLine(l.toString());}
@@ -207,9 +210,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
-                    .waitSeconds(2)
-                    //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches())
-                    .splineTo(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians() )
+                    //.waitSeconds(2)
+                    //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches() * 0.25)
+                    //.splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0)
+                    .setTangent(Math.PI / 2)
+                    .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .build());
 
         updatePoseFromAprilTagIfVisible();
@@ -226,7 +231,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineTo(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
                         .build());
 
         Configuration.s_Current.persist("heading",mDrive.getPose().heading.toDouble() + mPoses.hAutoToTeleopRadians() );

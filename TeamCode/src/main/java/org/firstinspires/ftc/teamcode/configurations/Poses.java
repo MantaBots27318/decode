@@ -28,20 +28,20 @@ public class Poses {
     public static final double ANGLE_BEFORE_PATTERN_INIT_RADIANS_BLUE = -Math.PI / 8;
     public static final double ANGLE_BEFORE_PATTERN_INIT_RADIANS_RED = Math.PI / 8;
 
-    public static final double X_GPP_PATTERN_INIT_INCHES = 30;
+    public static final double X_GPP_PATTERN_INIT_INCHES = 25;
     public static final double X_PGP_PATTERN_INIT_INCHES = 55;
     public static final double X_PPG_PATTERN_INIT_INCHES = 70;
-    public static final double Y_PATTERN_INIT_INCHES_BLUE = 12;
-    public static final double Y_PATTERN_INIT_INCHES_RED = -12;
+    public static final double Y_PATTERN_INIT_INCHES_BLUE = 0;
+    public static final double Y_PATTERN_INIT_INCHES_RED = 0;
     public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE = Math.PI / 2;
     public static final double ANGLE_PATTERN_INIT_RADIANS_RED = -Math.PI / 2;
 
-    public static final double Y_DELTA_INTAKE_INCHES_BLUE = 30;
-    public static final double Y_DELTA_INTAKE_INCHES_RED = -30;
+    public static final double Y_DELTA_INTAKE_INCHES_BLUE = 40;
+    public static final double Y_DELTA_INTAKE_INCHES_RED = -40;
 
     public static final double X_CALIBRATION_INIT_INCHES = 74;
     public static final double Y_CALIBRATION_INIT_INCHES_BLUE = 0;
-    public static final double Y_CALIBRATION_INIT_INCHES_RED = 0;
+    public static final double Y_CALIBRATION_INIT_INCHES_RED = -0;
     public static final double ANGLE_CALIBRATION_INIT_RADIANS_RED = -Math.PI / 4;
     public static final double ANGLE_CALIBRATION_INIT_RADIANS_BLUE = Math.PI / 4;
 
