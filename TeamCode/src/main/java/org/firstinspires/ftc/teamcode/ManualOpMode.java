@@ -48,7 +48,6 @@ public class ManualOpMode extends LinearOpMode {
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
 
-
         mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
         mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
 

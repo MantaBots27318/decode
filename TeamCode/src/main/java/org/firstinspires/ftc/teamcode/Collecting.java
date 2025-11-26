@@ -191,9 +191,9 @@ public class Collecting {
 
     }
 
-    public void startIntake() {
+    public void startIntake(double power) {
         mLogger.addLine("==> STR IN BRS");
-        mIntakeBrushes.start(0.9);
+        mIntakeBrushes.start(power);
     }
 
     public void stopIntake() {
