@@ -77,6 +77,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Alliance        mAlliance = Alliance.NONE;
     Poses           mPoses;
     double          mWaitingTime = 0.0;
+    boolean mShallParkInLaunchZone = false;
 
     Pose2d          mReferencePose;
 
@@ -84,6 +85,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
     double          mXOffset        = 0;
     double          mYOffset        = 0;
     double          mAngleOffset    = 0;
+
+
 
     Controller      mGamepad1;
     Controller      mGamepad2;
@@ -121,11 +124,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPoses.initialize(mAlliance,mTargetPattern);
+                mPoses.initialize(mAlliance,mTargetPattern,mShallParkInLaunchZone);
             }
             if (mGamepad1.buttons.dpad_left.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPoses.initialize(mAlliance, mTargetPattern);
+                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
 
             if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; }
@@ -135,26 +138,33 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
-                mPoses.initialize(mAlliance, mTargetPattern);
+                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             if (mGamepad1.buttons.left_stick_x_right.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
-                mPoses.initialize(mAlliance, mTargetPattern);
+                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+            }
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mShallParkInLaunchZone = true;
+            }
+            if(mGamepad1.buttons.a.pressedOnce()){
+                mShallParkInLaunchZone = false;
             }
 
             Vision.Pattern pattern = mVision.readPattern();
             if (pattern != Vision.Pattern.NONE) {
                 mPattern = pattern;
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
-                mPoses.initialize(mAlliance, mTargetPattern);
+                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             // Display menu
             telemetry.addLine("=========== MENU ============");
             telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
             telemetry.addLine("Choose Pattern Shift: LEFT STICK X LEFT/RIGHT");
             telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
+            telemetry.addLine("Choose Park Position: Y/A");
 
             telemetry.addLine("======= CONFIGURATION =======");
             telemetry.addData("==> PATTERN : " , mPattern.text());
@@ -162,6 +172,13 @@ public class AutonomousMiddleStart extends LinearOpMode {
             telemetry.addData("==> PATTERN TARGET : " , mTargetPattern.text());
             telemetry.addData("==> ALLIANCE : ", mAlliance.name());
             telemetry.addData("==> WAITING TIME : ", mWaitingTime + " s");
+            if (mShallParkInLaunchZone == false){
+                telemetry.addLine("==> PARKING POSITION : Gate Zone");
+            }
+            if (mShallParkInLaunchZone == true){
+                telemetry.addLine("==> PARKING POSITION : Launch Zone");
+            }
+
             telemetry.update();
 
             FtcDashboard.getInstance().getTelemetry().addLine("======= CONFIGURATION =======");
@@ -226,7 +243,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     //.waitSeconds(2)
                     //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches() * 0.25)
                     //.splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0)
-                    .setTangent(Math.PI / 2)
+                    .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
                     .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .build());
 
@@ -246,6 +263,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mDrive.actionBuilder(mDrive.getPose())
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
                         .build());
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .setTangent(mAngleOffset + mPoses.hShootingFTCRadians() + Math.PI)
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
+                        .build());
+
+
 
         Configuration.s_Current.persist("heading",mDrive.getPose().heading.toDouble() + mPoses.hAutoToTeleopRadians() );
         Configuration.s_Current.persist("alliance",mAlliance.getValue());

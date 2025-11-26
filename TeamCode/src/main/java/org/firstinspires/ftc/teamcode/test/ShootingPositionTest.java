@@ -31,7 +31,7 @@ public class ShootingPositionTest extends LinearOpMode{
 
         mGamepad = new Controller(gamepad1, FtcDashboard.getInstance().getTelemetry());
         mPoses   = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mPoses.initialize(ALLIANCE, Vision.Pattern.GPP);
+        mPoses.initialize(ALLIANCE, Vision.Pattern.GPP,true);
 
         mDriving = new Driving();
         mVision  = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);

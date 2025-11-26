@@ -41,7 +41,7 @@ public class ManualOpMode extends LinearOpMode {
         mGamepad2 = new Controller(gamepad2,telemetry);
 
         mPoses = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mPoses.initialize(alliance, Vision.Pattern.GPP);
+        mPoses.initialize(alliance, Vision.Pattern.GPP,true);
 
         mDriving = new Driving();
         mCollecting = new Collecting();
