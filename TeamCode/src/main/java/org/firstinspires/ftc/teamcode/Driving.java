@@ -64,7 +64,7 @@ public class Driving {
     Controller      mGamepad;
 
     boolean         mIsAutomated = false;
-    boolean         mIsFieldCentric = true;
+    boolean         mIsFieldCentric = false;
 
 
 

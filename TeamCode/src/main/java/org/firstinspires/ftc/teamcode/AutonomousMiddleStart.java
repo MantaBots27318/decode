@@ -236,7 +236,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .lineToYConstantHeading(mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
-        mCollecting.stopIntake();
+
 
         mLogs.add( "==> GO TO CALIBRATION");
         for (Object l : mLogs) { telemetry.addLine(l.toString());}
