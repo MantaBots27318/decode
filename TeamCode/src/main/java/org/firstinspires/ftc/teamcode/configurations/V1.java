@@ -39,9 +39,9 @@ public class V1 extends Configuration {
 
         /* Outtake servos reference positions */
         mServos.get("outtake-lever-arm").addPosition("open", 1.0);
-        mServos.get("outtake-lever-arm").addPosition("shoot", 0.37);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.368);
         mServos.get("outtake-lever-arm").addPosition("intake", 0.85);
-        mServos.get("outtake-lever-arm").addPosition("next", 0.5);
+        mServos.get("outtake-lever-arm").addPosition("next", 0.45);
 
         /* Camera servo reference position */
         mServos.get("camera").addPosition("tag",0.89);

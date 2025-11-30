@@ -86,7 +86,6 @@ public class OuttakeWheels {
         if(mReady) {
             mMotor.setPower(0);
             mIsMoving = false;
-            mTimer.arm(sTimeOut);
         }
     }
 
