@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 public class OuttakeWheels {
 
-    private static final int    sTimeOut = 1000; // Timeout in ms
+    private static final int    sTimeOut = 5000; // Timeout in ms
 
     Telemetry                   mLogger;      // Local logger
 

@@ -28,12 +28,14 @@ public class OuttakeLeverArm {
     public enum Position {
         OPEN,
         SHOOT,
+        INTAKE,
         NEXT
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
             "open", Position.OPEN,
             "shoot",Position.SHOOT,
+            "intake",Position.INTAKE,
             "next",Position.NEXT
     );
 

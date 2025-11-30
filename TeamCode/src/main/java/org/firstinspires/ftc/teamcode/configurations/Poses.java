@@ -72,9 +72,9 @@ public class Poses {
     public static final double ANGLE_PARKING_LAUNCH_ZONE_FTC_RADIANS = -Math.PI;
 
     public static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED = - Math.PI/2;
-    public static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE = - Math.PI/2;
-    public static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_RED = Math.PI/2;
-    public static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE = - Math.PI/2;
+    public static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE = Math.PI/2;
+    public static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_RED = - Math.PI/2;
+    public static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE = Math.PI/2;
 
     public static final double ANGLE_OBELISK_RADIANS_BLUE = -Math.PI/180 * 60;
     public static final double ANGLE_OBELISK_RADIANS_RED = Math.PI/180 * 60;

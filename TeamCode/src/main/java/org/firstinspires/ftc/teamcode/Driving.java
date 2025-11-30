@@ -64,9 +64,7 @@ public class Driving {
     Controller      mGamepad;
 
     boolean         mIsAutomated = false;
-    boolean         mIsFieldCentric = false;
-
-
+    boolean         mIsFieldCentric = true;
 
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gp, Vision vision, Poses poses) {
 

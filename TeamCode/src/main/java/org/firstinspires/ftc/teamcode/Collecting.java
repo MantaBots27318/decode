@@ -32,25 +32,25 @@ public class Collecting {
         NEXT2,
         SHOOT3
     }
-    public enum IntakeMode {
+    public enum StartIntakeMode {
         NONE,
         WAITING,
-        OPEN,
-        INTAKE
+        ARM,
+        MOTORS
     }
-    public enum NextMode {
+    public enum StopIntakeMode {
         NONE,
         WAITING,
-        BACK,
-        FORTH
+        ARM,
+        MOTORS
     }
 
 
     Telemetry mLogger;
 
-    IntakeMode      mIntakeMode;
+    StartIntakeMode mStartIntakeMode;
+    StopIntakeMode  mStopIntakeMode;
     ShootingMode    mShootingMode;
-    NextMode        mNextMode;
 
     IntakeBrushes   mIntakeBrushes;
     OuttakeWheels   mOuttakeWheels;
@@ -67,9 +67,9 @@ public class Collecting {
         mOuttakeWheels   = new OuttakeWheels();
         mOuttakeLeverArm = new OuttakeLeverArm();
 
-        mIntakeMode = IntakeMode.NONE;
+        mStartIntakeMode = StartIntakeMode.NONE;
+        mStopIntakeMode  = StopIntakeMode.NONE;
         mShootingMode = ShootingMode.NONE;
-        mNextMode = NextMode.NONE;
     }
 
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gamepad) {
@@ -93,17 +93,14 @@ public class Collecting {
         if (mGamepad.buttons.left_bumper.pressedOnce()) {
             if (!mIntakeBrushes.isMoving()) {
                 mLogger.addLine("==> STR IN BRS");
-                mIntakeBrushes.start(0.9);
+                start_intake();
             } else {
                 mLogger.addLine("==> STP IN BRS");
-                mIntakeBrushes.stop();
-                mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+                stop_intake();
             }
         }
 
         if (mGamepad.buttons.dpad_up.pressedOnce()) { shoot(); }
-
-        if (mGamepad.buttons.dpad_down.pressedOnce()) { next();}
 
         if (mGamepad.buttons.dpad_left.pressedOnce()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.OPEN);
@@ -118,8 +115,11 @@ public class Collecting {
         if (mShootingMode != ShootingMode.NONE) {
             this.shoot();
         }
-        if (mNextMode != NextMode.NONE) {
-            this.next();
+        if (mStartIntakeMode != StartIntakeMode.NONE) {
+            this.start_intake();
+        }
+        if (mStopIntakeMode != StopIntakeMode.NONE) {
+            this.stop_intake();
         }
     }
 
@@ -133,7 +133,7 @@ public class Collecting {
             mShootingMode = ShootingMode.WAITING;
         }
         else if (mShootingMode == ShootingMode.WAITING) {
-            mOuttakeWheels.start(0.8);
+            mOuttakeWheels.start(1.0);
             if (mOuttakeWheels.isTransitioning()) {
                 mShootingMode = ShootingMode.STARTING_WHEELS;
             }
@@ -176,30 +176,79 @@ public class Collecting {
 
     }
 
-    public void next() {
-        mLogger.addLine("NEXT : " + mNextMode);
 
-        if (mNextMode == NextMode.NONE) {
+
+    public boolean start_intake() {
+        mLogger.addLine("START INTAKE : " + mStartIntakeMode);
+
+        if (mStartIntakeMode == StartIntakeMode.NONE) {
             // Just transition to make sure that even though the first robot part is not yet ready
             // to move, we won't forget we have to keep on transiting
-            mNextMode = NextMode.WAITING;
+            mStartIntakeMode = StartIntakeMode.WAITING;
         }
-        else if (mNextMode == NextMode.WAITING) {
+        else if (mStartIntakeMode == StartIntakeMode.WAITING) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.INTAKE) {
+                mStartIntakeMode = StartIntakeMode.ARM;
+            }
+        }
+        else if (mStartIntakeMode == StartIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeWheels.start(0.4);
+            mIntakeBrushes.start(1.0);
+            if (mOuttakeWheels.isTransitioning()) {
+                mStartIntakeMode = StartIntakeMode.MOTORS;
+            }
+        }
+        else if (mStartIntakeMode == StartIntakeMode.MOTORS && !mOuttakeWheels.isTransitioning()) {
+            mStartIntakeMode = StartIntakeMode.NONE;
+        }
 
-            mNextMode = NextMode.NONE;
-        }
+        return mStartIntakeMode != StartIntakeMode.NONE;
 
     }
 
-    public void startIntake(double power) {
-        mLogger.addLine("==> STR IN BRS");
-        mIntakeBrushes.start(power);
+    public boolean stop_intake() {
+        mLogger.addLine("STOP INTAKE : " + mStopIntakeMode);
+
+        if (mStopIntakeMode == StopIntakeMode.NONE) {
+            // Just transition to make sure that even though the first robot part is not yet ready
+            // to move, we won't forget we have to keep on transiting
+            mStopIntakeMode = StopIntakeMode.WAITING;
+        }
+        else if (mStopIntakeMode == StopIntakeMode.WAITING) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+                mStopIntakeMode = StopIntakeMode.ARM;
+            }
+        }
+        else if (mStopIntakeMode == StopIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeWheels.stop();
+            mIntakeBrushes.stop();
+            mStopIntakeMode = StopIntakeMode.NONE;
+
+        }
+
+        return mStopIntakeMode != StopIntakeMode.NONE;
+
+    }
+
+
+    public void startIntake() {
+        mLogger.addLine("==> CFG : STARTING INTAKE");
+        this.start_intake();
+        while (mStartIntakeMode != StartIntakeMode.NONE){
+            mLogger.addData("CFG : STARTING INTAKE", "IN");
+            this.start_intake();
+        }
     }
 
     public void stopIntake() {
-        mLogger.addLine("==> STR IN BRS");
-        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
-        mIntakeBrushes.stop();
+        mLogger.addLine("==> CFG : STOPPING INTAKE");
+        this.stop_intake();
+        while (mStartIntakeMode != StartIntakeMode.NONE){
+            mLogger.addData("CFG : STOPPING INTAKE", "IN");
+            this.stop_intake();
+        }
 
     }
 

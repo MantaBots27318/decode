@@ -30,7 +30,7 @@ public class V1 extends Configuration {
         mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));        // EH Motor 0
 
         /* Outtake configuration */
-        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", false));      // CH Motor 1
+        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", true));      // CH Motor 1
         mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false)); // EH Servo 0
 
         /* Camera configuration */
@@ -39,7 +39,8 @@ public class V1 extends Configuration {
 
         /* Outtake servos reference positions */
         mServos.get("outtake-lever-arm").addPosition("open", 1.0);
-        mServos.get("outtake-lever-arm").addPosition("shoot", 0.375);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.37);
+        mServos.get("outtake-lever-arm").addPosition("intake", 0.85);
         mServos.get("outtake-lever-arm").addPosition("next", 0.5);
 
         /* Camera servo reference position */

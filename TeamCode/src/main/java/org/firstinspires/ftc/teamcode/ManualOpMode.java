@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.acmerobotics.dashboard.FtcDashboard;
 
 /* Robot include */
+import org.firstinspires.ftc.teamcode.camera.Camera;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
@@ -22,7 +23,7 @@ public class ManualOpMode extends LinearOpMode {
     Vision      mVision;
 
     Poses       mPoses;
-
+    Camera      mCamera;
     Controller  mGamepad1;
     Controller  mGamepad2;
 
@@ -44,15 +45,18 @@ public class ManualOpMode extends LinearOpMode {
         mPoses.initialize(alliance, Vision.Pattern.GPP,true);
 
         mDriving = new Driving();
+        mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
+
         mCollecting = new Collecting();
+        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
+
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
 
-        mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
-        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
+        mCamera = new Camera();
+        mCamera.setHW(Configuration.s_Current, hardwareMap, telemetry);
+        mCamera.setPosition(Camera.Position.TAG);
 
-
-        // Display menu
 
         telemetry.addData("Current Selection", alliance);
         telemetry.update();
