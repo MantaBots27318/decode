@@ -69,14 +69,27 @@ public class OuttakeWheels {
     }
 
     // Start the brushes with a given power
-    public void start(double Power)   {
+    public void start(double power)   {
 
         if(mReady && !this.isTransitioning())
         {
             mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mMotor.setPower(Power);
+            mMotor.setPower(power);
             mIsMoving = true;
             mTimer.arm(sTimeOut);
+        }
+
+    }
+
+
+    public void start(double power, int timeout) {
+
+        if(mReady && !this.isTransitioning())
+        {
+            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            mMotor.setPower(power);
+            mIsMoving = true;
+            mTimer.arm(timeout);
         }
 
     }

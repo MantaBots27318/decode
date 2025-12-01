@@ -133,7 +133,7 @@ public class Collecting {
             mShootingMode = ShootingMode.WAITING;
         }
         else if (mShootingMode == ShootingMode.WAITING) {
-            mOuttakeWheels.start(0.9);
+            mOuttakeWheels.start(0.9, 3000);
             if (mOuttakeWheels.isTransitioning()) {
                 mShootingMode = ShootingMode.STARTING_WHEELS;
             }
@@ -193,7 +193,7 @@ public class Collecting {
             }
         }
         else if (mStartIntakeMode == StartIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
-            mOuttakeWheels.start(0.4);
+            mOuttakeWheels.start(0.4, 1000);
             mIntakeBrushes.start(1.0);
             if (mOuttakeWheels.isTransitioning()) {
                 mStartIntakeMode = StartIntakeMode.MOTORS;
@@ -239,6 +239,16 @@ public class Collecting {
         while (mStartIntakeMode != StartIntakeMode.NONE){
             mLogger.addData("CFG : STARTING INTAKE", "IN");
             this.start_intake();
+        }
+    }
+
+
+    public void shoot3() {
+        mLogger.addLine("==> CFG : SHOOTING");
+        this.shoot();
+        while (mShootingMode != ShootingMode.NONE){
+            mLogger.addData("CFG : SHOOTING", "IN");
+            this.shoot();
         }
     }
 

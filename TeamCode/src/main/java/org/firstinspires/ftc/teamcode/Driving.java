@@ -196,8 +196,8 @@ public class Driving {
                 double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 heading += mHeadingOffset;
                 // Rotate the movement direction counter to the bot's rotation
-                double rotX = x * Math.cos(-heading) - y * Math.sin(-heading);
-                double rotY = x * Math.sin(-heading) + y * Math.cos(-heading);
+                double rotX = x * Math.cos(-heading) + y * Math.sin(-heading);
+                double rotY = - x * Math.sin(-heading) + y * Math.cos(-heading);
                 x = rotX;
                 y = rotY;
                 mLogger.addLine(String.format("==>  HD %6.1f X : %6.1f Y : %6.1f", heading,x,y));

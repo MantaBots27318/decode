@@ -324,7 +324,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading",mDrive.getPose().heading.toDouble() + mAngleOffset + mPoses.hAutoToTeleopRadians() );
+        Configuration.s_Current.persist("heading",mPoses.hAutoToTeleopRadians());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
@@ -356,9 +356,9 @@ public class AutonomousGoalStart extends LinearOpMode {
         }
         else {
             mReferencePose = new Pose2d(0,0,0);
-            mXOffset = - mPoses.posInitFTCInches().x;
-            mYOffset = - mPoses.posInitFTCInches().y;
-            mAngleOffset = - mPoses.hInitFTCInches();
+            mXOffset = - mPoses.posGoalInitFTCInches().x;
+            mYOffset = - mPoses.posGoalInitFTCInches().y;
+            mAngleOffset = - mPoses.hGoalInitFTCRadians();
         }
     }
 

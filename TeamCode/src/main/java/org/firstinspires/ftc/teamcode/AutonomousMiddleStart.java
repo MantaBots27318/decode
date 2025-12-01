@@ -232,10 +232,10 @@ public class AutonomousMiddleStart extends LinearOpMode {
         };
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
-                        .afterDisp(0.5 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
+                        .afterDisp(0.9 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
                         //.lineToYConstantHeading(mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .setTangent(mPoses.hPatternInitRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x, mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternInitRadians()),mPoses.hPatternInitRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x, mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternInitRadians()),mPoses.hPatternInitRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
 
@@ -248,9 +248,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
-                    //.waitSeconds(2)
-                    //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches() * 0.25)
-                    //.splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0)
+                    .setTangent(-mPoses.hPatternInitRadians())
+                    .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
                     .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .build());
@@ -272,13 +271,15 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
                         .build());
 
+        mCollecting.shoot3();
+
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .setTangent(mAngleOffset + mPoses.hShootingFTCRadians() + Math.PI)
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading",mDrive.getPose().heading.toDouble() + mAngleOffset + mPoses.hAutoToTeleopRadians() );
+        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
@@ -310,9 +311,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
         }
         else {
             mReferencePose = new Pose2d(0,0,0);
-            mXOffset = - mPoses.posInitFTCInches().x;
-            mYOffset = - mPoses.posInitFTCInches().y;
-            mAngleOffset = - mPoses.hInitFTCInches();
+            mXOffset = - mPoses.posMiddleInitFTCInches().x;
+            mYOffset = - mPoses.posMiddleInitFTCInches().y;
+            mAngleOffset = - mPoses.hMiddleInitFTCRadians();
         }
     }
 
