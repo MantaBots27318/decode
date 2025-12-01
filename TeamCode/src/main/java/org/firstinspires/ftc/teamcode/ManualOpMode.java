@@ -44,14 +44,15 @@ public class ManualOpMode extends LinearOpMode {
         mPoses = new Poses(FtcDashboard.getInstance().getTelemetry());
         mPoses.initialize(alliance, Vision.Pattern.GPP,true);
 
+        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mVision.initialize();
+
         mDriving = new Driving();
         mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
 
         mCollecting = new Collecting();
         mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
 
-        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
-        mVision.initialize();
 
         mCamera = new Camera();
         mCamera.setHW(Configuration.s_Current, hardwareMap, telemetry);

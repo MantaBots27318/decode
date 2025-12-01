@@ -10,11 +10,12 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 
 /* Roadrunner includes */
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -220,9 +221,12 @@ public class Driving {
         }
         else if(mIsAutomated && mReady) {
 
+
             FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED POSE : ", mDrive.getPose());
             FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED HEADING : ", (Math.asin(mDrive.getPose().heading.imag) / Math.PI * 180));
             mIsAutomated = mAction.run(new TelemetryPacket());
+            FtcDashboard.getInstance().getTelemetry().addData("==> IS AUTOMATED : ", mIsAutomated);
+
         }
     }
 
@@ -252,13 +256,19 @@ public class Driving {
 
             mLogger.addData("==> X ",mPoses.posShootingFTCInches().x);
             mLogger.addData("==> Y ",mPoses.posShootingFTCInches().y);
-            FtcDashboard.getInstance().getTelemetry().addLine("==> X : " + mPoses.posShootingFTCInches().x);
-            FtcDashboard.getInstance().getTelemetry().addLine("==> Y : " + mPoses.posShootingFTCInches().y);
+            mLogger.addData("==> Angles ",mPoses.hShootingFTCRadians());
+            FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingFTCInches().x);
+            FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingFTCInches().y);
+            FtcDashboard.getInstance().getTelemetry().addData("==> Angles ",mPoses.hShootingFTCRadians());
 
             mDrive                    = new MecanumDrive(mMap, pose);
 
+            double direction = Math.atan2(mPoses.posShootingFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingFTCInches().x - mDrive.getPose().position.x);
+            mLogger.addData("==> TGT ",direction / Math.PI * 180);
+            FtcDashboard.getInstance().getTelemetry().addData("==> TGT ",direction / Math.PI * 180);
             mAction = mDrive.actionBuilder(mDrive.getPose())
-                    .splineTo(mPoses.posShootingFTCInches(), mPoses.hShootingFTCRadians())
+                    .setTangent(direction)
+                    .splineToLinearHeading(new Pose2d(mPoses.posShootingFTCInches(), mPoses.hShootingFTCRadians()),direction, new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20,20))
                     .build();
 
             mIsAutomated = mAction.run(new TelemetryPacket());
