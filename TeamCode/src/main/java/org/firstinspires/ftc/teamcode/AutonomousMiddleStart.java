@@ -251,7 +251,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .setTangent(-mPoses.hPatternInitRadians())
                     .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
-                    .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                    .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                     .build());
 
         updatePoseFromAprilTagIfVisible();
@@ -279,7 +279,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians());
+        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

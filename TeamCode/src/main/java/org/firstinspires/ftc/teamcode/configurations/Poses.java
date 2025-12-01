@@ -25,18 +25,18 @@ public class Poses {
 
 
     public static final double X_GPP_PATTERN_INIT_INCHES = 25;
-    public static final double X_PGP_PATTERN_INIT_INCHES = 55;
-    public static final double X_PPG_PATTERN_INIT_INCHES = 70;
+    public static final double X_PGP_PATTERN_INIT_INCHES = 50;
+    public static final double X_PPG_PATTERN_INIT_INCHES = 72;
     public static final double Y_PATTERN_INIT_INCHES_BLUE = 0;
     public static final double Y_PATTERN_INIT_INCHES_RED = 0;
     public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE = Math.PI / 2;
     public static final double ANGLE_PATTERN_INIT_RADIANS_RED = -Math.PI / 2;
 
-    public static final double X_GPP_PATTERN_FTC_INCHES = X_GPP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES;
-    public static final double X_PGP_PATTERN_FTC_INCHES = X_PGP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES;
-    public static final double X_PPG_PATTERN_FTC_INCHES = X_PPG_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES;
-    public static final double Y_PATTERN_FTC_INCHES_BLUE = 36;
-    public static final double Y_PATTERN_FTC_INCHES_RED = -36;
+    public static final double X_GPP_PATTERN_FTC_INCHES = X_GPP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PGP_PATTERN_FTC_INCHES = X_PGP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PPG_PATTERN_FTC_INCHES = X_PPG_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double Y_PATTERN_FTC_INCHES_BLUE = 24;
+    public static final double Y_PATTERN_FTC_INCHES_RED = -24;
     public static final double ANGLE_PATTERN_FTC_RADIANS_BLUE = ANGLE_PATTERN_INIT_RADIANS_BLUE;
     public static final double ANGLE_PATTERN_FTC_RADIANS_RED = ANGLE_PATTERN_INIT_RADIANS_RED;
 
