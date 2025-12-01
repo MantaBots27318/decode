@@ -281,9 +281,8 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternFTCInches(),mPoses.hPatternFTCRadians()))
                         .afterDisp(0.5 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
-                        //.lineToYConstantHeading(mYOffset + mPoses.posPatternFTCInches().y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .setTangent(mPoses.hPatternInitRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternFTCInches().x, mPoses.posPatternFTCInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternFTCRadians()),mPoses.hPatternInitRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternFTCInches().x, mPoses.posPatternFTCInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternFTCRadians()),mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
         mLogs.add( "==> GO TO CALIBRATION");
@@ -294,9 +293,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        //.waitSeconds(2)
-                        //.lineToYConstantHeading(mDrive.getPose().position.y - mPoses.yDeltaIntakeInches() * 0.25)
-                        //.splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0)
+                        .setTangent(-mPoses.hPatternInitRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .setTangent(mPoses.tgtIntakeToCalibrationFTCRadians())
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posCalibrationFTCInches().x,mYOffset + mPoses.posCalibrationFTCInches().y), mAngleOffset + mPoses.hCalibrationFTCRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());

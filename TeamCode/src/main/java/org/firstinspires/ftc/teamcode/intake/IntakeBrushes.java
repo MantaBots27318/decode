@@ -25,10 +25,14 @@ public class IntakeBrushes {
     boolean                 mReady;       // True if component is able to fulfil its mission
     boolean                 mIsMoving;
 
+    boolean                 mIsReversed;
+
     MotorComponent          mMotor;       // Motor rotating the wheels
 
     // Check if the component is currently moving on command
     public boolean isMoving() { return mIsMoving; }
+
+    public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
@@ -36,6 +40,7 @@ public class IntakeBrushes {
         mLogger = logger;
         mReady = true;
         mIsMoving = false;
+        mIsReversed = false;
 
         String status = "";
 
@@ -65,13 +70,15 @@ public class IntakeBrushes {
     }
 
     // Start the brushes with a given power
-    public void start(double Power)   {
+    public void start(double power)   {
 
-        if(mReady && !this.isMoving())
+        if(mReady)
         {
             mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mMotor.setPower(Power);
+            mMotor.setPower(power);
             mIsMoving = true;
+            if(power < 0) { mIsReversed = true; }
+            else { mIsReversed = false; }
         }
 
     }
@@ -81,6 +88,7 @@ public class IntakeBrushes {
         if(mReady) {
             mMotor.setPower(0);
             mIsMoving = false;
+            mIsReversed = false;
         }
     }
 

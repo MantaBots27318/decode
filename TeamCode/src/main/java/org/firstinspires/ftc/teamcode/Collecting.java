@@ -38,6 +38,14 @@ public class Collecting {
         ARM,
         MOTORS
     }
+
+    public enum ReverseIntakeMode {
+        NONE,
+        WAITING,
+        ARM,
+        MOTORS
+    }
+
     public enum StopIntakeMode {
         NONE,
         WAITING,
@@ -49,6 +57,7 @@ public class Collecting {
     Telemetry mLogger;
 
     StartIntakeMode mStartIntakeMode;
+    ReverseIntakeMode mReverseIntakeMode;
     StopIntakeMode  mStopIntakeMode;
     ShootingMode    mShootingMode;
 
@@ -70,6 +79,7 @@ public class Collecting {
         mStartIntakeMode = StartIntakeMode.NONE;
         mStopIntakeMode  = StopIntakeMode.NONE;
         mShootingMode = ShootingMode.NONE;
+        mReverseIntakeMode = ReverseIntakeMode.NONE;
     }
 
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gamepad) {
@@ -91,11 +101,20 @@ public class Collecting {
         mLogger.addLine("-------- FUNCTION --------");
 
         if (mGamepad.buttons.left_bumper.pressedOnce()) {
-            if (!mIntakeBrushes.isMoving()) {
-                mLogger.addLine("==> STR IN BRS");
+            if ((!mIntakeBrushes.isMoving()) || (mIntakeBrushes.isMoving() && mIntakeBrushes.isReversed())) {
+                mLogger.addLine("==> STR INTAKE");
                 start_intake();
-            } else {
-                mLogger.addLine("==> STP IN BRS");
+            } else if (mIntakeBrushes.isMoving() && !(mIntakeBrushes.isReversed())){
+                mLogger.addLine("==> STP INTAKE");
+                stop_intake();
+            }
+        }
+        if (mGamepad.buttons.right_bumper.pressedOnce()) {
+            if ((!mIntakeBrushes.isMoving()) || (mIntakeBrushes.isMoving() && !mIntakeBrushes.isReversed())) {
+                mLogger.addLine("==> RVS INTAKE");
+                reverse_intake();
+            } else if (mIntakeBrushes.isMoving() && mIntakeBrushes.isReversed()){
+                mLogger.addLine("==> STP INTAKE");
                 stop_intake();
             }
         }
@@ -120,6 +139,9 @@ public class Collecting {
         }
         if (mStopIntakeMode != StopIntakeMode.NONE) {
             this.stop_intake();
+        }
+        if (mReverseIntakeMode != ReverseIntakeMode.NONE) {
+            this.reverse_intake();
         }
     }
 
@@ -204,6 +226,35 @@ public class Collecting {
         }
 
         return mStartIntakeMode != StartIntakeMode.NONE;
+
+    }
+
+    public boolean reverse_intake() {
+        mLogger.addLine("REVERSE INTAKE : " + mReverseIntakeMode);
+
+        if (mReverseIntakeMode == ReverseIntakeMode.NONE) {
+            // Just transition to make sure that even though the first robot part is not yet ready
+            // to move, we won't forget we have to keep on transiting
+            mReverseIntakeMode = ReverseIntakeMode.WAITING;
+        }
+        else if (mReverseIntakeMode == ReverseIntakeMode.WAITING) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.INTAKE) {
+                mReverseIntakeMode = ReverseIntakeMode.ARM;
+            }
+        }
+        else if (mReverseIntakeMode == ReverseIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeWheels.start(-0.4, 1000);
+            mIntakeBrushes.start(-1.0);
+            if (mOuttakeWheels.isTransitioning()) {
+                mReverseIntakeMode = ReverseIntakeMode.MOTORS;
+            }
+        }
+        else if (mReverseIntakeMode == ReverseIntakeMode.MOTORS && !mOuttakeWheels.isTransitioning()) {
+            mReverseIntakeMode = ReverseIntakeMode.NONE;
+        }
+
+        return mReverseIntakeMode != ReverseIntakeMode.NONE;
 
     }
 
