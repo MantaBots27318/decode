@@ -181,7 +181,7 @@ public class Collecting {
                 engage(0.85);
             }
             else {
-                shoot(0.85);
+                shoot(0.80);
             }
         }
 
@@ -296,7 +296,7 @@ public class Collecting {
             mEngageMode = EngageMode.WAITING;
             mIsCancellable = true;
         } else if (mEngageMode == EngageMode.WAITING) {
-            mOuttakeWheels.start(mEngagePower, 3000);
+            mOuttakeWheels.start(mEngagePower, 4000);
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT, 200);
             if (mOuttakeWheels.isTransitioning() && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT)) {
                 mEngageMode = EngageMode.WHEELS;
@@ -312,7 +312,7 @@ public class Collecting {
     public void shoot(double power) {
 
        mShootingPower = power;
-      shoot();
+       shoot();
 
     }
     public void shoot() {
@@ -408,7 +408,7 @@ public class Collecting {
                 mStopIntakeMode = StopIntakeMode.ARM;
             }
         } else if (mStopIntakeMode == StopIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
-            //mOuttakeWheels.stop();
+            mOuttakeWheels.stop();
             mIntakeBrushes.stop();
             mStopIntakeMode = StopIntakeMode.NONE;
             mCurrentState = State.LOCKED;
