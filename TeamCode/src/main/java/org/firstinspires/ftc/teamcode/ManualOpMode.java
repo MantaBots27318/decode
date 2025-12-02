@@ -67,12 +67,12 @@ public class ManualOpMode extends LinearOpMode {
         while (opModeIsActive()){
 
             try {
-                telemetry.addLine("launching control function");
                 mDriving.control();
                 mCollecting.control();
-                telemetry.addData("Current Alliance",Configuration.s_Current.retrieve("alliance"));
+                telemetry.addData("Current Alliance",alliance);
                 // Update state machines
                 mCollecting.loop();
+                telemetry.addLine(mCollecting.logState());
                 telemetry.update();
                 FtcDashboard.getInstance().getTelemetry().update();
             } catch (Exception e) {

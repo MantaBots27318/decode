@@ -32,24 +32,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode;
 
-// QUALCOMM includes
+// System includes
+import java.util.ArrayList;
+import java.util.List;
+
+// ANDROIDX
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+// QUALCOMM includes
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-// FTCController includes
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-
-// Acmerobotics include
+// ACME ROBOTICS includes
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+
+// FTCController includes
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 // Local includes
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
@@ -61,8 +66,6 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.camera.Camera;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
@@ -77,7 +80,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Alliance        mAlliance = Alliance.NONE;
     Poses           mPoses;
     double          mWaitingTime = 0.0;
-    boolean mShallParkInLaunchZone = false;
+    boolean         mShallParkInLaunchZone = false;
 
     Pose2d          mReferencePose;
 
@@ -228,6 +231,22 @@ public class AutonomousMiddleStart extends LinearOpMode {
             }
         };
 
+        Action shakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.shake();
+            }
+        };
+
+        Action engageAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.engage();
+            }
+        };
+
         Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
                             .waitSeconds(mWaitingTime)
@@ -246,12 +265,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
                         .afterDisp(0.9 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
-                        //.lineToYConstantHeading(mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .setTangent(mPoses.hPatternInitRadians())
                         .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x, mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternInitRadians()),mPoses.hPatternInitRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
-
-
 
         mLogs.add( "==> GO TO CALIBRATION");
         for (Object l : mLogs) { telemetry.addLine(l.toString());}
@@ -261,6 +277,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
             mDrive.actionBuilder(mDrive.getPose())
+                    .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
                     .setTangent(-mPoses.hPatternInitRadians())
                     .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
@@ -281,14 +298,15 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
+                        .afterDisp(0,engageAction)
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
 
-        mCollecting.shoot3();
+        mCollecting.shoot3close();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .setTangent(mAngleOffset + mPoses.hShootingFTCRadians() + Math.PI)
+                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 

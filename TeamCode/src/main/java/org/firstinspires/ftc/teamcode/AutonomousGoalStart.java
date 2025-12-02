@@ -224,10 +224,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
-
-
 
         mLogs.add("==> Shoot");
         for (Object l : mLogs) { telemetry.addLine(l.toString());}
@@ -235,7 +233,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
-        mCollecting.shoot3() ;
+        mCollecting.shoot3close() ;
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -308,14 +306,14 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingFTCInches().x, mYOffset + mPoses.posShootingFTCInches().y), mAngleOffset + mPoses.hShootingFTCRadians()),mAngleOffset + mPoses.hShootingFTCRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
 
-        mCollecting.shoot3();
+        mCollecting.shoot3close();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .setTangent(mAngleOffset + mPoses.hShootingFTCRadians() + Math.PI)
+                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 

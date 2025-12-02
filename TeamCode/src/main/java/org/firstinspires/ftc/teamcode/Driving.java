@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.configurations.Poses;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
+import org.firstinspires.ftc.teamcode.configurations.Range;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 
@@ -171,13 +172,17 @@ public class Driving {
     public void control() {
 
         if(mReady) {
-            if (mGamepad.buttons.a.pressedOnce() && mIsAutomated) {
+            if (mGamepad.buttons.b.pressedOnce() && mIsAutomated) {
                 mLogger.addLine("==> AUT SHT");
                 mIsAutomated = false;
             }
             if (mGamepad.buttons.y.pressedOnce() && !mIsAutomated) {
                 mLogger.addLine("==> AUT SHT");
-                shootPosition();
+                shootPosition(Range.CLOSE);
+            }
+            if (mGamepad.buttons.a.pressedOnce() && !mIsAutomated) {
+                mLogger.addLine("==> AUT SHT");
+                shootPosition(Range.FAR);
             }
         }
         if (mReady && !mIsAutomated) {
@@ -230,7 +235,7 @@ public class Driving {
         }
     }
 
-    public void shootPosition(){
+    public void shootPosition(Range range){
 
         // Gather April Tags
         Pose3D output = mVision.getPosition();
@@ -254,22 +259,42 @@ public class Driving {
             FtcDashboard.getInstance().getTelemetry().addData("==> NEW POSE : ",mDrive.getPose());
             FtcDashboard.getInstance().getTelemetry().addData("==> NEW POSE HEADING : ",Math.asin(mDrive.getPose().heading.imag) / Math.PI * 180);
 
-            mLogger.addData("==> X ",mPoses.posShootingFTCInches().x);
-            mLogger.addData("==> Y ",mPoses.posShootingFTCInches().y);
-            mLogger.addData("==> Angles ",mPoses.hShootingFTCRadians());
-            FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingFTCInches().x);
-            FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingFTCInches().y);
-            FtcDashboard.getInstance().getTelemetry().addData("==> Angles ",mPoses.hShootingFTCRadians());
-
             mDrive                    = new MecanumDrive(mMap, pose);
 
-            double direction = Math.atan2(mPoses.posShootingFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingFTCInches().x - mDrive.getPose().position.x);
-            mLogger.addData("==> TGT ",direction / Math.PI * 180);
-            FtcDashboard.getInstance().getTelemetry().addData("==> TGT ",direction / Math.PI * 180);
-            mAction = mDrive.actionBuilder(mDrive.getPose())
-                    .setTangent(direction)
-                    .splineToLinearHeading(new Pose2d(mPoses.posShootingFTCInches(), mPoses.hShootingFTCRadians()),direction, new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20,20))
-                    .build();
+            if(range == Range.FAR) {
+
+                mLogger.addData("==> X ", mPoses.posShootingFarFTCInches().x);
+                mLogger.addData("==> Y ", mPoses.posShootingFarFTCInches().y);
+                mLogger.addData("==> Angles ", mPoses.hShootingFarFTCRadians());
+                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingFarFTCInches().x);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingFarFTCInches().y);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPoses.hShootingFarFTCRadians());
+
+                double direction = Math.atan2(mPoses.posShootingFarFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingFarFTCInches().x - mDrive.getPose().position.x);
+                mLogger.addData("==> TGT ", direction / Math.PI * 180);
+                FtcDashboard.getInstance().getTelemetry().addData("==> TGT ", direction / Math.PI * 180);
+                mAction = mDrive.actionBuilder(mDrive.getPose())
+                        .setTangent(direction)
+                        .splineToLinearHeading(new Pose2d(mPoses.posShootingFarFTCInches(), mPoses.hShootingFarFTCRadians()), direction)
+                        .build();
+            }
+            else if(range == Range.CLOSE) {
+
+                mLogger.addData("==> X ", mPoses.posShootingCloseFTCInches().x);
+                mLogger.addData("==> Y ", mPoses.posShootingCloseFTCInches().y);
+                mLogger.addData("==> Angles ", mPoses.hShootingCloseFTCRadians());
+                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingCloseFTCInches().x);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingCloseFTCInches().y);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPoses.hShootingCloseFTCRadians());
+
+                double direction = Math.atan2(mPoses.posShootingCloseFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingCloseFTCInches().x - mDrive.getPose().position.x);
+                mLogger.addData("==> TGT ", direction / Math.PI * 180);
+                FtcDashboard.getInstance().getTelemetry().addData("==> TGT ", direction / Math.PI * 180);
+                mAction = mDrive.actionBuilder(mDrive.getPose())
+                        .setTangent(direction)
+                        .splineToLinearHeading(new Pose2d(mPoses.posShootingCloseFTCInches(), mPoses.hShootingCloseFTCRadians()), direction)
+                        .build();
+            }
 
             mIsAutomated = mAction.run(new TelemetryPacket());
 

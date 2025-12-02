@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.Poses;
+import org.firstinspires.ftc.teamcode.configurations.Range;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @Config
@@ -42,7 +43,7 @@ public class ShootingPositionTest extends LinearOpMode{
         while(opModeIsActive()) {
 
             if(SHOOTPOSITION == true) {
-                mDriving.shootPosition();
+                mDriving.shootPosition(Range.FAR);
                 SHOOTPOSITION = false;
             }
 

@@ -61,11 +61,17 @@ public class Poses {
     public static final double ANGLE_CALIBRATION_FTC_RADIANS_RED = ANGLE_CALIBRATION_INIT_RADIANS_RED;
     public static final double ANGLE_CALIBRATION_FTC_RADIANS_BLUE = ANGLE_CALIBRATION_INIT_RADIANS_BLUE;
 
-    public static final double X_SHOOTING_FTC_INCHES          = 17;
-    public static final double Y_SHOOTING_FTC_INCHES_BLUE     = 18;
-    public static final double ANGLE_SHOOTING_FTC_RADIANS_BLUE= Math.PI / 4;
-    public static final double Y_SHOOTING_FTC_INCHES_RED      =-18;
-    public static final double ANGLE_SHOOTING_FTC_RADIANS_RED = - Math.PI / 4;
+    public static final double X_SHOOTING_CLOSE_FTC_INCHES          = 36;
+    public static final double Y_SHOOTING_CLOSE_FTC_INCHES_BLUE     = 36;
+    public static final double ANGLE_SHOOTING_CLOSE_FTC_RADIANS_BLUE= Math.PI / 4;
+    public static final double Y_SHOOTING_CLOSE_FTC_INCHES_RED      =-36;
+    public static final double ANGLE_SHOOTING_CLOSE_FTC_RADIANS_RED = - Math.PI / 4;
+
+    public static final double X_SHOOTING_FAR_FTC_INCHES          = 16;
+    public static final double Y_SHOOTING_FAR_FTC_INCHES_BLUE     = 16;
+    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_BLUE= Math.PI / 4;
+    public static final double Y_SHOOTING_FAR_FTC_INCHES_RED      =-16;
+    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_RED = - Math.PI / 4;
     
     public static final double X_PARKING_GATE_ZONE_FTC_INCHES = 32;
     public static final double Y_PARKING_GATE_ZONE_FTC_INCHES_BLUE = 53;
@@ -113,8 +119,11 @@ public class Poses {
     Vector2d        mPositionCalibrationFTCInches = new Vector2d(0,0);
     double          mAngleCalibrationFTCRadians = 0;
 
-    Vector2d        mPositionShootingInches = new Vector2d(0,0);
-    double          mAngleShootingRadians = 0;
+    Vector2d        mPositionShootingCloseInches = new Vector2d(0,0);
+    double          mAngleShootingCloseRadians = 0;
+
+    Vector2d        mPositionShootingFarInches = new Vector2d(0,0);
+    double          mAngleShootingFarRadians = 0;
 
     Vector2d        mPositionParkingFTCInches = new Vector2d(0,0);
     double          mAngleParkingFTCRadians = 0;
@@ -168,8 +177,11 @@ public class Poses {
             mPositionCalibrationFTCInches = new Vector2d(X_CALIBRATION_FTC_INCHES,Y_CALIBRATION_FTC_INCHES_RED);
             mAngleCalibrationFTCRadians = ANGLE_CALIBRATION_FTC_RADIANS_RED;
 
-            mPositionShootingInches = new Vector2d(X_SHOOTING_FTC_INCHES,Y_SHOOTING_FTC_INCHES_RED);
-            mAngleShootingRadians = ANGLE_SHOOTING_FTC_RADIANS_RED;
+            mPositionShootingFarInches = new Vector2d(X_SHOOTING_FAR_FTC_INCHES,Y_SHOOTING_FAR_FTC_INCHES_RED);
+            mAngleShootingFarRadians = ANGLE_SHOOTING_FAR_FTC_RADIANS_RED;
+
+            mPositionShootingCloseInches = new Vector2d(X_SHOOTING_CLOSE_FTC_INCHES,Y_SHOOTING_CLOSE_FTC_INCHES_RED);
+            mAngleShootingCloseRadians = ANGLE_SHOOTING_CLOSE_FTC_RADIANS_RED;
 
             mAngleObeliskFTCRadians = ANGLE_OBELISK_RADIANS_RED ;
 
@@ -223,8 +235,11 @@ public class Poses {
             mPositionCalibrationFTCInches = new Vector2d(X_CALIBRATION_FTC_INCHES,Y_CALIBRATION_FTC_INCHES_BLUE);
             mAngleCalibrationFTCRadians = ANGLE_CALIBRATION_FTC_RADIANS_BLUE;
 
-            mPositionShootingInches = new Vector2d(X_SHOOTING_FTC_INCHES,Y_SHOOTING_FTC_INCHES_BLUE);
-            mAngleShootingRadians = ANGLE_SHOOTING_FTC_RADIANS_BLUE;
+            mPositionShootingCloseInches = new Vector2d(X_SHOOTING_CLOSE_FTC_INCHES,Y_SHOOTING_CLOSE_FTC_INCHES_BLUE);
+            mAngleShootingCloseRadians = ANGLE_SHOOTING_CLOSE_FTC_RADIANS_BLUE;
+
+            mPositionShootingFarInches = new Vector2d(X_SHOOTING_FAR_FTC_INCHES,Y_SHOOTING_FAR_FTC_INCHES_BLUE);
+            mAngleShootingFarRadians = ANGLE_SHOOTING_FAR_FTC_RADIANS_BLUE;
 
             mAngleObeliskFTCRadians = ANGLE_OBELISK_RADIANS_BLUE ;
 
@@ -244,40 +259,42 @@ public class Poses {
         }
     }
 
-    public Vector2d posMiddleInitFTCInches()     { return mPositionMiddleInitFTCInches; }
-    public double   hMiddleInitFTCRadians()      { return mAngleMiddleInitFTCRadians; }
-    public Vector2d posGoalInitFTCInches()       { return mPositionGoalInitFTCInches; }
-    public double   hGoalInitFTCRadians()        { return mAngleGoalInitFTCRadians; }
+    public Vector2d posMiddleInitFTCInches()             { return mPositionMiddleInitFTCInches; }
+    public double   hMiddleInitFTCRadians()              { return mAngleMiddleInitFTCRadians; }
+    public Vector2d posGoalInitFTCInches()               { return mPositionGoalInitFTCInches; }
+    public double   hGoalInitFTCRadians()                { return mAngleGoalInitFTCRadians; }
 
-    public Vector2d posPatternInitInches()       { return mPositionPatternInitInches; }
-    public double   hPatternInitRadians()        { return mAnglePatternInitRadians; }
+    public Vector2d posPatternInitInches()               { return mPositionPatternInitInches; }
+    public double   hPatternInitRadians()                { return mAnglePatternInitRadians; }
 
-    public Vector2d posPatternFTCInches()        { return mPositionPatternFTCInches; }
-    public double   hPatternFTCRadians()         { return mAnglePatternFTCRadians; }
+    public Vector2d posPatternFTCInches()                { return mPositionPatternFTCInches; }
+    public double   hPatternFTCRadians()                 { return mAnglePatternFTCRadians; }
 
-    public Vector2d posCalibrationInitInches()   { return mPositionCalibrationInitInches; }
-    public double   hCalibrationInitRadians()    { return mAngleCalibrationInitRadians; }
+    public Vector2d posCalibrationInitInches()           { return mPositionCalibrationInitInches; }
+    public double   hCalibrationInitRadians()            { return mAngleCalibrationInitRadians; }
 
-    public Vector2d posCalibrationFTCInches()   { return mPositionCalibrationFTCInches; }
-    public double   hCalibrationFTCRadians()    { return mAngleCalibrationFTCRadians; }
+    public Vector2d posCalibrationFTCInches()            { return mPositionCalibrationFTCInches; }
+    public double   hCalibrationFTCRadians()             { return mAngleCalibrationFTCRadians; }
 
-    public Vector2d posShootingFTCInches()       { return mPositionShootingInches; }
-    public double   hShootingFTCRadians()        { return mAngleShootingRadians; }
+    public Vector2d posShootingCloseFTCInches()          { return mPositionShootingCloseInches; }
+    public double   hShootingCloseFTCRadians()           { return mAngleShootingCloseRadians; }
+    public Vector2d posShootingFarFTCInches()            { return mPositionShootingFarInches; }
+    public double   hShootingFarFTCRadians()             { return mAngleShootingFarRadians; }
 
-    public double   yDeltaIntakeInches()         { return mYDeltaIntakeInches; }
+    public double   yDeltaIntakeInches()                 { return mYDeltaIntakeInches; }
 
-    public double   tgtIntakeToCalibrationInitRadians() {return mTgtIntakeToCalibrationInitRadians;}
+    public double   tgtIntakeToCalibrationInitRadians()  { return mTgtIntakeToCalibrationInitRadians;}
 
-    public double   tgtIntakeToCalibrationFTCRadians() {return mTgtIntakeToCalibrationFTCRadians;}
+    public double   tgtIntakeToCalibrationFTCRadians()   { return mTgtIntakeToCalibrationFTCRadians;}
 
-    public Vector2d posParkingFTCInches()        { return mPositionParkingFTCInches;}
-    public double   hParkingFTCRadians()         { return mAngleParkingFTCRadians;}
+    public Vector2d posParkingFTCInches()                { return mPositionParkingFTCInches;}
+    public double   hParkingFTCRadians()                 { return mAngleParkingFTCRadians;}
 
-    public double   hAutoToTeleopRadians()       { return mAngleAutoToTeleopRadians; }
+    public double   hAutoToTeleopRadians()               { return mAngleAutoToTeleopRadians; }
 
-    public double   xCalibrationFromGoal ()         { return mCalibrationFromGoalInches ;}
+    public double   xCalibrationFromGoal ()              { return mCalibrationFromGoalInches ;}
 
-    public double   hObeliskFTCRadians ()        {return  mAngleObeliskFTCRadians ;}
+    public double   hObeliskFTCRadians ()                { return  mAngleObeliskFTCRadians ;}
 
     public void log() {
         mLogger.addLine("PATTERN INIT X : " + mPositionPatternInitInches.x + " Y: " + mPositionPatternInitInches.y + " H: " + mAnglePatternInitRadians);
@@ -286,7 +303,8 @@ public class Poses {
         mLogger.addLine("TGT INTAKE TO CALIBRATION INIT : " + mTgtIntakeToCalibrationInitRadians);
         mLogger.addLine("CALIBRATION INIT X: " + mPositionCalibrationInitInches.x + " Y: " + mPositionCalibrationInitInches.y + " H: " + mAngleCalibrationInitRadians);
         mLogger.addLine("CALIBRATION FTC X: " + mPositionCalibrationFTCInches.x + " Y: " + mPositionCalibrationFTCInches.y + " H: " + mAngleCalibrationFTCRadians);
-        mLogger.addLine("SHOOTING: " + mPositionShootingInches.x + " Y: " + mPositionShootingInches.y + " H: " + mAngleShootingRadians);
+        mLogger.addLine("SHOOTING FAR: " + mPositionShootingFarInches.x + " Y: " + mPositionShootingFarInches.y + " H: " + mAngleShootingFarRadians);
+        mLogger.addLine("SHOOTING CLOSE: " + mPositionShootingCloseInches.x + " Y: " + mPositionShootingCloseInches.y + " H: " + mAngleShootingCloseRadians);
         mLogger.addLine("LEAVE: " + mPositionParkingFTCInches.x + " Y: " + mPositionParkingFTCInches.y + " H: " + mAngleParkingFTCRadians);
         mLogger.addLine("AUTO TO TELEOP: " + mAngleAutoToTeleopRadians);
     }
