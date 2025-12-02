@@ -243,7 +243,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mCollecting.engage();
+                return mCollecting.engage(0.85);
             }
         };
 
@@ -280,9 +280,15 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
                     .setTangent(-mPoses.hPatternInitRadians())
                     .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
-                    .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
-                    .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                     .build());
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .afterDisp(0.1,engageAction)
+                        .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
+                        .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
+                        .build());
+
 
         updatePoseFromAprilTagIfVisible();
 
@@ -298,11 +304,10 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .afterDisp(0,engageAction)
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
 
-        mCollecting.shoot3close();
+        mCollecting.shoot3(0.85);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())

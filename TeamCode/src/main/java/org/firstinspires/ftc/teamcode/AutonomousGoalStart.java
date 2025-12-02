@@ -233,7 +233,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
-        mCollecting.shoot3close() ;
+        mCollecting.shoot3(0.92) ;
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -309,7 +309,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
 
-        mCollecting.shoot3close();
+        mCollecting.shoot3(0.92);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())

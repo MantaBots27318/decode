@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 /* Java includes */
 
 /* Qualcomm includes */
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* FTC Controller includes */
@@ -38,6 +40,7 @@ public class Collecting {
     public enum ShootingMode {
         NONE,
         WAITING,
+        PRE,
         SHOOT,
         NEXT
     }
@@ -296,9 +299,9 @@ public class Collecting {
             mEngageMode = EngageMode.WAITING;
             mIsCancellable = true;
         } else if (mEngageMode == EngageMode.WAITING) {
-            mOuttakeWheels.start(mEngagePower, 4000);
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT, 200);
-            if (mOuttakeWheels.isTransitioning() && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT)) {
+            mOuttakeWheels.start(mEngagePower, 3000);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK, 200);
+            if (mOuttakeWheels.isTransitioning() && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK)) {
                 mEngageMode = EngageMode.WHEELS;
             }
         } else if (mEngageMode == EngageMode.WHEELS && !mOuttakeLeverArm.isMoving() && !mOuttakeWheels.isTransitioning()) {
@@ -325,20 +328,26 @@ public class Collecting {
             mIsCancellable = true;
             mShootingMode = ShootingMode.WAITING;
         }
-        else if (mShootingMode == ShootingMode.WAITING) {
+        else if (mShootingMode == ShootingMode.WAITING && (mOuttakeLeverArm.getPosition() != OuttakeLeverArm.Position.NEXT)) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,200);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+                mShootingMode = ShootingMode.PRE;
+            }
+        }
+        else if ((mShootingMode == ShootingMode.PRE) || (mShootingMode == ShootingMode.WAITING && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT))) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT,200);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
                 mShootingMode = ShootingMode.SHOOT;
             }
         }
         else if (mShootingMode == ShootingMode.SHOOT && !mOuttakeLeverArm.isMoving()) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,2000);
-            mOuttakeWheels.start(mShootingPower, 1000);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,200);
+            mOuttakeWheels.start(mShootingPower, 2000);
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) && (mOuttakeWheels.isTransitioning())){
                 mShootingMode = ShootingMode.NEXT;
             }
         }
-        else if(mShootingMode == ShootingMode.NEXT && !mOuttakeLeverArm.isMoving()) {
+        else if(mShootingMode == ShootingMode.NEXT && !mOuttakeLeverArm.isMoving() && !(mOuttakeWheels.isTransitioning())) {
             mShootingMode = ShootingMode.NONE;
             mCurrentState = State.ENGAGED;
         }
@@ -429,33 +438,14 @@ public class Collecting {
     }
 
 
-    public void shoot3far() {
-        mLogger.addLine("==> CFG : SHOOTING FAR");
-        this.shoot(0.92);
+    public void shoot3(double power) {
+        mLogger.addLine("==> CFG : SHOOTING 3");
+        this.shoot(power);
         while (mShootingMode != ShootingMode.NONE){
             mLogger.addData("CFG : SHOOTING", "IN");
             this.shoot();
         }
-        this.shoot(0.92);
-        while (mShootingMode != ShootingMode.NONE){
-            mLogger.addData("CFG : SHOOTING", "IN");
-            this.shoot();
-        }
-        this.shoot(0);
-        while (mShootingMode != ShootingMode.NONE){
-            mLogger.addData("CFG : SHOOTING", "IN");
-            this.shoot();
-        }
-    }
-
-    public void shoot3close() {
-        mLogger.addLine("==> CFG : SHOOTING FAR");
-        this.shoot(0.85);
-        while (mShootingMode != ShootingMode.NONE){
-            mLogger.addData("CFG : SHOOTING", "IN");
-            this.shoot();
-        }
-        this.shoot(0.85);
+        this.shoot(power);
         while (mShootingMode != ShootingMode.NONE){
             mLogger.addData("CFG : SHOOTING", "IN");
             this.shoot();
@@ -466,7 +456,6 @@ public class Collecting {
             this.shoot();
         }
     }
-
 
     public String logMovements() {
         String result = "";
