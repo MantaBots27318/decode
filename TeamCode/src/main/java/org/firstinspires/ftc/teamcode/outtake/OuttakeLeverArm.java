@@ -29,14 +29,16 @@ public class OuttakeLeverArm {
         OPEN,
         SHOOT,
         INTAKE,
-        NEXT
+        NEXT,
+        LOCK
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
             "open", Position.OPEN,
             "shoot",Position.SHOOT,
             "intake",Position.INTAKE,
-            "next",Position.NEXT
+            "next",Position.NEXT,
+            "lock",Position.LOCK
     );
 
     private static final int    sTimeOut = 1000; // Timeout in ms
@@ -95,7 +97,7 @@ public class OuttakeLeverArm {
         else        { logger.addLine("==>  OUT LVR : KO : " + status); }
 
         // Initialize position
-        this.setPosition(Position.OPEN);
+        this.setPosition(Position.LOCK);
 
     }
 

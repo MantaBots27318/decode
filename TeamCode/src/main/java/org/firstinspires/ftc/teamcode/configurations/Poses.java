@@ -61,10 +61,10 @@ public class Poses {
     public static final double ANGLE_CALIBRATION_FTC_RADIANS_RED = ANGLE_CALIBRATION_INIT_RADIANS_RED;
     public static final double ANGLE_CALIBRATION_FTC_RADIANS_BLUE = ANGLE_CALIBRATION_INIT_RADIANS_BLUE;
 
-    public static final double X_SHOOTING_FTC_INCHES          = 16;
-    public static final double Y_SHOOTING_FTC_INCHES_BLUE     = 16;
+    public static final double X_SHOOTING_FTC_INCHES          = 17;
+    public static final double Y_SHOOTING_FTC_INCHES_BLUE     = 18;
     public static final double ANGLE_SHOOTING_FTC_RADIANS_BLUE= Math.PI / 4;
-    public static final double Y_SHOOTING_FTC_INCHES_RED      =-16;
+    public static final double Y_SHOOTING_FTC_INCHES_RED      =-18;
     public static final double ANGLE_SHOOTING_FTC_RADIANS_RED = - Math.PI / 4;
     
     public static final double X_PARKING_GATE_ZONE_FTC_INCHES = 32;

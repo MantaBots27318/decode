@@ -190,6 +190,10 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         }
 
+        mXOffset = - mPoses.posGoalInitFTCInches().x;
+        mYOffset = - mPoses.posGoalInitFTCInches().y;
+        mAngleOffset = - mPoses.hGoalInitFTCRadians();
+
         mLogs.add("======= ACTIONS =======");
         mLogs.add("==> GO TO SHOOTING POSITION");
 
@@ -202,7 +206,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(mReferencePose)
                         .waitSeconds(mWaitingTime)
                         .setTangent(-mReferencePose.heading.toDouble())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mReferencePose.position.x + mPoses.xCalibrationFromGoal(), mReferencePose.position.y),mReferencePose.heading),mReferencePose.heading.toDouble())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mReferencePose.position.x + mPoses.xCalibrationFromGoal(), mReferencePose.position.y),mReferencePose.heading),-mReferencePose.heading.toDouble())
                         .build());
 
          updatePoseFromAprilTagIfVisible();
@@ -315,7 +319,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading",mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians());
+        Configuration.s_Current.persist("heading",mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians() - mAngleOffset);
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

@@ -199,6 +199,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         }
 
+
+        mXOffset = - mPoses.posMiddleInitFTCInches().x;
+        mYOffset = - mPoses.posMiddleInitFTCInches().y;
+        mAngleOffset = - mPoses.hMiddleInitFTCRadians();
+
         mLogs.add("======= ACTIONS =======");
         mLogs.add("==> GO TO PATTERN");
 
@@ -207,10 +212,26 @@ public class AutonomousMiddleStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
+        Action startIntakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.start_intake();
+            }
+        };
+
+        Action stopIntakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.stop_intake();
+            }
+        };
+
         Actions.runBlocking(
                     mDrive.actionBuilder(mReferencePose)
                             .waitSeconds(mWaitingTime)
-                            //.lineToXLinearHeading(mPoses.posPatternInitInches().x, mPoses.hPatternInitRadians())
+                            .afterDisp(0.4 * Math.abs(mPoses.posPatternInitInches().x),startIntakeAction)
                             .setTangent(mReferencePose.heading)
                             .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x,mReferencePose.position.y),mPoses.hPatternInitRadians()),mReferencePose.heading)
                             .build());
@@ -221,15 +242,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
-        mCollecting.startIntake();
 
-        Action stopIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                return mCollecting.stop_intake();
-            }
-        };
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
                         .afterDisp(0.9 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
@@ -279,7 +292,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians());
+        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians() - mAngleOffset);
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

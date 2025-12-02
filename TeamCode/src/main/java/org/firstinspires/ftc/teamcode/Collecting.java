@@ -155,7 +155,8 @@ public class Collecting {
             mShootingMode = ShootingMode.WAITING;
         }
         else if (mShootingMode == ShootingMode.WAITING) {
-            mOuttakeWheels.start(0.9, 3000);
+            mOuttakeWheels.start(1.0, 3000);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,200);
             if (mOuttakeWheels.isTransitioning()) {
                 mShootingMode = ShootingMode.STARTING_WHEELS;
             }
@@ -168,7 +169,8 @@ public class Collecting {
         }
         else if (mShootingMode == ShootingMode.SHOOT1 && !mOuttakeLeverArm.isMoving()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,2000);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+            mOuttakeWheels.start(0.92, 1000);
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) && (mOuttakeWheels.isTransitioning())){
                 mShootingMode = ShootingMode.NEXT1;
             }
         }
@@ -180,7 +182,8 @@ public class Collecting {
         }
         else if (mShootingMode == ShootingMode.SHOOT2 && !mOuttakeLeverArm.isMoving()) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT,2000);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+            mOuttakeWheels.start(0.92, 1000);
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) && (mOuttakeWheels.isTransitioning())){
                 mShootingMode = ShootingMode.NEXT2;
             }
         }
@@ -209,19 +212,14 @@ public class Collecting {
             mStartIntakeMode = StartIntakeMode.WAITING;
         }
         else if (mStartIntakeMode == StartIntakeMode.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.INTAKE) {
+            mOuttakeWheels.start(0.5, 200);
+            mIntakeBrushes.start(1.0);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE,200);
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.INTAKE) && (mOuttakeWheels.isTransitioning())) {
                 mStartIntakeMode = StartIntakeMode.ARM;
             }
         }
-        else if (mStartIntakeMode == StartIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
-            mOuttakeWheels.start(0.4, 1000);
-            mIntakeBrushes.start(1.0);
-            if (mOuttakeWheels.isTransitioning()) {
-                mStartIntakeMode = StartIntakeMode.MOTORS;
-            }
-        }
-        else if (mStartIntakeMode == StartIntakeMode.MOTORS && !mOuttakeWheels.isTransitioning()) {
+        else if (mStartIntakeMode == StartIntakeMode.ARM && !mOuttakeLeverArm.isMoving() && !mOuttakeWheels.isTransitioning()) {
             mStartIntakeMode = StartIntakeMode.NONE;
         }
 
@@ -267,8 +265,8 @@ public class Collecting {
             mStopIntakeMode = StopIntakeMode.WAITING;
         }
         else if (mStopIntakeMode == StopIntakeMode.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.NEXT);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.NEXT) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
                 mStopIntakeMode = StopIntakeMode.ARM;
             }
         }
