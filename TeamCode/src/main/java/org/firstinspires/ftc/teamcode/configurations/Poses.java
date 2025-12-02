@@ -24,17 +24,23 @@ public class Poses {
     public static final double ANGLE_GOAL_INIT_FTC_RADIANS_BLUE = Math.PI / 180 * 37;
 
 
-    public static final double X_GPP_PATTERN_INIT_INCHES = 25;
-    public static final double X_PGP_PATTERN_INIT_INCHES = 50;
-    public static final double X_PPG_PATTERN_INIT_INCHES = 72;
+    public static final double X_GPP_PATTERN_INIT_INCHES_BLUE = 25;
+    public static final double X_PGP_PATTERN_INIT_INCHES_BLUE = 50;
+    public static final double X_PPG_PATTERN_INIT_INCHES_BLUE = 72;
+    public static final double X_GPP_PATTERN_INIT_INCHES_RED = 30;
+    public static final double X_PGP_PATTERN_INIT_INCHES_RED = 55;
+    public static final double X_PPG_PATTERN_INIT_INCHES_RED = 77;
     public static final double Y_PATTERN_INIT_INCHES_BLUE = 0;
     public static final double Y_PATTERN_INIT_INCHES_RED = 0;
     public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE = Math.PI / 2;
     public static final double ANGLE_PATTERN_INIT_RADIANS_RED = -Math.PI / 2;
 
-    public static final double X_GPP_PATTERN_FTC_INCHES = X_GPP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_PGP_PATTERN_FTC_INCHES = X_PGP_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_PPG_PATTERN_FTC_INCHES = X_PPG_PATTERN_INIT_INCHES + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_GPP_PATTERN_FTC_INCHES_BLUE = X_GPP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PGP_PATTERN_FTC_INCHES_BLUE = X_PGP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PPG_PATTERN_FTC_INCHES_BLUE = X_PPG_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_GPP_PATTERN_FTC_INCHES_RED = X_GPP_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PGP_PATTERN_FTC_INCHES_RED = X_PGP_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_PPG_PATTERN_FTC_INCHES_RED = X_PPG_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
     public static final double Y_PATTERN_FTC_INCHES_BLUE = 24;
     public static final double Y_PATTERN_FTC_INCHES_RED = -24;
     public static final double ANGLE_PATTERN_FTC_RADIANS_BLUE = ANGLE_PATTERN_INIT_RADIANS_BLUE;
@@ -151,16 +157,16 @@ public class Poses {
             mAngleGoalInitFTCRadians = ANGLE_GOAL_INIT_FTC_RADIANS_RED;
 
             if (pattern == Vision.Pattern.GPP) {
-                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_RED);
-                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_RED);
+                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES_RED, Y_PATTERN_INIT_INCHES_RED);
+                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES_RED, Y_PATTERN_FTC_INCHES_RED);
             }
             if (pattern == Vision.Pattern.PGP) {
-                mPositionPatternInitInches = new Vector2d(X_PGP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_RED);
-                mPositionPatternFTCInches = new Vector2d(X_PGP_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_RED);
+                mPositionPatternInitInches = new Vector2d(X_PGP_PATTERN_INIT_INCHES_RED, Y_PATTERN_INIT_INCHES_RED);
+                mPositionPatternFTCInches = new Vector2d(X_PGP_PATTERN_FTC_INCHES_RED, Y_PATTERN_FTC_INCHES_RED);
             }
             if (pattern == Vision.Pattern.PPG) {
-                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_RED);
-                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_RED);
+                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES_RED, Y_PATTERN_FTC_INCHES_RED);
+                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES_RED, Y_PATTERN_INIT_INCHES_RED);
             }
 
             mAnglePatternInitRadians = ANGLE_PATTERN_INIT_RADIANS_RED;
@@ -209,16 +215,16 @@ public class Poses {
             mAngleGoalInitFTCRadians = ANGLE_GOAL_INIT_FTC_RADIANS_BLUE;
 
             if (pattern == Vision.Pattern.GPP) {
-                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_BLUE);
-                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_BLUE);
+                mPositionPatternInitInches = new Vector2d(X_GPP_PATTERN_INIT_INCHES_BLUE, Y_PATTERN_INIT_INCHES_BLUE);
+                mPositionPatternFTCInches = new Vector2d(X_GPP_PATTERN_FTC_INCHES_BLUE, Y_PATTERN_FTC_INCHES_BLUE);
             }
             if (pattern == Vision.Pattern.PGP) {
-                mPositionPatternInitInches = new Vector2d(X_PGP_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_BLUE);
-                mPositionPatternFTCInches = new Vector2d(X_PGP_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_BLUE);
+                mPositionPatternInitInches = new Vector2d(X_PGP_PATTERN_INIT_INCHES_BLUE, Y_PATTERN_INIT_INCHES_BLUE);
+                mPositionPatternFTCInches = new Vector2d(X_PGP_PATTERN_FTC_INCHES_BLUE, Y_PATTERN_FTC_INCHES_BLUE);
             }
             if (pattern == Vision.Pattern.PPG) {
-                mPositionPatternInitInches = new Vector2d(X_PPG_PATTERN_INIT_INCHES, Y_PATTERN_INIT_INCHES_BLUE);
-                mPositionPatternFTCInches = new Vector2d(X_PPG_PATTERN_FTC_INCHES, Y_PATTERN_FTC_INCHES_BLUE);
+                mPositionPatternInitInches = new Vector2d(X_PPG_PATTERN_INIT_INCHES_BLUE, Y_PATTERN_INIT_INCHES_BLUE);
+                mPositionPatternFTCInches = new Vector2d(X_PPG_PATTERN_FTC_INCHES_BLUE, Y_PATTERN_FTC_INCHES_BLUE);
             }
 
             mAnglePatternInitRadians = ANGLE_PATTERN_INIT_RADIANS_BLUE;

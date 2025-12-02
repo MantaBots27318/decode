@@ -194,6 +194,38 @@ public class AutonomousGoalStart extends LinearOpMode {
         mYOffset = - mPoses.posGoalInitFTCInches().y;
         mAngleOffset = - mPoses.hGoalInitFTCRadians();
 
+        Action startIntakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.start_intake();
+            }
+        };
+
+        Action stopIntakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.stop_intake();
+            }
+        };
+
+        Action shakeAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.shake();
+            }
+        };
+
+        Action engageAction = new Action() {
+            @Override
+            public boolean run(@NonNull TelemetryPacket p) {
+
+                return mCollecting.engage(0.85);
+            }
+        };
+
         mLogs.add("======= ACTIONS =======");
         mLogs.add("==> GO TO SHOOTING POSITION");
 
@@ -205,11 +237,12 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(mReferencePose)
                         .waitSeconds(mWaitingTime)
+                        .afterDisp(0.1,engageAction)
                         .setTangent(-mReferencePose.heading.toDouble())
                         .splineToLinearHeading(new Pose2d(new Vector2d(mReferencePose.position.x + mPoses.xCalibrationFromGoal(), mReferencePose.position.y),mReferencePose.heading),-mReferencePose.heading.toDouble())
                         .build());
 
-         updatePoseFromAprilTagIfVisible();
+        updatePoseFromAprilTagIfVisible();
 
         mLogs.add("==> CALIBRATION");
         mLogs.add("REF POSE :" + mDrive.getPose());
@@ -259,17 +292,15 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .turnTo(Math.PI)
+                        .build());
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .afterDisp(1,startIntakeAction)
                         .setTangent(Math.PI)
                         .splineToLinearHeading(new Pose2d (new Vector2d(mXOffset + mPoses.posPatternFTCInches().x,mYOffset + mPoses.posPatternFTCInches().y ),mAngleOffset + mPoses.hPatternFTCRadians()),mAngleOffset + mPoses.hPatternFTCRadians())
                         .build());
         mCollecting.startIntake();
 
-        Action stopIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-                return mCollecting.stop_intake();
-            }
-        };
 
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternFTCInches(),mPoses.hPatternFTCRadians()))
