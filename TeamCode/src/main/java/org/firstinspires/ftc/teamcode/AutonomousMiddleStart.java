@@ -279,7 +279,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mDrive.actionBuilder(mDrive.getPose())
                     .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
                     .setTangent(-mPoses.hPatternInitRadians())
-                    .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                    .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.7 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                     .build());
 
         Actions.runBlocking(

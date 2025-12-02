@@ -226,7 +226,6 @@ public class Driving {
         }
         else if(mIsAutomated && mReady) {
 
-
             FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED POSE : ", mDrive.getPose());
             FtcDashboard.getInstance().getTelemetry().addData("==> AUTOMATED HEADING : ", (Math.asin(mDrive.getPose().heading.imag) / Math.PI * 180));
             mIsAutomated = mAction.run(new TelemetryPacket());
