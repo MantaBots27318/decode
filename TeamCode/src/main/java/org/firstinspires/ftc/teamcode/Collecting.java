@@ -153,7 +153,7 @@ public class Collecting {
             }
             else {
                 mLogger.addLine("==> STP INTAKE");
-                stop_intake();
+                stop_intake_teleop();
             }
         }
         if (mGamepad.buttons.right_bumper.pressedOnce()) {
@@ -163,7 +163,7 @@ public class Collecting {
             }
             else {
                 mLogger.addLine("==> STP INTAKE");
-                stop_intake();
+                stop_intake_teleop();
             }
         }
 
@@ -181,7 +181,7 @@ public class Collecting {
         // SHOOTING CLOSE
         if (mGamepad.buttons.dpad_up.pressed()) {
             if (mCurrentState != State.ENGAGED) {
-                engage(0.85);
+                engage(0.87);
             }
             else {
                 shoot(0.80);
@@ -205,7 +205,7 @@ public class Collecting {
             this.start_intake();
         }
         if (mStopIntakeMode != StopIntakeMode.NONE) {
-            this.stop_intake();
+            this.stop_intake_teleop();
         }
         if (mEjectMode != EjectMode.NONE) {
             this.eject();
@@ -351,7 +351,6 @@ public class Collecting {
             mShootingMode = ShootingMode.NONE;
             mCurrentState = State.ENGAGED;
         }
-
     }
 
     public boolean start_intake() {
@@ -418,6 +417,30 @@ public class Collecting {
             }
         } else if (mStopIntakeMode == StopIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
             mOuttakeWheels.stop();
+            mIntakeBrushes.stop();
+            mStopIntakeMode = StopIntakeMode.NONE;
+            mCurrentState = State.LOCKED;
+        }
+
+        return mStopIntakeMode != StopIntakeMode.NONE;
+
+    }
+
+    public boolean stop_intake_teleop() {
+
+        mLogger.addLine("STOP INTAKE : " + mStopIntakeMode);
+
+        if (((mCurrentState == State.INTAKING) || (mCurrentState == State.EJECTING)) && (mStopIntakeMode == StopIntakeMode.NONE)) {
+            // Just transition to make sure that even though the first robot part is not yet ready
+            // to move, we won't forget we have to keep on transiting
+            mStopIntakeMode = StopIntakeMode.WAITING;
+        } else if (mStopIntakeMode == StopIntakeMode.WAITING) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
+                mStopIntakeMode = StopIntakeMode.ARM;
+            }
+        } else if (mStopIntakeMode == StopIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
+            //mOuttakeWheels.stop();
             mIntakeBrushes.stop();
             mStopIntakeMode = StopIntakeMode.NONE;
             mCurrentState = State.LOCKED;

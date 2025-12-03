@@ -73,16 +73,16 @@ public class Poses {
     public static final double Y_SHOOTING_CLOSE_FTC_INCHES_RED      =-36;
     public static final double ANGLE_SHOOTING_CLOSE_FTC_RADIANS_RED = - Math.PI / 4;
 
-    public static final double X_SHOOTING_FAR_FTC_INCHES          = 16;
-    public static final double Y_SHOOTING_FAR_FTC_INCHES_BLUE     = 16;
-    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_BLUE= Math.PI / 4;
-    public static final double Y_SHOOTING_FAR_FTC_INCHES_RED      =-16;
-    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_RED = - Math.PI / 4;
+    public static final double X_SHOOTING_FAR_FTC_INCHES                = 16;
+    public static final double Y_SHOOTING_FAR_FTC_INCHES_BLUE           = 16;
+    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_BLUE      = Math.PI / 4 - 2 / 180 * Math.PI;
+    public static final double Y_SHOOTING_FAR_FTC_INCHES_RED            = -16;
+    public static final double ANGLE_SHOOTING_FAR_FTC_RADIANS_RED       = - Math.PI / 4 + 2 / 180 * Math.PI;
     
-    public static final double X_PARKING_GATE_ZONE_FTC_INCHES = 32;
-    public static final double Y_PARKING_GATE_ZONE_FTC_INCHES_BLUE = 53;
-    public static final double Y_PARKING_GATE_ZONE_FTC_INCHES_RED = -53;
-    public static final double ANGLE_PARKING_GATE_ZONE_FTC_RADIANS_RED = Math.PI/2;
+    public static final double X_PARKING_GATE_ZONE_FTC_INCHES           = 32;
+    public static final double Y_PARKING_GATE_ZONE_FTC_INCHES_BLUE      = 53;
+    public static final double Y_PARKING_GATE_ZONE_FTC_INCHES_RED       = -53;
+    public static final double ANGLE_PARKING_GATE_ZONE_FTC_RADIANS_RED  = Math.PI/2;
     public static final double ANGLE_PARKING_GATE_ZONE_FTC_RADIANS_BLUE = -Math.PI/2;
 
     public static final double X_PARKING_LAUNCH_ZONE_FTC_INCHES = 60;
