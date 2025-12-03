@@ -17,9 +17,9 @@ public class Poses {
     public static final double Y_MIDDLE_INIT_FTC_INCHES_RED = -10;
     public static final double ANGLE_MIDDLE_INIT_FTC_RADIANS = 0;
 
-    public static final double X_GOAL_INIT_FTC_INCHES = -FIELD_SIZE_INCHES / 2 + 9;
-    public static final double Y_GOAL_INIT_FTC_INCHES_BLUE = 10;
-    public static final double Y_GOAL_INIT_FTC_INCHES_RED = -10;
+    public static final double X_GOAL_INIT_FTC_INCHES = 49;
+    public static final double Y_GOAL_INIT_FTC_INCHES_BLUE = 55;
+    public static final double Y_GOAL_INIT_FTC_INCHES_RED = -55;
     public static final double ANGLE_GOAL_INIT_FTC_RADIANS_RED = - Math.PI / 180 * 37;
     public static final double ANGLE_GOAL_INIT_FTC_RADIANS_BLUE = Math.PI / 180 * 37;
 
@@ -35,14 +35,14 @@ public class Poses {
     public static final double ANGLE_PATTERN_INIT_RADIANS_BLUE = Math.PI / 2;
     public static final double ANGLE_PATTERN_INIT_RADIANS_RED = -Math.PI / 2;
 
-    public static final double X_GPP_PATTERN_FTC_INCHES_BLUE = X_GPP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_PGP_PATTERN_FTC_INCHES_BLUE = X_PGP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_PPG_PATTERN_FTC_INCHES_BLUE = X_PPG_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_GPP_PATTERN_FTC_INCHES_RED = X_GPP_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
+    public static final double X_GPP_PATTERN_FTC_INCHES_BLUE = X_GPP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 8;
+    public static final double X_PGP_PATTERN_FTC_INCHES_BLUE = X_PGP_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 8;
+    public static final double X_PPG_PATTERN_FTC_INCHES_BLUE = X_PPG_PATTERN_INIT_INCHES_BLUE + X_MIDDLE_INIT_FTC_INCHES + 8;
+    public static final double X_GPP_PATTERN_FTC_INCHES_RED = X_GPP_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 8;
     public static final double X_PGP_PATTERN_FTC_INCHES_RED = X_PGP_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double X_PPG_PATTERN_FTC_INCHES_RED = X_PPG_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 5;
-    public static final double Y_PATTERN_FTC_INCHES_BLUE = 24;
-    public static final double Y_PATTERN_FTC_INCHES_RED = -24;
+    public static final double X_PPG_PATTERN_FTC_INCHES_RED = X_PPG_PATTERN_INIT_INCHES_RED + X_MIDDLE_INIT_FTC_INCHES + 8;
+    public static final double Y_PATTERN_FTC_INCHES_BLUE = 36;
+    public static final double Y_PATTERN_FTC_INCHES_RED = -36;
     public static final double ANGLE_PATTERN_FTC_RADIANS_BLUE = ANGLE_PATTERN_INIT_RADIANS_BLUE;
     public static final double ANGLE_PATTERN_FTC_RADIANS_RED = ANGLE_PATTERN_INIT_RADIANS_RED;
 
@@ -98,7 +98,8 @@ public class Poses {
     public static final double ANGLE_OBELISK_RADIANS_BLUE = -Math.PI/180 * 60;
     public static final double ANGLE_OBELISK_RADIANS_RED = Math.PI/180 * 60;
 
-    public static final double X_CALIBRATION_FROM_GOAL_INCHES = -30*Math.sqrt(2);
+    public static final double X_CALIBRATION_FROM_GOAL_INCHES = -27*Math.sqrt(2);
+
 
 
     Telemetry       mLogger;

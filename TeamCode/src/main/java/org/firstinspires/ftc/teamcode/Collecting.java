@@ -455,6 +455,39 @@ public class Collecting {
             mLogger.addData("CFG : SHOOTING", "IN");
             this.shoot();
         }
+        this.cancel();
+        while(mCancelMode != CancelMode.NONE) {
+            this.cancel();
+        }
+    }
+
+    public void shoot4(double power) {
+        mLogger.addLine("==> CFG : SHOOTING 3");
+        this.shoot(power);
+        while (mShootingMode != ShootingMode.NONE){
+            mLogger.addData("CFG : SHOOTING", "IN");
+            this.shoot();
+        }
+        this.shoot(power);
+        while (mShootingMode != ShootingMode.NONE){
+            mLogger.addData("CFG : SHOOTING", "IN");
+            this.shoot();
+        }
+        this.shoot(power);
+        while (mShootingMode != ShootingMode.NONE){
+            mLogger.addData("CFG : SHOOTING", "IN");
+            this.shoot();
+        }
+        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT,1000);
+        while (mOuttakeLeverArm.isMoving()) {
+            try { Thread.sleep(10) ; }
+            catch(Exception e) {}
+        }
+
+        this.cancel();
+        while(mCancelMode != CancelMode.NONE) {
+            this.cancel();
+        }
     }
 
     public String logMovements() {

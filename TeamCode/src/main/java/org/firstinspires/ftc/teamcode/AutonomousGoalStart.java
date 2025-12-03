@@ -146,12 +146,8 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
                 mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
-            if(mGamepad1.buttons.y.pressedOnce()){
-                mShallParkInLaunchZone = true;
-            }
-            if(mGamepad1.buttons.a.pressedOnce()){
-                mShallParkInLaunchZone = false;
-            }
+            mShallParkInLaunchZone = false;
+
 
 
             // Display menu
@@ -222,7 +218,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mCollecting.engage(0.85);
+                return mCollecting.engage(0.87);
             }
         };
 
@@ -238,8 +234,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(mReferencePose)
                         .waitSeconds(mWaitingTime)
                         .afterDisp(0.1,engageAction)
-                        .setTangent(-mReferencePose.heading.toDouble())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mReferencePose.position.x + mPoses.xCalibrationFromGoal(), mReferencePose.position.y),mReferencePose.heading),-mReferencePose.heading.toDouble())
+                        .lineToXConstantHeading(mPoses.xCalibrationFromGoal())
                         .build());
 
         updatePoseFromAprilTagIfVisible();
@@ -266,7 +261,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
         FtcDashboard.getInstance().getTelemetry().update();
 
-        mCollecting.shoot3(0.92) ;
+        mCollecting.shoot4(0.8) ;
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -283,7 +278,6 @@ public class AutonomousGoalStart extends LinearOpMode {
             mPattern = pattern;
             mTargetPattern = this.computePattern(mPattern,mPatternShift);
             mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
-
         }
 
         FtcDashboard.getInstance().getTelemetry().addData("PATTERN" , mPattern.text());
@@ -293,14 +287,13 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(mDrive.getPose())
                         .turnTo(Math.PI)
                         .build());
+
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .afterDisp(1,startIntakeAction)
                         .setTangent(Math.PI)
                         .splineToLinearHeading(new Pose2d (new Vector2d(mXOffset + mPoses.posPatternFTCInches().x,mYOffset + mPoses.posPatternFTCInches().y ),mAngleOffset + mPoses.hPatternFTCRadians()),mAngleOffset + mPoses.hPatternFTCRadians())
                         .build());
-        mCollecting.startIntake();
-
 
         Actions.runBlocking(
                 mDrive.actionBuilder(new Pose2d(mPoses.posPatternFTCInches(),mPoses.hPatternFTCRadians()))
@@ -309,44 +302,53 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternFTCInches().x, mPoses.posPatternFTCInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternFTCRadians()),mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .build());
 
-        mLogs.add( "==> GO TO CALIBRATION");
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
 
+
+//        mLogs.add( "==> GO TO CALIBRATION");
+//        for (Object l : mLogs) { telemetry.addLine(l.toString());}
+//        telemetry.update();
+//        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
+//        FtcDashboard.getInstance().getTelemetry().update();
+//
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .setTangent(-mPoses.hPatternInitRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.5 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
-                        .setTangent(mPoses.tgtIntakeToCalibrationFTCRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posCalibrationFTCInches().x,mYOffset + mPoses.posCalibrationFTCInches().y), mAngleOffset + mPoses.hCalibrationFTCRadians()),0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
+                        .setTangent(-mPoses.hPatternFTCRadians())
+                        .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.6 * mPoses.yDeltaIntakeInches()*0.3), mDrive.getPose().heading),-mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
-
-        updatePoseFromAprilTagIfVisible();
-
-        mLogs.add("==> CALIBRATION");
-        mLogs.add("REF POSE :" + mDrive.getPose());
-        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        mLogs.add("==> GO TO SHOOTING");
-
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
-                        .build());
-
-        mCollecting.shoot3(0.92);
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
-                        .build());
+//
+//        Actions.runBlocking(
+//                mDrive.actionBuilder(mDrive.getPose())
+//                        .afterDisp(0.1,engageAction)
+//                        .setTangent(mPoses.tgtIntakeToCalibrationFTCRadians())
+//                        .splineToLinearHeading(new Pose2d(mPoses.posCalibrationFTCInches(), mPoses.hCalibrationFTCRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
+//                        .build());
+//
+//
+//        updatePoseFromAprilTagIfVisible();
+//
+//        mLogs.add("==> CALIBRATION");
+//        mLogs.add("REF POSE :" + mDrive.getPose());
+//        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
+//        mLogs.add("==> GO TO SHOOTING");
+//
+//        for (Object l : mLogs) { telemetry.addLine(l.toString());}
+//        telemetry.update();
+//        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
+//        FtcDashboard.getInstance().getTelemetry().update();
+//
+//        Actions.runBlocking(
+//                mDrive.actionBuilder(mDrive.getPose())
+//                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
+//                        .build());
+//
+//        mCollecting.shoot3(0.8);
+//
+//        Actions.runBlocking(
+//                mDrive.actionBuilder(mDrive.getPose())
+//                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
+//                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
+//                        .build());
 
         Configuration.s_Current.persist("heading",mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians() - mAngleOffset);
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
