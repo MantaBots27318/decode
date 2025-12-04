@@ -141,13 +141,13 @@ public class AutonomousMiddleStart extends LinearOpMode {
             if (mGamepad1.buttons.x.pressedOnce())  {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
-                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
                 mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             if (mGamepad1.buttons.b.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
-                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
                 mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             if(mGamepad1.buttons.y.pressedOnce()){
@@ -160,7 +160,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
             Vision.Pattern pattern = mVision.readPattern();
             if (pattern != Vision.Pattern.NONE) {
                 mPattern = pattern;
-                mTargetPattern = this.computePattern(mPattern,mPatternShift);
+                if(mPattern == Vision.Pattern.PPG) { mTargetPattern = Vision.Pattern.PGP; }
+                if(mPattern == Vision.Pattern.PGP) { mTargetPattern = Vision.Pattern.PPG; }
+                if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
                 mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             // Display menu
