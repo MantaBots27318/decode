@@ -176,11 +176,11 @@ public class Driving {
                 mLogger.addLine("==> AUT SHT");
                 mIsAutomated = false;
             }
-            if (mGamepad.buttons.y.pressedOnce() && !mIsAutomated) {
+            if (mGamepad.buttons.right_trigger.pressedOnce() && !mIsAutomated) {
                 mLogger.addLine("==> AUT SHT");
                 shootPosition(Range.CLOSE);
             }
-            if (mGamepad.buttons.a.pressedOnce() && !mIsAutomated) {
+            if (mGamepad.buttons.right_bumper.pressedOnce() && !mIsAutomated) {
                 mLogger.addLine("==> AUT SHT");
                 shootPosition(Range.FAR);
             }

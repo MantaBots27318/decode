@@ -156,15 +156,13 @@ public class Collecting {
                 stop_intake_teleop();
             }
         }
-        if (mGamepad.buttons.right_bumper.pressedOnce()) {
-            if (mCurrentState != State.EJECTING) {
-                mLogger.addLine("==> RVS INTAKE");
-                eject();
-            }
-            else {
-                mLogger.addLine("==> STP INTAKE");
-                stop_intake_teleop();
-            }
+        if (mGamepad.buttons.right_bumper.pressed()) {
+            mLogger.addLine("==> RVS INTAKE");
+            eject();
+        }
+        if (mGamepad.buttons.right_bumper.releasedOnce()){
+            mLogger.addLine("==> STP INTAKE");
+            stop_intake_teleop();
         }
 
 
@@ -174,7 +172,7 @@ public class Collecting {
                 engage(1.0);
             }
             else {
-                shoot(0.92);
+                shoot(0.87);
             }
         }
 
@@ -184,7 +182,7 @@ public class Collecting {
                 engage(0.87);
             }
             else {
-                shoot(0.80);
+                shoot(0.75);
             }
         }
 
@@ -389,13 +387,9 @@ public class Collecting {
             // to move, we won't forget we have to keep on transiting
             mEjectMode = EjectMode.WAITING;
         } else if (mEjectMode == EjectMode.WAITING) {
-            mOuttakeWheels.start(-0.5, 200);
+            mOuttakeWheels.start(-0.5);
             mIntakeBrushes.start(-1.0);
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE);
-            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.INTAKE) && (mOuttakeWheels.isTransitioning())) {
-                mEjectMode = EjectMode.ARM;
-            }
-        } else if (mEjectMode == EjectMode.ARM && !mOuttakeLeverArm.isMoving() && !mOuttakeWheels.isTransitioning()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.INTAKE,0);
             mEjectMode = EjectMode.NONE;
             mCurrentState = State.EJECTING;
         }
@@ -435,12 +429,8 @@ public class Collecting {
             // to move, we won't forget we have to keep on transiting
             mStopIntakeMode = StopIntakeMode.WAITING;
         } else if (mStopIntakeMode == StopIntakeMode.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
-                mStopIntakeMode = StopIntakeMode.ARM;
-            }
-        } else if (mStopIntakeMode == StopIntakeMode.ARM && !mOuttakeLeverArm.isMoving()) {
-            //mOuttakeWheels.stop();
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,0);
+           //mOuttakeWheels.stop();
             mIntakeBrushes.stop();
             mStopIntakeMode = StopIntakeMode.NONE;
             mCurrentState = State.LOCKED;
