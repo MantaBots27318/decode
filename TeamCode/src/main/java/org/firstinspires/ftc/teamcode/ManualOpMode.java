@@ -58,7 +58,6 @@ public class ManualOpMode extends LinearOpMode {
         mCamera.setHW(Configuration.s_Current, hardwareMap, telemetry);
         mCamera.setPosition(Camera.Position.TAG);
 
-
         telemetry.addData("Current Selection", alliance);
         telemetry.update();
 

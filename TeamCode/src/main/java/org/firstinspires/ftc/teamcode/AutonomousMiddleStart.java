@@ -135,7 +135,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mPoses.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
             }
 
-            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,5);}
+            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
             if (mGamepad1.buttons.dpad_down.pressedOnce())          { mWaitingTime -= 1; mWaitingTime = Math.max(mWaitingTime,0); }
 
             if (mGamepad1.buttons.x.pressedOnce())  {
@@ -245,7 +245,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mCollecting.engage(0.85);
+                return mCollecting.engage(0.80);
             }
         };
 
@@ -309,7 +309,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
                         .build());
 
-        mCollecting.shoot3(0.75);
+        mCollecting.shoot4(0.75);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())

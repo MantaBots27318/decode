@@ -172,7 +172,7 @@ public class Collecting {
                 engage(1.0);
             }
             else {
-                shoot(0.87);
+                shoot(0.95);
             }
         }
 
@@ -297,7 +297,7 @@ public class Collecting {
             mEngageMode = EngageMode.WAITING;
             mIsCancellable = true;
         } else if (mEngageMode == EngageMode.WAITING) {
-            mOuttakeWheels.start(mEngagePower, 3000);
+            mOuttakeWheels.start(mEngagePower, 3500);
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK, 200);
             if (mOuttakeWheels.isTransitioning() && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK)) {
                 mEngageMode = EngageMode.WHEELS;

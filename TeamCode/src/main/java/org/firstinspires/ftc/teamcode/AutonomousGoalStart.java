@@ -131,7 +131,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mPoses.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
             }
 
-            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; }
+            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
             if (mGamepad1.buttons.dpad_down.pressedOnce())          { mWaitingTime -= 1; mWaitingTime = Math.max(mWaitingTime,0); }
 
             if (mGamepad1.buttons.x.pressedOnce())  {
