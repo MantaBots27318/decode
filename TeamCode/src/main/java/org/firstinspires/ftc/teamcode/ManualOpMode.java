@@ -8,26 +8,31 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.acmerobotics.dashboard.FtcDashboard;
 
 /* Robot include */
-import org.firstinspires.ftc.teamcode.camera.Camera;
+import org.firstinspires.ftc.teamcode.subsystems.camera.Camera;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.Poses;
 import org.firstinspires.ftc.teamcode.vision.Vision;
+import org.firstinspires.ftc.teamcode.path.Path;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 @TeleOp
 public class ManualOpMode extends LinearOpMode {
+
+    Logger      mLogger;
 
     Driving     mDriving;
     Collecting  mCollecting;
     Vision      mVision;
 
-    Poses       mPoses;
+    Path        mPath;
     Camera      mCamera;
     Controller  mGamepad1;
     Controller  mGamepad2;
 
     public void runOpMode() throws InterruptedException {
+
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
 
         Alliance alliance = Alliance.NONE;
 
@@ -41,14 +46,14 @@ public class ManualOpMode extends LinearOpMode {
         mGamepad1 = new Controller(gamepad1,telemetry);
         mGamepad2 = new Controller(gamepad2,telemetry);
 
-        mPoses = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mPoses.initialize(alliance, Vision.Pattern.GPP,true);
+        mPath = new Path(mLogger);
+        mPath.initialize(alliance, true);
 
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
 
         mDriving = new Driving();
-        mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision,mPoses);
+        mDriving.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad1, mVision, mPath);
 
         mCollecting = new Collecting();
         mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);

@@ -11,8 +11,9 @@ import org.firstinspires.ftc.teamcode.Driving;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.Poses;
 import org.firstinspires.ftc.teamcode.configurations.Range;
+import org.firstinspires.ftc.teamcode.path.Path;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @Config
@@ -24,15 +25,19 @@ public class ShootingPositionTest extends LinearOpMode{
 
     Driving         mDriving;
     Vision          mVision;
-    Poses           mPoses;
+    Path mPoses;
 
     Controller      mGamepad;
 
+    Logger mLogger;
+
     public void runOpMode() throws InterruptedException {
 
+        mLogger = new Logger(telemetry, FtcDashboard.getInstance(),"shooting-test");
+
         mGamepad = new Controller(gamepad1, FtcDashboard.getInstance().getTelemetry());
-        mPoses   = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mPoses.initialize(ALLIANCE, Vision.Pattern.GPP,true);
+        mPoses   = new Path(mLogger);
+        mPoses.initialize(ALLIANCE, true);
 
         mDriving = new Driving();
         mVision  = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);

@@ -40,6 +40,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 // QUALCOMM includes
+import com.acmerobotics.roadrunner.Twist2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -59,42 +60,39 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 // Local includes
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.Poses;
+import org.firstinspires.ftc.teamcode.path.Path;
+import org.firstinspires.ftc.teamcode.path.PathAutonomousMiddle;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 import org.firstinspires.ftc.teamcode.components.Controller;
-import org.firstinspires.ftc.teamcode.camera.Camera;
+import org.firstinspires.ftc.teamcode.subsystems.camera.Camera;
 
 
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
 
-    Vision          mVision;
-    MecanumDrive    mDrive;
-    Collecting      mCollecting;
+    Vision                  mVision;
+    MecanumDrive            mDrive;
+    Collecting              mCollecting;
 
-    Vision.Pattern  mPattern;
-    Vision.Pattern  mTargetPattern;
-    int             mPatternShift = 0;
-    Alliance        mAlliance = Alliance.NONE;
-    Poses           mPoses;
-    double          mWaitingTime = 0.0;
-    boolean         mShallParkInLaunchZone = false;
+    Vision.Pattern          mPattern;
+    Vision.Pattern          mTargetPattern;
+    int                     mPatternShift = 0;
+    Alliance                mAlliance = Alliance.NONE;
+    PathAutonomousMiddle    mPath;
+    double                  mWaitingTime = 0.0;
+    boolean                 mShallParkInLaunchZone = false;
 
-    Pose2d          mReferencePose;
+    SmartTimer              mTimer;
 
-    SmartTimer      mTimer;
-    double          mXOffset        = 0;
-    double          mYOffset        = 0;
-    double          mAngleOffset    = 0;
+    Controller              mGamepad1;
+    Controller              mGamepad2;
 
-    Controller      mGamepad1;
-    Controller      mGamepad2;
+    Camera                  mCamera;
 
-    Camera          mCamera;
-
-    List mLogs = new ArrayList<String>();
+    Logger                  mLogger;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -102,19 +100,18 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mCollecting     = new Collecting();
 
         mTimer          = new SmartTimer(telemetry);
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
 
         mCamera         = new Camera();
         mCamera.setHW(Configuration.s_Current,hardwareMap,telemetry);
 
         mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
         mVision.initialize();
-        mPattern        = Vision.Pattern.NONE;
-        mTargetPattern  = Vision.Pattern.NONE;
+        mPattern        = Vision.Pattern.PGP;
+        mTargetPattern  = Vision.Pattern.PGP;
 
-        mPoses          = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mReferencePose  = new Pose2d(0, 0, 0);
-
-        mDrive          = new MecanumDrive(hardwareMap, mReferencePose);
+        mPath           = new PathAutonomousMiddle(mLogger);
+        mDrive          = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
         mGamepad1       = new Controller(gamepad1, telemetry);
         mGamepad2       = new Controller(gamepad2, telemetry);
@@ -128,11 +125,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPoses.initialize(mAlliance,mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance,mTargetPattern, mShallParkInLaunchZone);
             }
             if (mGamepad1.buttons.dpad_left.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPoses.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
             }
 
             if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
@@ -142,13 +139,13 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
                 if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             if (mGamepad1.buttons.b.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
                 if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
             if(mGamepad1.buttons.y.pressedOnce()){
                 mShallParkInLaunchZone = true;
@@ -163,59 +160,39 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 if(mPattern == Vision.Pattern.PPG) { mTargetPattern = Vision.Pattern.PGP; }
                 if(mPattern == Vision.Pattern.PGP) { mTargetPattern = Vision.Pattern.PPG; }
                 if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
-            // Display menu
-            telemetry.addLine("=========== MENU ============");
-            telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
-            telemetry.addLine("Choose Pattern Shift: X/B ");
-            telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
-            telemetry.addLine("Choose Park Position: Y/A");
 
-            telemetry.addLine("======= CONFIGURATION =======");
-            telemetry.addData("==> PATTERN : " , mPattern.text());
-            telemetry.addData("==> PATTERN SHIFT : " , mPatternShift);
-            telemetry.addData("==> PATTERN TARGET : " , mTargetPattern.text());
-            telemetry.addData("==> ALLIANCE : ", mAlliance.name());
-            telemetry.addData("==> WAITING TIME : ", mWaitingTime + " s");
+            mLogger.info("=========== MENU ============");
+            mLogger.info("Choose Alliance: DPAD LEFT/RIGHT");
+            mLogger.info("Choose Pattern Shift: X/B ");
+            mLogger.info("Choose Waiting Time: DPAD UP/DOWN");
+            mLogger.info("Choose Park Position: Y/A");
+
+            mLogger.info("======= CONFIGURATION =======");
+            mLogger.metric("==> PATTERN : " , mPattern.text());
+            mLogger.metric("==> PATTERN SHIFT : " , "" + mPatternShift);
+            mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
+            mLogger.metric("==> ALLIANCE : ", mAlliance.name());
+            mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
             if (!mShallParkInLaunchZone) {
-                telemetry.addLine("==> PARKING POSITION : Gate Zone");
+                mLogger.metric("==> PARKING POSITION","Gate Zone");
             }
             if (mShallParkInLaunchZone) {
-                telemetry.addLine("==> PARKING POSITION : Launch Zone");
+                mLogger.metric("==> PARKING POSITION","Launch Zone");
             }
+            mPath.log();
 
-            telemetry.update();
-
-            FtcDashboard.getInstance().getTelemetry().addLine("======= CONFIGURATION =======");
-            FtcDashboard.getInstance().getTelemetry().addData("PATTERN" , mPattern.text());
-            FtcDashboard.getInstance().getTelemetry().addData("PATTERN SHIFT" , mPatternShift);
-            FtcDashboard.getInstance().getTelemetry().addData("PATTERN TARGET" , mTargetPattern.text());
-            FtcDashboard.getInstance().getTelemetry().addData("ALLIANCE" , mAlliance.name());
-            FtcDashboard.getInstance().getTelemetry().addData("WAITING TIME" , mWaitingTime + " s");
-            if (!mShallParkInLaunchZone) {
-                FtcDashboard.getInstance().getTelemetry().addLine("==> PARKING POSITION : Gate Zone");
-            }
-            if (mShallParkInLaunchZone) {
-                FtcDashboard.getInstance().getTelemetry().addLine("==> PARKING POSITION : Launch Zone");
-            }
-            mPoses.log();
-            FtcDashboard.getInstance().getTelemetry().update();
+            mLogger.update();
 
         }
 
+        mLogger.info("======= ACTIONS =======");
+        mLogger.info("==> GO TO PATTERN");
 
-        mXOffset = - mPoses.posMiddleInitFTCInches().x;
-        mYOffset = - mPoses.posMiddleInitFTCInches().y;
-        mAngleOffset = - mPoses.hMiddleInitFTCRadians();
+        mLogger.update();
 
-        mLogs.add("======= ACTIONS =======");
-        mLogs.add("==> GO TO PATTERN");
-
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
+        mDrive = new MecanumDrive(hardwareMap,mPath.start());
 
         Action startIntakeAction = new Action() {
             @Override
@@ -249,75 +226,55 @@ public class AutonomousMiddleStart extends LinearOpMode {
             }
         };
 
+        Pose2d start = mPath.start();
+        Pose2d pattern = mPath.pattern();
+        Pose2d end_intake = mPath.endIntake();
+        Pose2d back_intake = mPath.backIntake();
+        Pose2d calibration = mPath.calibration();
+        Pose2d shoot = mPath.shootingClose();
+        Pose2d leave = mPath.parking();
+
+        double distance_pattern = pattern.minus(start).line.norm();
+        double distance_intake = end_intake.minus(pattern).line.norm();
         Actions.runBlocking(
-                    mDrive.actionBuilder(mReferencePose)
-                            .waitSeconds(mWaitingTime)
-                            .afterDisp(0.4 * Math.abs(mPoses.posPatternInitInches().x),startIntakeAction)
-                            .setTangent(mReferencePose.heading)
-                            .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x,mReferencePose.position.y),mPoses.hPatternInitRadians()),mReferencePose.heading)
-                            .build());
-
-        mLogs.add("==> INTAKE");
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
-
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(new Pose2d(mPoses.posPatternInitInches(),mPoses.hPatternInitRadians()))
-                        .afterDisp(0.9 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
-                        .setTangent(mPoses.hPatternInitRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternInitInches().x, mPoses.posPatternInitInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternInitRadians()),mPoses.hPatternInitRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
-                        .build());
-
-        mLogs.add( "==> GO TO CALIBRATION");
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
-
-        Actions.runBlocking(
-            mDrive.actionBuilder(mDrive.getPose())
-                    .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
-                    .setTangent(-mPoses.hPatternInitRadians())
-                    .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.7 * mPoses.yDeltaIntakeInches()), mDrive.getPose().heading),-mPoses.hPatternInitRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+            mDrive.actionBuilder(start)
+                    .waitSeconds(mWaitingTime)
+                    .afterDisp(0.4 * distance_pattern,startIntakeAction)
+                    .setTangent(start.heading)
+                    .splineToLinearHeading(pattern,start.heading)
+                    .afterDisp(0.9 * distance_intake,stopIntakeAction)
+                    .setTangent(pattern.heading.toDouble())
+                    .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
+                    .afterDisp(0.1 * distance_intake, shakeAction)
+                    .setTangent(-end_intake.heading.toDouble())
+                    .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                    .afterDisp(0.1,engageAction)
+                    .setTangent(mPath.tgtIntakeToCalibrationRadians())
+                    .splineToLinearHeading(calibration,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                     .build());
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .afterDisp(0.1,engageAction)
-                        .setTangent(mPoses.tgtIntakeToCalibrationInitRadians())
-                        .splineToLinearHeading(new Pose2d(mPoses.posCalibrationInitInches(), mPoses.hCalibrationInitRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
-                        .build());
 
 
         updatePoseFromAprilTagIfVisible();
 
-        mLogs.add("==> CALIBRATION");
-        mLogs.add("REF POSE :" + mDrive.getPose());
-        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-        mLogs.add("==> GO TO SHOOTING");
-
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
+        mLogger.info("==> CALIBRATION");
+        mLogger.info("REF POSE :" + mDrive.getPose());
+        mLogger.info("==> GO TO SHOOTING");
+        mLogger.update();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
+                        .splineToLinearHeading(shoot,shoot.heading.toDouble())
                         .build());
 
         mCollecting.shoot4(0.75);
 
         Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
+                mDrive.actionBuilder(shoot)
+                        .setTangent(shoot.heading.toDouble() + Math.PI)
+                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading", mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians() - mAngleOffset);
+        Configuration.s_Current.persist("heading", mPath.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - leave.heading.toDouble());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
@@ -332,27 +289,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
         while(output == null && mTimer.isArmed()) { output = mVision.getPosition(); }
         if (output != null) {
 
-            mReferencePose = new Pose2d(
-                    -output.getPosition().x * Poses.M_TO_INCHES,
-                    -output.getPosition().y * Poses.M_TO_INCHES,
+            Pose2d newReference = new Pose2d(
+                    -output.getPosition().x * Path.M_TO_INCHES,
+                    -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
-            mDrive.updatePose(mReferencePose);
-            mXOffset = 0;
-            mYOffset = 0;
-            mAngleOffset = 0;
-
-            telemetry.addLine("==> NEW POSE : " + mReferencePose);
-            FtcDashboard.getInstance().getTelemetry().addLine("==> NEW POSE : " + mReferencePose);
-
-
+            mDrive.updatePose(newReference);
         }
-        else {
-            mReferencePose = new Pose2d(0,0,0);
-            mXOffset = - mPoses.posMiddleInitFTCInches().x;
-            mYOffset = - mPoses.posMiddleInitFTCInches().y;
-            mAngleOffset = - mPoses.hMiddleInitFTCRadians();
-        }
+
     }
 
     Vision.Pattern  computePattern(Vision.Pattern official, int shift) {

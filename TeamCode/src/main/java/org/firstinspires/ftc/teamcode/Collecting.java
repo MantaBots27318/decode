@@ -15,11 +15,11 @@ import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Intake includes */
-import org.firstinspires.ftc.teamcode.intake.IntakeBrushes;
+import org.firstinspires.ftc.teamcode.subsystems.intake.IntakeBrushes;
 
 /* Outtake includes */
-import org.firstinspires.ftc.teamcode.outtake.OuttakeWheels;
-import org.firstinspires.ftc.teamcode.outtake.OuttakeLeverArm;
+import org.firstinspires.ftc.teamcode.subsystems.outtake.OuttakeWheels;
+import org.firstinspires.ftc.teamcode.subsystems.outtake.OuttakeLeverArm;
 
 public class Collecting {
 

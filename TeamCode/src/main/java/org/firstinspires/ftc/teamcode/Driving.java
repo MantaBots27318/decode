@@ -14,8 +14,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 
 /* Roadrunner includes */
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -27,18 +25,15 @@ import com.acmerobotics.roadrunner.Pose2d;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.ConfImu;
-import org.firstinspires.ftc.teamcode.configurations.Poses;
-
-/* Component includes */
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.configurations.Range;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-
-
 import org.firstinspires.ftc.teamcode.vision.Vision;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.utils.Logger;
+import org.firstinspires.ftc.teamcode.path.Path;
 
 
 public class Driving {
@@ -50,7 +45,7 @@ public class Driving {
     IMU             mImu;
 
     double          mHeadingOffset;
-    Poses           mPoses;
+    Path            mPath;
 
     MecanumDrive    mDrive;
     SmartTimer      mTimer;
@@ -68,14 +63,14 @@ public class Driving {
     boolean         mIsAutomated = false;
     boolean         mIsFieldCentric = true;
 
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gp, Vision vision, Poses poses) {
+    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gp, Vision vision, Path path) {
 
         mLogger = logger;
         mLogger.addLine("======== DRIVING =========");
 
         mReady = true;
 
-        mPoses = poses;
+        mPath = path;
 
         // Get wheels and IMU parameters from configuration
         ConfMotor frontLeftWheel  = config.getMotor("front-left-wheel");
@@ -190,7 +185,7 @@ public class Driving {
             mLogger.addLine("======== DRIVING =========");
 
             double multiplier = 0.9;
-            if (mGamepad.buttons.left_bumper.pressed())  { multiplier = 0.45; }
+            if (mGamepad.buttons.left_bumper.pressed())  { multiplier = 0.3; }
 
             double y = mGamepad.axes.left_stick_x.value();
             double x = mGamepad.axes.left_stick_y.value();
@@ -244,8 +239,8 @@ public class Driving {
         if (output != null) {
 
             Pose2d pose = new Pose2d(
-                    -output.getPosition().x * Poses.M_TO_INCHES,
-                    -output.getPosition().y * Poses.M_TO_INCHES,
+                    -output.getPosition().x * Path.M_TO_INCHES,
+                    -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(pose);
@@ -262,36 +257,36 @@ public class Driving {
 
             if(range == Range.FAR) {
 
-                mLogger.addData("==> X ", mPoses.posShootingFarFTCInches().x);
-                mLogger.addData("==> Y ", mPoses.posShootingFarFTCInches().y);
-                mLogger.addData("==> Angles ", mPoses.hShootingFarFTCRadians());
-                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingFarFTCInches().x);
-                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingFarFTCInches().y);
-                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPoses.hShootingFarFTCRadians());
+                mLogger.addData("==> X ", mPath.shootingFar().position.x);
+                mLogger.addData("==> Y ", mPath.shootingFar().position.y);
+                mLogger.addData("==> Angles ", mPath.shootingFar().heading.toDouble());
+                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPath.shootingFar().position.x);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPath.shootingFar().position.y);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPath.shootingFar().heading.toDouble());
 
-                double direction = Math.atan2(mPoses.posShootingFarFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingFarFTCInches().x - mDrive.getPose().position.x);
+                double direction = Math.atan2(mPath.shootingFar().position.y - mDrive.getPose().position.y, mPath.shootingFar().position.x - mDrive.getPose().position.x);
                 mLogger.addData("==> TGT ", direction / Math.PI * 180);
                 FtcDashboard.getInstance().getTelemetry().addData("==> TGT ", direction / Math.PI * 180);
                 mAction = mDrive.actionBuilder(mDrive.getPose())
                         .setTangent(direction)
-                        .splineToLinearHeading(new Pose2d(mPoses.posShootingFarFTCInches(), mPoses.hShootingFarFTCRadians()), direction)
+                        .splineToLinearHeading(mPath.shootingFar(), direction)
                         .build();
             }
             else if(range == Range.CLOSE) {
 
-                mLogger.addData("==> X ", mPoses.posShootingCloseFTCInches().x);
-                mLogger.addData("==> Y ", mPoses.posShootingCloseFTCInches().y);
-                mLogger.addData("==> Angles ", mPoses.hShootingCloseFTCRadians());
-                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPoses.posShootingCloseFTCInches().x);
-                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPoses.posShootingCloseFTCInches().y);
-                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPoses.hShootingCloseFTCRadians());
+                mLogger.addData("==> X ", mPath.shootingClose().position.x);
+                mLogger.addData("==> Y ", mPath.shootingClose().position.y);
+                mLogger.addData("==> Angles ", mPath.shootingClose().heading.toDouble());
+                FtcDashboard.getInstance().getTelemetry().addData("==> X : ", mPath.shootingClose().position.x);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Y : ", mPath.shootingClose().position.y);
+                FtcDashboard.getInstance().getTelemetry().addData("==> Angles ", mPath.shootingClose().heading.toDouble());
 
-                double direction = Math.atan2(mPoses.posShootingCloseFTCInches().y - mDrive.getPose().position.y, mPoses.posShootingCloseFTCInches().x - mDrive.getPose().position.x);
+                double direction = Math.atan2(mPath.shootingClose().position.y - mDrive.getPose().position.y, mPath.shootingClose().position.x - mDrive.getPose().position.x);
                 mLogger.addData("==> TGT ", direction / Math.PI * 180);
                 FtcDashboard.getInstance().getTelemetry().addData("==> TGT ", direction / Math.PI * 180);
                 mAction = mDrive.actionBuilder(mDrive.getPose())
                         .setTangent(direction)
-                        .splineToLinearHeading(new Pose2d(mPoses.posShootingCloseFTCInches(), mPoses.hShootingCloseFTCRadians()), direction)
+                        .splineToLinearHeading(mPath.shootingClose(), direction)
                         .build();
             }
 

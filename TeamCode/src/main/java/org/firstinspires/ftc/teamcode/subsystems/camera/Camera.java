@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.outtake;
+package org.firstinspires.ftc.teamcode.subsystems.camera;
 
 /* System includes */
 import java.util.LinkedHashMap;
@@ -10,35 +10,26 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-/* Configuration includes */
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.ConfServo;
-
-/* Component includes */
+/* Project includs */
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
-import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoCoupled;
+import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
-
-/* Utils includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfServo;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
-public class OuttakeLeverArm {
+
+public class Camera {
 
     public enum Position {
-        OPEN,
-        SHOOT,
-        INTAKE,
-        NEXT,
-        LOCK
+        TAG,
+        BALL
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
-            "open", Position.OPEN,
-            "shoot",Position.SHOOT,
-            "intake",Position.INTAKE,
-            "next",Position.NEXT,
-            "lock",Position.LOCK
+            "tag", Position.TAG,
+            "ball", Position.BALL
     );
 
     private static final int    sTimeOut = 1000; // Timeout in ms
@@ -70,14 +61,14 @@ public class OuttakeLeverArm {
         String status = "";
 
         // Get configuration
-        ConfServo pitch  = config.getServo("outtake-lever-arm");
+        ConfServo pitch  = config.getServo("camera");
         if(pitch == null)  { mReady = false; status += " CONF";}
         else {
 
             // Configure servo
-            if (pitch.shallMock()) { mServo = new ServoMock("outtake-lever-arm"); }
-            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "outtake-lever-arm", logger); }
-            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "outtake-lever-arm", logger); }
+            if (pitch.shallMock()) { mServo = new ServoMock("camera"); }
+            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "camera", logger); }
+            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "camera", logger); }
 
             mPositions.clear();
             Map<String, Double> confPosition = pitch.getPositions();
@@ -85,7 +76,7 @@ public class OuttakeLeverArm {
                 if(sConfToPosition.containsKey(pos.getKey())) {
                     mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
                 }  else {
-                    mLogger.addLine("Found unmanaged outtake lever arm position : " + pos.getKey());
+                    mLogger.addLine("Found unmanaged camera position : " + pos.getKey());
                 }
             }
 
@@ -93,11 +84,11 @@ public class OuttakeLeverArm {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  OUT LVR : OK"); }
-        else        { logger.addLine("==>  OUT LVR : KO : " + status); }
+        if (mReady) { logger.addLine("==>  OUT CAM : OK"); }
+        else        { logger.addLine("==>  OUT CAM : KO : " + status); }
 
         // Initialize position
-        this.setPosition(Position.LOCK);
+        this.setPosition(Position.TAG);
 
     }
 
@@ -118,7 +109,6 @@ public class OuttakeLeverArm {
             mPosition = position;
             mTimer.arm(timeout);
         }
-
     }
 
 }
