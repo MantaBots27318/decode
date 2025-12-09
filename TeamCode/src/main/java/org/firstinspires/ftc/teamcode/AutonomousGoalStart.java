@@ -106,8 +106,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mDrive          = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
-        mGamepad1       = new Controller(gamepad1, telemetry);
-        mGamepad2       = new Controller(gamepad2, telemetry);
+        mGamepad1       = new Controller(gamepad1, mLogger);
+        mGamepad2       = new Controller(gamepad2, mLogger);
         boolean mShallParkInLaunchZone = false;
 
         mCollecting     = new Collecting();

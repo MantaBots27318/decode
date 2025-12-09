@@ -43,8 +43,8 @@ public class ManualOpMode extends LinearOpMode {
         if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01) { alliance = Alliance.RED;}
         if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01){ alliance = Alliance.BLUE;}
 
-        mGamepad1 = new Controller(gamepad1,telemetry);
-        mGamepad2 = new Controller(gamepad2,telemetry);
+        mGamepad1 = new Controller(gamepad1,mLogger);
+        mGamepad2 = new Controller(gamepad2,mLogger);
 
         mPath = new Path(mLogger);
         mPath.initialize(alliance, true);

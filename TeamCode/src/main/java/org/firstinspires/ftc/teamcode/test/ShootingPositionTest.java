@@ -35,7 +35,7 @@ public class ShootingPositionTest extends LinearOpMode{
 
         mLogger = new Logger(telemetry, FtcDashboard.getInstance(),"shooting-test");
 
-        mGamepad = new Controller(gamepad1, FtcDashboard.getInstance().getTelemetry());
+        mGamepad = new Controller(gamepad1, mLogger);
         mPoses   = new Path(mLogger);
         mPoses.initialize(ALLIANCE, true);
 
