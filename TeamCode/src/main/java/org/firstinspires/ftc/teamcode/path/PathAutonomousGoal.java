@@ -10,13 +10,13 @@ import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
-public class PathAutonomousGoal extends Path{
+public class PathAutonomousGoal extends Path {
 
-    public static final double X_START_INCHES =                         58.3727 - 9 * Math.sin(Math.PI / 180 * 36);
-    public static final double Y_START_INCHES_BLUE =                    55.6425 - 9 * Math.cos(Math.PI / 180 * 36);
-    public static final double Y_START_INCHES_RED =                     - 55.6425 + 9 * Math.cos(Math.PI / 180 * 36);
-    public static final double ANGLE_START_RADIANS_RED =                - Math.PI / 180 * 36;
-    public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 36;
+    public static final double X_START_INCHES =                         51.6;
+    public static final double Y_START_INCHES_BLUE =                    59;
+    public static final double Y_START_INCHES_RED =                     - 59;
+    public static final double ANGLE_START_RADIANS_RED =                - Math.PI / 180 * 51;
+    public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 51;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 8;
     public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 8;
@@ -41,7 +41,7 @@ public class PathAutonomousGoal extends Path{
     public static final double ANGLE_OBELISK_RADIANS_BLUE =             -Math.PI/180 * 60;
     public static final double ANGLE_OBELISK_RADIANS_RED =              Math.PI/180 * 60;
 
-    public static final double X_CALIBRATION_FROM_GOAL_INCHES =         -27*Math.sqrt(2);
+    public static final double X_CALIBRATION_FROM_GOAL_INCHES =         X_START_INCHES - 27;
 
 
 

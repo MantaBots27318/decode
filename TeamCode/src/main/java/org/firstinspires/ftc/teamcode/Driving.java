@@ -179,6 +179,9 @@ public class Driving {
                 mLogger.addLine("==> AUT SHT");
                 shootPosition(Range.FAR);
             }
+            mDrive.localizer.update();
+            mLogger.addData("pose : ",mDrive.getPose());
+            mLogger.addData("angle : ",mDrive.getPose().heading.toDouble());
         }
         if (mReady && !mIsAutomated) {
 
