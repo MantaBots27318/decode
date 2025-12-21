@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.config.Config;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Driving;
 import org.firstinspires.ftc.teamcode.components.Controller;
@@ -20,40 +21,23 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 @TeleOp
 public class ShootingPositionTest extends LinearOpMode{
 
-    public static boolean   SHOOTPOSITION = false;
-    public static Alliance  ALLIANCE = Alliance.BLUE;
 
-    Driving         mDriving;
-    Vision          mVision;
-    Path mPoses;
-
-    Controller      mGamepad;
-
-    Logger mLogger;
+    DcMotorEx motor1;
+    DcMotorEx motor2;
 
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(),"shooting-test");
-
-        mGamepad = new Controller(gamepad1, mLogger);
-        mPoses   = new Path(mLogger);
-        mPoses.initialize(ALLIANCE, true);
-
-        mDriving = new Driving();
-        mVision  = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
-
-        mDriving.setHW(Configuration.s_Current,hardwareMap, FtcDashboard.getInstance().getTelemetry(), mGamepad,mVision, mPoses);
-        mVision.initialize();
+        FtcDashboard.getInstance().getTelemetry().addLine("here1");
+        motor1 = hardwareMap.get(DcMotorEx.class,"intakeBrushes");
+        motor2 = hardwareMap.get(DcMotorEx.class,"outtakeWheels");
+        FtcDashboard.getInstance().getTelemetry().addLine("here2");
+        FtcDashboard.getInstance().getTelemetry().update();
         waitForStart();
-        while(opModeIsActive()) {
-
-            if(SHOOTPOSITION == true) {
-                mDriving.shootPosition(Range.FAR);
-                SHOOTPOSITION = false;
-            }
-
-        }
-        mVision.close();
+        motor1.setPower(1.0);
+        motor2.setPower(0.5);
+        double intake_velocity = motor1.getVelocity();
+        FtcDashboard.getInstance().getTelemetry().addData("speed" , intake_velocity);
+        FtcDashboard.getInstance().getTelemetry().update();
     }
 
 

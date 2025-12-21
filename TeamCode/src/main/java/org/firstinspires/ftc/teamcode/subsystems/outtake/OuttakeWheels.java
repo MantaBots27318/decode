@@ -81,7 +81,6 @@ public class OuttakeWheels {
 
     }
 
-
     public void start(double power, int timeout) {
 
         if(mReady && !this.isTransitioning())

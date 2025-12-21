@@ -14,6 +14,7 @@ public class OpModeServo_Motor extends OpMode {
     Servo  mServo;
     DcMotor mDcMotor1;
     DcMotor mDcMotor2;
+
     public static double SERVO = 1;
     public static double MOTOR1 = 0;
     public static double MOTOR2 = 0;
