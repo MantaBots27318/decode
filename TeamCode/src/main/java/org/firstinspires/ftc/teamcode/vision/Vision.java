@@ -150,5 +150,22 @@ public class Vision {
 
     }
 
+    public Pose3D getRelativePosition(){
+
+        Pose3D result = null;
+        mLimelight.pipelineSwitch(mAprilTagPipeline);
+        LLResult llresult = mLimelight.getLatestResult();
+        if (llresult != null) {
+            if (llresult.isValid()) {
+                List<LLResultTypes.FiducialResult> qrcodes = llresult.getFiducialResults();
+                if(qrcodes.size() > 0) {
+                    result = qrcodes.get(0).getCameraPoseTargetSpace();
+                }
+            }
+        }
+        return result;
+
+    }
+
 
 }

@@ -73,7 +73,6 @@ public class ManualOpMode extends LinearOpMode {
             try {
                 mDriving.control();
                 mCollecting.control();
-                telemetry.addData("Current Alliance",alliance);
                 // Update state machines
                 mCollecting.loop();
                 telemetry.addLine(mCollecting.logState());

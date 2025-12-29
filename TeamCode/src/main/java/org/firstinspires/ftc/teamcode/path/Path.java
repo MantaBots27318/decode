@@ -52,6 +52,7 @@ public class Path {
     Pose2d          mParking                    = new Pose2d(0,0,0);
 
     double          mAngleAutoToTeleopRadians   = 0;
+    double          mFieldCentric2FTC = 0;
 
     public Path(Logger logger) {
         mLogger = logger;
@@ -79,6 +80,8 @@ public class Path {
 
             }
 
+            mFieldCentric2FTC = - Math.PI /2;
+
         }
 
         if (alliance == Alliance.BLUE) {
@@ -100,6 +103,7 @@ public class Path {
                 mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE;
 
             }
+            mFieldCentric2FTC = Math.PI /2;
 
         }
     }
@@ -107,6 +111,7 @@ public class Path {
     public Pose2d   shootingClose()         { return mShootingClose; }
     public Pose2d   shootingFar()           { return mShootingFar; }
     public Pose2d   parking()               { return mParking;}
+    public double   fieldCentric2FTC()      { return mFieldCentric2FTC; }
 
     public double   hAutoToTeleopRadians()  { return mAngleAutoToTeleopRadians; }
 

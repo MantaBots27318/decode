@@ -38,6 +38,12 @@ import org.firstinspires.ftc.teamcode.path.Path;
 
 public class Driving {
 
+    enum Mode {
+        ROBOT_CENTRIC,
+        FIELD_CENTRIC,
+        QRCODE_CENTRIC
+    };
+
     Telemetry       mLogger;
     Vision          mVision;
     boolean         mReady;
@@ -61,7 +67,7 @@ public class Driving {
     Controller      mGamepad;
 
     boolean         mIsAutomated = false;
-    boolean         mIsFieldCentric = true;
+    Mode            mMode = Mode.FIELD_CENTRIC;
 
     public void setHW(Configuration config, HardwareMap hwm, Telemetry logger, Controller gp, Vision vision, Path path) {
 
@@ -83,18 +89,19 @@ public class Driving {
         mVision                   = vision;
         mMap = hwm;
 
-        if (mIsFieldCentric) { mLogger.addLine("==>  FIELD CENTRIC"); }
-        else                 { mLogger.addLine("==>  ROBOT CENTRIC"); }
+        if (mMode == Mode.FIELD_CENTRIC)        { mLogger.addLine("==>  FIELD CENTRIC"); }
+        else if (mMode == Mode.ROBOT_CENTRIC)   { mLogger.addLine("==>  ROBOT CENTRIC"); }
 
         String status = "";
-        if(frontLeftWheel == null)         { status += " FL";  mReady = false; }
-        if(frontRightWheel == null)        { status += " FR";  mReady = false; }
-        if(backLeftWheel == null)          { status += " BL";  mReady = false; }
-        if(backRightWheel == null)         { status += " BR";  mReady = false; }
-        if(mIsFieldCentric && imu == null) { status += " IMU"; mReady = false; }
+        if(frontLeftWheel == null)                      { status += " FL";  mReady = false; }
+        if(frontRightWheel == null)                     { status += " FR";  mReady = false; }
+        if(backLeftWheel == null)                       { status += " BL";  mReady = false; }
+        if(backRightWheel == null)                      { status += " BR";  mReady = false; }
+        if(mMode == Mode.FIELD_CENTRIC && imu == null)  { status += " IMU"; mReady = false; }
+        if(mMode == Mode.QRCODE_CENTRIC && imu == null) { status += " IMU"; mReady = false; }
 
         if(mReady) { mLogger.addLine("==>  CONF : OK"); }
-        else         { mLogger.addLine("==>  CONF : KO : " + status); }
+        else       { mLogger.addLine("==>  CONF : KO : " + status); }
 
         if (mReady) {
 
@@ -108,14 +115,15 @@ public class Driving {
             mImu = null;
             if(imu != null) { mImu = hwm.tryGet(IMU.class, imu.getName()); }
 
-            if (!mFrontLeftMotor.isReady())     { status += " FL";  mReady = false; }
-            if (!mFrontRightMotor.isReady())    { status += " FR";  mReady = false; }
-            if (!mBackLeftMotor.isReady())      { status += " BL";  mReady = false; }
-            if (!mBackRightMotor.isReady())     { status += " BR";  mReady = false; }
-            if(mIsFieldCentric && mImu == null) { status += " IMU"; mReady = false; }
+            if (!mFrontLeftMotor.isReady())                  { status += " FL";  mReady = false; }
+            if (!mFrontRightMotor.isReady())                 { status += " FR";  mReady = false; }
+            if (!mBackLeftMotor.isReady())                   { status += " BL";  mReady = false; }
+            if (!mBackRightMotor.isReady())                  { status += " BR";  mReady = false; }
+            if(mMode == Mode.FIELD_CENTRIC && mImu == null)  { status += " IMU"; mReady = false; }
+            if(mMode == Mode.QRCODE_CENTRIC && mImu == null) { status += " IMU"; mReady = false; }
 
             if(mReady) { logger.addLine("==>  HW : OK"); }
-            else        { logger.addLine("==>  HW : KO : " + status); }
+            else       { logger.addLine("==>  HW : KO : " + status); }
 
         }
 
@@ -131,7 +139,7 @@ public class Driving {
             mFrontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mBackRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            if(mIsFieldCentric) {
+            if(mMode == Mode.FIELD_CENTRIC || mMode == Mode.QRCODE_CENTRIC) {
                 RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(
                         imu.getLogo(), imu.getUsb());
                 mImu.initialize(new IMU.Parameters(RevOrientation));
@@ -146,8 +154,6 @@ public class Driving {
             }
 
             mDrive                    = new MecanumDrive(hwm, new Pose2d(0,0,0));
-
-
         }
 
         mGamepad = gp;
@@ -168,20 +174,26 @@ public class Driving {
 
         if(mReady) {
             if (mGamepad.buttons.b.pressedOnce() && mIsAutomated) {
-                mLogger.addLine("==> AUT SHT");
+                mLogger.addLine("==> AUT STOP");
                 mIsAutomated = false;
             }
+            if (mGamepad.buttons.a.pressed() && !mIsAutomated) {
+                mLogger.addLine("==> QRCODE MODE");
+                mMode = Mode.QRCODE_CENTRIC;
+            }
+            if (mGamepad.buttons.a.notPressed() && !mIsAutomated) {
+                mLogger.addLine("==> FIELD CENTRIC MODE");
+                mMode = Mode.FIELD_CENTRIC;
+            }
             if (mGamepad.buttons.right_trigger.pressedOnce() && !mIsAutomated) {
-                mLogger.addLine("==> AUT SHT");
+                mLogger.addLine("==> AUT CLOSE SHT");
                 shootPosition(Range.CLOSE);
             }
             if (mGamepad.buttons.right_bumper.pressedOnce() && !mIsAutomated) {
-                mLogger.addLine("==> AUT SHT");
+                mLogger.addLine("==> AUT FAR SHT");
                 shootPosition(Range.FAR);
             }
             mDrive.localizer.update();
-            mLogger.addData("pose : ",mDrive.getPose());
-            mLogger.addData("angle : ",mDrive.getPose().heading.toDouble());
         }
         if (mReady && !mIsAutomated) {
 
@@ -195,15 +207,25 @@ public class Driving {
             double rotation = mGamepad.axes.right_stick_x.value();
             mLogger.addLine(String.format("\n==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
 
-            if (mIsFieldCentric) {
+            if (mMode == Mode.FIELD_CENTRIC || mMode == Mode.QRCODE_CENTRIC) {
                 double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 heading += mHeadingOffset;
+                if(mMode == Mode.QRCODE_CENTRIC) {
+                    Pose3D output = mVision.getRelativePosition();
+                    if(output != null) {
+                        double yaw = -Math.atan2(-output.getPosition().x, -output.getPosition().z) / Math.PI * 180;
+                        rotation = (heading + mPath.fieldCentric2FTC()) / Math.PI * 180 - yaw - 54;
+                        heading = output.getOrientation().getYaw() * Math.PI / 180;
+                        rotation = rotation / 180 * 10;
+
+                    }
+                }
                 // Rotate the movement direction counter to the bot's rotation
                 double rotX = x * Math.cos(-heading) + y * Math.sin(-heading);
                 double rotY = - x * Math.sin(-heading) + y * Math.cos(-heading);
                 x = rotX;
                 y = rotY;
-                mLogger.addLine(String.format("==>  HD %6.1f X : %6.1f Y : %6.1f", heading,x,y));
+                mLogger.addLine(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation,heading /Math.PI * 180,x,y));
             }
             x *= 1.1; // Counteract imperfect strafing
 
