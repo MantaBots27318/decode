@@ -48,6 +48,9 @@ public class V2 extends Configuration {
         mLimelights.get("limelight").addPipeline("balls-detector",1);
         mLimelights.get("limelight").addPipeline("localizer",0);
 
+        /* Leds configuration */
+        mLeds.put("tbd", new ConfLed("tbd"));
+
     }
 
 }

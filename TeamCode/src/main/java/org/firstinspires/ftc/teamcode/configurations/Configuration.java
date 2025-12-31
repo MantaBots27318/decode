@@ -17,7 +17,7 @@ abstract public class Configuration {
         V1,
         V2,
         NONE
-    };
+    }
 
     protected        Version                     mVersion = Version.NONE;
 
@@ -26,10 +26,11 @@ abstract public class Configuration {
     protected final  Map<String, ConfImu>       mImus           = new LinkedHashMap<>();
     protected final  Map<String, ConfServo>     mServos         = new LinkedHashMap<>();
     protected final  Map<String, ConfLimelight> mLimelights     = new LinkedHashMap<>();
+    protected final  Map<String, ConfLed>       mLeds           = new LinkedHashMap<>();
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V2();
+    public static Configuration s_Current = new V1();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
@@ -40,11 +41,14 @@ abstract public class Configuration {
     // Method to retrieve an imu by its reference name
     public ConfImu          getImu(String name)         { return mImus.getOrDefault(name, null); }
 
-    // Method to retrieve a pipeline by its reference name
+    // Method to retrieve a limelight by its reference name
     public ConfLimelight    getLimelight(String name)   { return mLimelights.getOrDefault(name, null);}
 
     // Method to retrieve a servo by its reference name
     public ConfServo        getServo(String name)       { return mServos.getOrDefault(name, null);  }
+
+    // Method to retrieve a led by its reference name
+    public ConfLed          getLed(String name)         { return mLeds.getOrDefault(name, null);  }
 
     // Method to retrieve all servos uncoupled for tuning
     public Map<String, ConfServo>   getForTuning()      { return mServos; }

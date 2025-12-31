@@ -29,6 +29,7 @@ public class V1 extends Configuration {
 
         /* Intake configuration */
         mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));
+        mMotors.put("intake-belts",new ConfMotor("intakeBrushes",false));
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", true));

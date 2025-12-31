@@ -292,22 +292,9 @@ public class Robot {
             mChassis.drive(x,y,rotation, heading, multiplier);
         }
         else if(mMode == Mode.QRCODE_CENTRIC) {
-            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            heading += mHeadingOffset;
-            Pose3D      output = mVision.getRelativePosition();
-            Vector2d    lock = mLocker.getDirection();
-            if(output != null) {
-                mLogger.info("" + output);
-                if(lock != null) { mLogger.info("" + lock); }
-                mLogger.info(""+mLocker.getRotation() / Math.PI * 180);
-                mLogger.info(""+mLocker.getHeading() / Math.PI * 180);
-                double yaw = -Math.atan2(-output.getPosition().x, -output.getPosition().z) / Math.PI * 180;
-                mLogger.info("" + yaw);
-                rotation = (heading + mPath.fieldCentric2FTC()) / Math.PI * 180 - yaw - 54;
-                heading = output.getOrientation().getYaw() * Math.PI / 180;
-                rotation = rotation / 180 * 10;
+            if(mLocker.isSet()) {
+                mChassis.drive(x, y, mLocker.getRotation(), mLocker.getHeading(), multiplier);
             }
-            mChassis.drive(x,y,rotation, heading, multiplier);
         }
     }
 

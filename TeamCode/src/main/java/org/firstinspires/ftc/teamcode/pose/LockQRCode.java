@@ -80,9 +80,13 @@ public class LockQRCode {
         else { mLogger.warning("==>  HW : KO : " + status); }
     }
 
+    public boolean isSet() { return mIsInFTC; }
+
     public void loop() {
 
         if (mReady) {
+
+            mLocalizer.update();
 
             Pose3D output = mVision.getPosition();
 
@@ -99,20 +103,23 @@ public class LockQRCode {
 
             if(mIsInFTC) {
 
-                Pose2d current = mLocalizer.getPose();
-
-                // Compute vector to QR Code
                 Vector2d qrcode = mPath.qrcode();
                 Pose2d robot = mLocalizer.getPose();
-                mDirection = new Vector2d(qrcode.x - robot.position.x, qrcode.y - robot.position.y);
 
-                double yaw = -Math.atan2(mDirection.y, mDirection.y);
-                mLogger.info("" + yaw);
-                mRotation = (current.heading.toDouble()) - yaw - 54 / 180 * Math.PI;
-                mHeading = yaw;
+                Vector2d pos_ftc = new Vector2d(qrcode.x - robot.position.x, qrcode.y - robot.position.y);
+                double length = pos_ftc.norm();
+                double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
+                double theta2 = 54 * Math.PI / 180 - theta1;
 
+                mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
+                double yaw = -Math.atan2(mDirection.x, mDirection.y);
+                mRotation = robot.heading.toDouble() - yaw - 54 * Math.PI / 180 ;
+                mHeading = robot.heading.toDouble() - theta1;
+
+                mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
+
+                mRotation = mRotation / Math.PI * 10;
             }
-
         }
     }
 

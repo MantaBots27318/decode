@@ -101,14 +101,18 @@ public class Chassis {
 
         if(mReady) {
 
-            x *= 1.1; // Counteract imperfect strafing
-            mLogger.info(Logger.Target.DRIVER_STATION,String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation,heading /Math.PI * 180,x,y));
+            // Rotate the movement direction counter to the bot's rotation
+            double rotX = x * Math.cos(-heading) + y * Math.sin(-heading);
+            double rotY = - x * Math.sin(-heading) + y * Math.cos(-heading);
+            rotX *= 1.1; // Counteract imperfect strafing
+
+            mLogger.info(Logger.Target.DRIVER_STATION,String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation,heading /Math.PI * 180,rotX,rotY));
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rotation), 1);
-            double frontLeftPower = (x + y + rotation) / denominator * multiplier;
-            double backLeftPower = (x - y + rotation) / denominator * multiplier;
-            double frontRightPower = (x - y - rotation) / denominator * multiplier;
-            double backRightPower = (x + y - rotation) / denominator * multiplier;
+            double frontLeftPower = (rotX + rotY + rotation) / denominator * multiplier;
+            double backLeftPower = (rotX - rotY + rotation) / denominator * multiplier;
+            double frontRightPower = (rotX - rotY - rotation) / denominator * multiplier;
+            double backRightPower = (rotX + rotY - rotation) / denominator * multiplier;
 
             mFrontLeftMotor.setPower(frontLeftPower);
             mBackLeftMotor.setPower(backLeftPower);

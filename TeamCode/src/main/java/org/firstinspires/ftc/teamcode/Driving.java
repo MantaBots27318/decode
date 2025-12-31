@@ -256,21 +256,23 @@ public class Driving {
                 heading += mHeadingOffset;
 
                 if(mMode == Mode.QRCODE_CENTRIC) {
-                    double length = Math.sqrt(((mPath.qrcode().x - mDrive.localizer.getPose().position.x) * (mPath.qrcode().x - mDrive.localizer.getPose().position.x)) + ((mPath.qrcode().y - mDrive.localizer.getPose().position.y) * (mPath.qrcode().y - mDrive.localizer.getPose().position.y)));
+                    Pose2d loc = mDrive.localizer.getPose();
+                    double length = Math.sqrt(((mPath.qrcode().x - loc.position.x) * (mPath.qrcode().x - loc.position.x)) + ((mPath.qrcode().y - loc.position.y) * (mPath.qrcode().y - loc.position.y)));
                     mLogger.info("" + length);
-                    double theta1 = Math.atan2((mPath.qrcode().y - mDrive.localizer.getPose().position.y),(mPath.qrcode().x - mDrive.localizer.getPose().position.x));
+                    double theta1 = Math.atan2((mPath.qrcode().y - loc.position.y),(mPath.qrcode().x - loc.position.x));
                     mLogger.info("" + theta1);
                     double theta2 = 54-(theta1 * 180 / Math.PI);
                     mLogger.info("" + theta2);
-                    double newX = length*Math.sin(theta2 / 180 * Math.PI);
+                    double newX = -length*Math.sin(theta2 / 180 * Math.PI);
                     mLogger.info("" + newX / Path.M_TO_INCHES);
-                    double newY = length*Math.cos(theta2 / 180 * Math.PI);
+                    double newY = -length*Math.cos(theta2 / 180 * Math.PI);
                     mLogger.info("" + newY / Path.M_TO_INCHES);
+                    mLogger.info("" + (loc.heading.toDouble() / Math.PI * 180 - 54));
                     output = mVision.getRelativePosition();
                     if(output != null) {
-                        double yaw = -Math.atan2(-output.getPosition().x, -output.getPosition().z) / Math.PI * 180;
-                        rotation = (heading + mPath.fieldCentric2FTC()) / Math.PI * 180 - yaw - 54;
-                        heading = output.getOrientation().getYaw() * Math.PI / 180;
+                        double yaw = -Math.atan2(-newX, -newY) / Math.PI * 180;
+                        rotation = loc.heading.toDouble() / Math.PI * 180 - yaw - 54;
+                        heading = (loc.heading.toDouble() / Math.PI * 180 - theta1/ Math.PI * 180) * Math.PI / 180;
                         rotation = rotation / 180 * 10;
                         mLogger.info("" + mDrive.localizer.getPose().position);
                         mLogger.info("" + mDrive.localizer.getPose().heading.toDouble() / Math.PI * 180);
