@@ -257,9 +257,9 @@ public class Driving {
 
                 if(mMode == Mode.QRCODE_CENTRIC) {
                     Pose2d loc = mDrive.localizer.getPose();
-                    double length = Math.sqrt(((mPath.qrcode().x - loc.position.x) * (mPath.qrcode().x - loc.position.x)) + ((mPath.qrcode().y - loc.position.y) * (mPath.qrcode().y - loc.position.y)));
+                    double length = Math.sqrt(((mPath.qrcode().position.x - loc.position.x) * (mPath.qrcode().position.x - loc.position.x)) + ((mPath.qrcode().position.y - loc.position.y) * (mPath.qrcode().position.y - loc.position.y)));
                     mLogger.info("" + length);
-                    double theta1 = Math.atan2((mPath.qrcode().y - loc.position.y),(mPath.qrcode().x - loc.position.x));
+                    double theta1 = Math.atan2((mPath.qrcode().position.y - loc.position.y),(mPath.qrcode().position.x - loc.position.x));
                     mLogger.info("" + theta1);
                     double theta2 = 54-(theta1 * 180 / Math.PI);
                     mLogger.info("" + theta2);

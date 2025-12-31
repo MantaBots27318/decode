@@ -56,6 +56,9 @@ public class Path {
     private static final double X_QRCODE_INCHES                                  = 1.482 * M_TO_INCHES;
     private static final double Y_QRCODE_INCHES_BLUE                             = 1.413 * M_TO_INCHES;
     private static final double Y_QRCODE_INCHES_RED                              = -1.413 * M_TO_INCHES;
+    private static final double ANGLE_QRCODE_RADIANS_BLUE                        = 54 * Math.PI / 180;
+    private static final double ANGLE_QRCODE_RADIANS_RED                         = -54 * Math.PI / 180;
+
 
     Logger          mLogger;
 
@@ -64,7 +67,7 @@ public class Path {
     Pose2d          mShootingClose              = new Pose2d(0,0,0);
     Pose2d          mShootingFar                = new Pose2d(0,0,0);
     Pose2d          mParking                    = new Pose2d(0,0,0);
-    Vector2d        mQRCode                     = new Vector2d(0,0);
+    Pose2d        mQRCode                       = new Pose2d(0,0,0);
 
     double          mAngleAutoToTeleopRadians   = 0;
     double          mFieldCentric2FTC = 0;
@@ -96,7 +99,7 @@ public class Path {
             }
 
             mFieldCentric2FTC = - Math.PI /2;
-            mQRCode = new Vector2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_RED);
+            mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_RED,ANGLE_QRCODE_RADIANS_RED);
 
         }
 
@@ -120,7 +123,7 @@ public class Path {
 
             }
             mFieldCentric2FTC = Math.PI /2;
-            mQRCode = new Vector2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE);
+            mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE,ANGLE_QRCODE_RADIANS_BLUE);
 
         }
     }
@@ -128,8 +131,7 @@ public class Path {
     public Pose2d   shootingClose()         { return mShootingClose; }
     public Pose2d   shootingFar()           { return mShootingFar; }
     public Pose2d   parking()               { return mParking;}
-
-    public Vector2d qrcode()                { return mQRCode; }
+    public Pose2d   qrcode()                { return mQRCode; }
 
     public double   fieldCentric2FTC()      { return mFieldCentric2FTC; }
     public double   hAutoToTeleopRadians()  { return mAngleAutoToTeleopRadians; }
@@ -139,7 +141,7 @@ public class Path {
         mLogger.info("SHOOTING CLOSE: " + mShootingClose.position.x + " Y: " + mShootingClose.position.y + " H: " + mShootingClose.heading.toDouble());
         mLogger.info("LEAVE: " + mParking.position.x + " Y: " + mParking.position.y + " H: " + mParking.heading.toDouble());
         mLogger.info("AUTO TO TELEOP: " + mAngleAutoToTeleopRadians);
-        mLogger.info("QRCODE X: " + mQRCode.x + " Y: " + mQRCode.y);
+        mLogger.info("QRCODE X: " + mQRCode.position.x + " Y: " + mQRCode.position.y + " H: " + mQRCode.heading.toDouble());
     }
 
 }

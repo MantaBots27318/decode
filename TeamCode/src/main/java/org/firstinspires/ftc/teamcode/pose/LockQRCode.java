@@ -33,6 +33,8 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 
 public class LockQRCode {
 
+    static final int    s_WindowSize = 4;
+
     Logger              mLogger;
     boolean             mReady;
     boolean             mIsInFTC;
@@ -44,6 +46,11 @@ public class LockQRCode {
     Vector2d            mDirection;
     double              mRotation; // The rotation to give to the robot to reach QRCOde
     double              mHeading; // The direction along which the robot moves towards the QRCode
+
+    double[]            mBuffer;
+    int                 mIndex;
+    int                 mCount;
+    double              mSum;
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision) {
 
@@ -60,6 +67,13 @@ public class LockQRCode {
             mDirection = null;
             mRotation = 0;
             mHeading = 0;
+            mBuffer = new double[s_WindowSize];
+            mIndex = 0;
+            mCount = 0;
+            mSum = 0;
+            for (int i = 0; i < s_WindowSize; i ++) {
+                mBuffer[i] = 0;
+            }
         }
 
         ConfImu pinpoint = null;
@@ -103,22 +117,30 @@ public class LockQRCode {
 
             if(mIsInFTC) {
 
-                Vector2d qrcode = mPath.qrcode();
+                Pose2d qrcode = mPath.qrcode();
                 Pose2d robot = mLocalizer.getPose();
 
-                Vector2d pos_ftc = new Vector2d(qrcode.x - robot.position.x, qrcode.y - robot.position.y);
+                Vector2d pos_ftc = new Vector2d(qrcode.position.x - robot.position.x, qrcode.position.y - robot.position.y);
                 double length = pos_ftc.norm();
                 double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
-                double theta2 = 54 * Math.PI / 180 - theta1;
+                double theta2 = qrcode.heading.toDouble() - theta1;
 
                 mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
                 double yaw = -Math.atan2(mDirection.x, mDirection.y);
-                mRotation = robot.heading.toDouble() - yaw - 54 * Math.PI / 180 ;
+                mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
                 mHeading = robot.heading.toDouble() - theta1;
 
                 mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
 
-                mRotation = mRotation / Math.PI * 10;
+                mSum -= mBuffer[mIndex];
+                mBuffer[mIndex] = mRotation;
+                mSum += mRotation;
+
+                mIndex = (mIndex + 1) % s_WindowSize;
+                if(mCount < s_WindowSize) {mCount ++;}
+
+                mRotation = mSum / (mCount + 1e-10) / Math.PI * 3;
+
             }
         }
     }

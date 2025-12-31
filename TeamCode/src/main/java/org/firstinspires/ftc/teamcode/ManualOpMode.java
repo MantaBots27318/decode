@@ -32,7 +32,7 @@ public class ManualOpMode extends LinearOpMode {
 
         mAlliance = Alliance.NONE;
         Double alliance_value = Configuration.s_Current.retrieve("alliance");
-        if(alliance_value == null) { alliance_value = Alliance.BLUE.getValue(); }
+        if(alliance_value == null) { alliance_value = Alliance.RED.getValue(); }
         if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01)  { mAlliance = Alliance.RED;}
         if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01) { mAlliance = Alliance.BLUE;}
 
