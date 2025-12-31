@@ -1,3 +1,9 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Class managing limelight pipelines and results
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.vision;
 
 // Java includes
@@ -10,125 +16,134 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-// Acmerobotics includes
-import com.acmerobotics.dashboard.FtcDashboard;
-
 // FTC Controller includes
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 
 // Opencv includes
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.LastYear;
 import org.opencv.core.Point;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Vision {
 
-    public enum Pattern {
+    boolean              mReady;       // True if component is able to fulfil its mission
 
-        GPP("GPP", 0),
-        PPG("PPG", 1),
-        PGP("PGP", 2),
-        NONE("None", -1);
+    private final   Limelight3A  mLimelight;
+    private final   Logger       mLogger;
+    private         Calibration  mCalibration;
 
-        private final String mText;
-        private final int    mIdentifier;
+    private         Integer      mAprilTagPipeline;
+    private         Integer      mDetectionPipeline;
 
-        Pattern(String text, int identifier) {
-            mText = text;
-            mIdentifier = identifier;
-        };
+    public Vision(ConfLimelight conf, HardwareMap hwMap, String name, Logger logger) {
 
-        public String text() { return mText; }
-        public int    identifier() { return mIdentifier; }
-    }
+        mLogger       = logger;
 
-    private Limelight3A  mLimelight;
-    private Telemetry    mTelemetry;
-    private Calibration  mCalibration;
-
-    private Integer      mAprilTagPipeline;
-    private Integer      mDetectionPipeline;
-
-    public Vision(ConfLimelight conf, HardwareMap hwMap, String name, Telemetry logger) {
-
-        mTelemetry = logger;
-        mTelemetry.addLine("Constructor");
+        mReady        = true;
+        String status = "";
 
         String camera_name = conf.getHw();
-        mLimelight = hwMap.get(Limelight3A.class, camera_name);
+        mLimelight = hwMap.tryGet(Limelight3A.class, camera_name);
+        if(mLimelight == null)  { mReady = false; status += " HW";}
+        else {
+            mAprilTagPipeline = conf.getPipeline("localizer");
+            mDetectionPipeline = conf.getPipeline("balls-detector");
 
-        mAprilTagPipeline = conf.getPipeline("localizer");
-        mDetectionPipeline = conf.getPipeline("balls-detector");
+            if (mAprilTagPipeline == -1)  { mReady = false; status += " PPL A"; }
+            if (mDetectionPipeline == -1) { status += " PPL D"; }
 
-        mCalibration = new Calibration() ;
+            mCalibration = new Calibration();
+        }
+
+        // Log status
+        if (mReady) { logger.info("==>  VISION : OK"); }
+        else        { logger.warning("==>  VISION : KO : " + status); }
+
+
     }
 
     public void initialize() {
-        mTelemetry.addLine("Initialize");
 
-        mLimelight.start();
-        mCalibration.warp();
+        if(mReady) {
+            try {
+                mLimelight.start();
+                mCalibration.warp();
+            } catch (Exception e) { mLogger.error(e.getMessage()); }
+        }
 
     }
 
     public void close() {
-        mLimelight.stop();
+        if(mReady) {
+            try                 { mLimelight.stop(); }
+            catch (Exception e) { mLogger.error(e.getMessage()); }
+        }
     }
 
     public Pattern readPattern() {
 
-        Pattern pattern = Pattern.NONE;
-        int apriltagId = 0;
+        Pattern result = Pattern.NONE;
 
-        mLimelight.pipelineSwitch(mAprilTagPipeline);
-        LLResult result = mLimelight.getLatestResult();
+        if(mReady) {
 
-        if (result != null) {
+            int apriltagId = 0;
 
-            //telemetry.addData(result.isValid());
-            if (result.isValid()) {
+            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            LLResult res = mLimelight.getLatestResult();
 
-                // Access fiducial results
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            if (res != null) {
 
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    if (fr.getFiducialId() > 20 && fr.getFiducialId() < 24) {
-                        apriltagId = fr.getFiducialId();
+                mLogger.trace("Limelight result valid " + res.isValid());
+                if (res.isValid()) {
+
+                    // Access fiducial results
+                    List<LLResultTypes.FiducialResult> fiducialResults = res.getFiducialResults();
+
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        if (fr.getFiducialId() > 20 && fr.getFiducialId() < 24) {
+                            apriltagId = fr.getFiducialId();
+                        }
+
                     }
-
+                    if (apriltagId == 22) { result = Pattern.PGP; }
+                    if (apriltagId == 23) { result = Pattern.PPG; }
+                    if (apriltagId == 21) { result = Pattern.GPP; }
                 }
-                if (apriltagId == 22) { pattern = Pattern.PGP; }
-                if (apriltagId == 23) { pattern = Pattern.PPG; }
-                if (apriltagId == 21) { pattern = Pattern.GPP; }
             }
         }
-        return pattern;
+
+        return result;
     }
+
     public List<Ball> getArtifactPosition(){
 
         List<Ball> result = new ArrayList<>();
 
-        mLimelight.pipelineSwitch(mDetectionPipeline);
-        LLResult llresult = mLimelight.getLatestResult();
+        if(mReady) {
 
-        if (llresult != null) {
+            mLimelight.pipelineSwitch(mDetectionPipeline);
+            LLResult llresult = mLimelight.getLatestResult();
 
-            //telemetry.addData(result.isValid());
-            if (llresult.isValid()) {
-                List<LLResultTypes.DetectorResult> detectorResults = llresult.getDetectorResults();
-                for (LLResultTypes.DetectorResult dr : detectorResults) {
+            if (llresult != null) {
 
-                    double pixelX = dr.getTargetXPixels();
-                    double pixelY = dr.getTargetYPixels();
-                    Point inputPixelPoint = new Point(pixelX, pixelY);
-                    Point detectedMatPoint = mCalibration.distance(inputPixelPoint);
-                    String detectedColor = dr.getClassName();
-                    mTelemetry.addData("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea());
+                mLogger.trace("Limelight result valid " + llresult.isValid());
+                if (llresult.isValid()) {
+                    List<LLResultTypes.DetectorResult> detectorResults = llresult.getDetectorResults();
+                    for (LLResultTypes.DetectorResult dr : detectorResults) {
 
-                    Ball detected = new Ball(detectedColor, detectedMatPoint);
-                    result.add(detected);
+                        double pixelX = dr.getTargetXPixels();
+                        double pixelY = dr.getTargetYPixels();
+
+                        Point inputPixelPoint = new Point(pixelX, pixelY);
+                        Point detectedMatPoint = mCalibration.distance(inputPixelPoint);
+                        String detectedColor = dr.getClassName();
+                        mLogger.debug(String.format("Detector", "Class: %s, Area: %.2f", dr.getClassName(), dr.getTargetArea()));
+                        Ball detected = new Ball(detectedColor, detectedMatPoint);
+
+                        result.add(detected);
+                    }
                 }
             }
         }
@@ -139,11 +154,15 @@ public class Vision {
     public Pose3D getPosition(){
 
         Pose3D result = null;
-        mLimelight.pipelineSwitch(mAprilTagPipeline);
-        LLResult llresult = mLimelight.getLatestResult();
-        if (llresult != null) {
-            if (llresult.isValid()) {
-                result = llresult.getBotpose();
+
+        if(mReady) {
+
+            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            LLResult llresult = mLimelight.getLatestResult();
+            if (llresult != null) {
+                if (llresult.isValid()) {
+                    result = llresult.getBotpose();
+                }
             }
         }
         return result;
@@ -153,15 +172,20 @@ public class Vision {
     public Pose3D getRelativePosition(){
 
         Pose3D result = null;
-        mLimelight.pipelineSwitch(mAprilTagPipeline);
-        LLResult llresult = mLimelight.getLatestResult();
-        if (llresult != null) {
-            if (llresult.isValid()) {
-                List<LLResultTypes.FiducialResult> qrcodes = llresult.getFiducialResults();
-                if(qrcodes.size() > 0) {
-                    result = qrcodes.get(0).getCameraPoseTargetSpace();
+
+        if(mReady) {
+
+            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            LLResult llresult = mLimelight.getLatestResult();
+            if (llresult != null) {
+                if (llresult.isValid()) {
+                    List<LLResultTypes.FiducialResult> qrcodes = llresult.getFiducialResults();
+                    if (!qrcodes.isEmpty()) {
+                        result = qrcodes.get(0).getCameraPoseTargetSpace();
+                    }
                 }
             }
+
         }
         return result;
 

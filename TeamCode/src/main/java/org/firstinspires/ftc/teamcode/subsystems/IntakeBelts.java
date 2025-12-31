@@ -1,12 +1,14 @@
-package org.firstinspires.ftc.teamcode.subsystems.intake;
-
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Intake belts subsystem
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /* Configurations includes */
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
@@ -18,9 +20,12 @@ import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
-public class IntakeBrushes {
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
-    Telemetry               mLogger;      // Local logger
+public class IntakeBelts {
+
+    Logger                  mLogger;      // Local logger
 
     boolean                 mReady;       // True if component is able to fulfil its mission
     boolean                 mIsMoving;
@@ -30,12 +35,12 @@ public class IntakeBrushes {
     MotorComponent          mMotor;       // Motor rotating the wheels
 
     // Check if the component is currently moving on command
-    public boolean isMoving() { return mIsMoving; }
+    public boolean isMoving()   { return mIsMoving;   }
 
     public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger = logger;
         mReady = true;
@@ -44,14 +49,14 @@ public class IntakeBrushes {
 
         String status = "";
 
-        ConfMotor intake = config.getMotor("intake-brushes");
+        ConfMotor intake = config.getMotor("intake-belts");
         if(intake == null)  { mReady = false; status += " CONF";}
         else {
 
             // Build motor based on configuration
-            if (intake.shallMock()) { mMotor = new MotorMock("intake-brushes"); }
-            else if (intake.getHw().size() == 1) { mMotor = new MotorSingle(intake, hwm, "intake-brushes", logger); }
-            else if (intake.getHw().size() == 2) { mMotor = new MotorCoupled(intake, hwm, "intake-brushes", logger); }
+            if (intake.shallMock()) { mMotor = new MotorMock("intake-belts"); }
+            else if (intake.getHw().size() == 1) { mMotor = new MotorSingle(intake, hwm, "intake-belts", logger); }
+            else if (intake.getHw().size() == 2) { mMotor = new MotorCoupled(intake, hwm, "intake-belts", logger); }
 
             if (!mMotor.isReady()) { mReady = false; status += " HW";}
             else {
@@ -63,8 +68,8 @@ public class IntakeBrushes {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  IN BRS : OK"); }
-        else        { logger.addLine("==>  IN BRS : KO : " + status); }
+        if (mReady) { logger.info("==>  IN BLT : OK"); }
+        else        { logger.warning("==>  IN BLT : KO : " + status); }
 
 
     }
@@ -91,6 +96,17 @@ public class IntakeBrushes {
             mIsReversed = false;
         }
     }
+
+    // Get the motor current velocity
+    public double getVelocity() {
+
+        double result = 0.0;
+
+        if(mReady) { result = mMotor.getVelocity(); }
+
+        return result;
+    }
+
 
     public void persist(Configuration config) {}
 

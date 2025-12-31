@@ -1,78 +1,65 @@
-/*
-Copyright (c) 2024 Limelight Vision
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted (subject to the limitations in the disclaimer below) provided that
-the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-Neither the name of FIRST nor the names of its contributors may be used to
-endorse or promote products derived from this software without specific prior
-written permission.
-
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Autonomous starting at goal
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode;
 
-// QUALCOMM includes
+/* Android includes */
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+/* Qualcomm includes */
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-// FTCController includes
+/* Acmerobotics includes */
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+
+/* FTCController includes */
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-// Acmerobotics include
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.ftc.Actions;
-
-// Local includes
+/* Configurations includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.path.Path;
+
+/* Path includes */
+import org.firstinspires.ftc.teamcode.pose.Path;
+import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
+
+/* Roadrunner includes */
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+
+/* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.path.PathAutonomousGoal;
+
+/* Vision includes */
+import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
+
+/* Components includes */
 import org.firstinspires.ftc.teamcode.components.Controller;
-import org.firstinspires.ftc.teamcode.subsystems.camera.Camera;
+
+/* Subsystems includes */
+import org.firstinspires.ftc.teamcode.subsystems.Camera;
 
 
 @Autonomous
-public class AutonomousGoalStart extends LinearOpMode {
+public class AutonomousGoalStartV1 extends LinearOpMode {
 
     Vision              mVision;
     MecanumDrive        mDrive;
     Collecting          mCollecting;
 
-    Vision.Pattern      mPattern;
-    Vision.Pattern      mTargetPattern;
+    Pattern             mPattern;
+    Pattern             mTargetPattern;
     int                 mPatternShift = 0;
     Alliance            mAlliance = Alliance.NONE;
     PathAutonomousGoal  mPath;
@@ -85,22 +72,22 @@ public class AutonomousGoalStart extends LinearOpMode {
     Camera              mCamera;
 
     Logger              mLogger;
+    boolean             mShallParkInLaunchZone;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mCollecting     = new Collecting();
 
-        mTimer          = new SmartTimer(telemetry);
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
+        mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();
-        mCamera.setHW(Configuration.s_Current,hardwareMap,telemetry);
+        mCamera.setHW(Configuration.s_Current,hardwareMap,mLogger);
 
-        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
-        mPattern        = Vision.Pattern.PGP;
-        mTargetPattern  = Vision.Pattern.PGP;
+        mPattern        = Pattern.PGP;
+        mTargetPattern  = Pattern.PGP;
 
         mPath           = new PathAutonomousGoal(mLogger);
 
@@ -108,12 +95,12 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mGamepad1       = new Controller(gamepad1, mLogger);
         mGamepad2       = new Controller(gamepad2, mLogger);
-        boolean mShallParkInLaunchZone = false;
 
-        mCollecting     = new Collecting();
-        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
+        mCollecting = new Collecting();
+        mCollecting.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad2);
 
         mCamera.setPosition(Camera.Position.TAG);
+        mShallParkInLaunchZone = false;
 
         while (opModeInInit()) {
 
@@ -139,7 +126,6 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mPatternShift = Math.min(mPatternShift,3);
                 mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
-            mShallParkInLaunchZone = false;
 
 
             mLogger.info("=========== MENU ============");
@@ -154,6 +140,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
             mLogger.metric("==> ALLIANCE : ", mAlliance.name());
             mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
+
             if (!mShallParkInLaunchZone) {
                 mLogger.metric("==> PARKING POSITION","Gate Zone");
             }
@@ -244,16 +231,16 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .build());
 
         mTimer.arm(100);
-        Vision.Pattern pat = mVision.readPattern();
-        while(pat == Vision.Pattern.NONE && mTimer.isArmed()) {
+        Pattern pat = mVision.readPattern();
+        while(pat == Pattern.NONE && mTimer.isArmed()) {
             pat = mVision.readPattern();
         }
-        if(pat == Vision.Pattern.NONE) { pat = Vision.Pattern.PGP; }
-        if (pat != Vision.Pattern.NONE) {
+        if(pat == Pattern.NONE) { pat = Pattern.PGP; }
+        if (pat != Pattern.NONE) {
             mPattern = pat;
-            if(mPattern == Vision.Pattern.PPG) { mTargetPattern = Vision.Pattern.PGP; }
-            if(mPattern == Vision.Pattern.PGP) { mTargetPattern = Vision.Pattern.PPG; }
-            if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
+            if(mPattern == Pattern.PPG) { mTargetPattern = Pattern.PGP; }
+            if(mPattern == Pattern.PGP) { mTargetPattern = Pattern.PPG; }
+            if(mPattern == Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
             mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
         }
 
@@ -298,20 +285,20 @@ public class AutonomousGoalStart extends LinearOpMode {
         }
     }
 
-    Vision.Pattern  computePattern(Vision.Pattern official, int shift) {
+    Pattern  computePattern(Pattern official, int shift) {
 
-        Vision.Pattern result = Vision.Pattern.NONE;
+        Pattern result = Pattern.NONE;
 
-        if(official != Vision.Pattern.NONE) {
+        if(official != Pattern.NONE) {
             int target_identifier = (official.identifier() + shift) % 3;
-            if (target_identifier == Vision.Pattern.GPP.identifier()) {
-                result = Vision.Pattern.GPP;
+            if (target_identifier == Pattern.GPP.identifier()) {
+                result = Pattern.GPP;
             }
-            if (target_identifier == Vision.Pattern.PGP.identifier()) {
-                result = Vision.Pattern.PGP;
+            if (target_identifier == Pattern.PGP.identifier()) {
+                result = Pattern.PGP;
             }
-            if (target_identifier == Vision.Pattern.PPG.identifier()) {
-                result = Vision.Pattern.PPG;
+            if (target_identifier == Pattern.PPG.identifier()) {
+                result = Pattern.PPG;
             }
         }
 

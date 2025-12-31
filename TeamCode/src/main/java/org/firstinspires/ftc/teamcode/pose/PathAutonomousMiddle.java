@@ -1,14 +1,22 @@
-
-package org.firstinspires.ftc.teamcode.path;
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Class managing path reference positions for autonomous
+   middle
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.pose;
 
 /* ACME includes */
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Twist2d;
-import com.acmerobotics.roadrunner.Vector2d;
 
 /* Project includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
-import org.firstinspires.ftc.teamcode.vision.Vision;
+
+/* Vision includes */
+import org.firstinspires.ftc.teamcode.vision.Pattern;
+
+/* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class PathAutonomousMiddle extends Path {
@@ -52,7 +60,7 @@ public class PathAutonomousMiddle extends Path {
         super(logger);
     }
 
-    public void initialize(Alliance alliance, Vision.Pattern pattern, boolean ShallParkInLaunchZone) {
+    public void initialize(Alliance alliance, Pattern pattern, boolean ShallParkInLaunchZone) {
 
         super.initialize(alliance, ShallParkInLaunchZone);
 
@@ -60,19 +68,19 @@ public class PathAutonomousMiddle extends Path {
 
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS);
 
-            if (pattern == Vision.Pattern.GPP) {
+            if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
-            if (pattern == Vision.Pattern.PGP) {
+            if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
-            if (pattern == Vision.Pattern.PPG) {
+            if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
@@ -102,19 +110,19 @@ public class PathAutonomousMiddle extends Path {
 
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_BLUE,ANGLE_START_RADIANS);
 
-            if (pattern == Vision.Pattern.GPP) {
+            if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
-            if (pattern == Vision.Pattern.PGP) {
+            if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
-            if (pattern == Vision.Pattern.PPG) {
+            if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,

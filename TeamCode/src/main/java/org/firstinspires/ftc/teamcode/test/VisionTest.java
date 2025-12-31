@@ -1,20 +1,33 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Calibration test : opmode to test limelight
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.test;
 
 // Java includes
 import java.util.List;
 
 // FTCController includes
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 // Roadrunner includes
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
-/* Local includes */
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+/* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
+
+/* Vision includes */
 import org.firstinspires.ftc.teamcode.vision.Ball;
+import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 
@@ -42,16 +55,18 @@ public class VisionTest extends LinearOpMode {
 
     private Pose3D  mPreviousOutput = null;
 
+    private Logger  mLogger;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // Setup the dashboard
-        FtcDashboard dashboard = FtcDashboard.getInstance();
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"vision-test");
 
-        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",dashboard.getTelemetry());
+
+        mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",mLogger);
         mVision.initialize();
-        dashboard.getTelemetry().update();
+        mLogger.update();
 
         waitForStart();
 
@@ -59,35 +74,22 @@ public class VisionTest extends LinearOpMode {
 
             try {
 
-                FtcDashboard.getInstance().getTelemetry().addLine(FUNCTION);
-
-                FtcDashboard.getInstance().getTelemetry().addLine(Function.PATTERN.text());
-
-                FtcDashboard.getInstance().getTelemetry().addLine(Function.DETECTION.text());
-
-                FtcDashboard.getInstance().getTelemetry().addLine(Function.LOCALIZATION.text());
+                mLogger.info(FUNCTION);
 
                 if(FUNCTION.equals(Function.PATTERN.text())) {
                     // Transform and send back through dashboard
-                    FtcDashboard.getInstance().getTelemetry().addLine("Pattern");
-                    Vision.Pattern pattern = mVision.readPattern();
-
-                    telemetry.addData("Pattern ", pattern.text());
-                    dashboard.getTelemetry().addData("Pattern ", pattern.text());
+                    Pattern pattern = mVision.readPattern();
+                    mLogger.info("Pattern : " + pattern.text());
                 }
                 else if (FUNCTION.equals(Function.DETECTION.text())) {
 
-                    FtcDashboard.getInstance().getTelemetry().addLine("Detection");
                     List<Ball> detectedBalls = mVision.getArtifactPosition();
 
-                    telemetry.addData("Nombre de artifacts: ", detectedBalls.size());
-                    dashboard.getTelemetry().addData("Nombre de artifacts ", detectedBalls.size());
+                    mLogger.info("Artifacts number: " + detectedBalls.size());
 
                     for (Ball ball : detectedBalls) {
-                        telemetry.addData("Color: ", ball.color());
-                        dashboard.getTelemetry().addData("Color ", ball.color());
-                        telemetry.addData("Position: ", ball.position());
-                        dashboard.getTelemetry().addData("Position ", ball.position());
+                        mLogger.info("Color: " + ball.color());
+                        mLogger.info("Position: " + ball.position());
                     }
                 }
                 else if(FUNCTION.equals(Function.LOCALIZATION.text())) {
@@ -97,13 +99,11 @@ public class VisionTest extends LinearOpMode {
                     Pose3D output = mVision.getPosition();
                     Pose3D prevOutput = null;
                     if (output != null) {
-                        telemetry.addData("Pose3D", output);
-                        dashboard.getTelemetry().addData("Pose3D ", output);
+                        mLogger.info("Pose3D" + output);
                         mPreviousOutput = output;
                     } else {
                         if(mPreviousOutput != null) {
-                            telemetry.addData("Pose3D", prevOutput);
-                            dashboard.getTelemetry().addData("Pose3D", prevOutput);
+                            mLogger.info("Pose3D" + prevOutput);
                         }
                     }
                 }
@@ -111,10 +111,8 @@ public class VisionTest extends LinearOpMode {
                 sleep(100); // Refresh rate
 
             }
-            catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }
-
-
-            dashboard.getTelemetry().update();
+            catch( Exception e) { mLogger.error(e.getMessage()); }
+            mLogger.update();
         }
 
         mVision.close();

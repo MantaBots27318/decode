@@ -1,54 +1,51 @@
 /* -------------------------------------------------------
-   Copyright (c) [2024] FASNY
+   Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   Configuration for the robot second version (18th of january)
+   Configuration for the decode robot first version (6th december)
    ------------------------------------------------------- */
-
 package org.firstinspires.ftc.teamcode.configurations;
 
+/* Qualcomm includes */
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class V1 extends Configuration {
 
     protected void initialize(){
 
+        mVersion = Version.V1;
+
         /* Moving configuration : Positive power makes wheel go forward */
-        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));          // EH Motor 3
-        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));            // EH Motor 2
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));         // CH Motor 2
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));           // CH Motor 3
+        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));
+        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
 
+        /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
-        mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
-
+        mImus.put("pinpoint", new ConfImu("pinpoint"));
         mImus.get("pinpoint").setPar(3.5, false);
         mImus.get("pinpoint").setPerp(-5.625, true);
 
-
         /* Intake configuration */
-        mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));        // EH Motor 0
+        mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));
 
         /* Outtake configuration */
-        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", true));      // CH Motor 1
-        mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false)); // EH Servo 0
-
-        /* Camera configuration */
-        mServos.put("camera", new ConfServo("camera", false));                     // CH Servo 0
-        mLimelights.put("limelight", new ConfLimelight("limelight"));
-
-        /* Outtake servos reference positions */
+        mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", true));
+        mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false));
         mServos.get("outtake-lever-arm").addPosition("open", 1.0);
         mServos.get("outtake-lever-arm").addPosition("shoot", 0.375);
         mServos.get("outtake-lever-arm").addPosition("intake", 0.85);
         mServos.get("outtake-lever-arm").addPosition("lock", 0.42);
         mServos.get("outtake-lever-arm").addPosition("next", 0.55);
 
-        /* Camera servo reference position */
+        /* Camera servo configuration */
+        mServos.put("camera", new ConfServo("camera", false));
         mServos.get("camera").addPosition("tag",0.89);
         mServos.get("camera").addPosition("ball",0.6);
 
         /* Limelight configuration */
+        mLimelights.put("limelight", new ConfLimelight("limelight"));
         mLimelights.get("limelight").addPipeline("balls-detector",1);
         mLimelights.get("limelight").addPipeline("localizer",0);
 

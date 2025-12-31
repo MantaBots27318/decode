@@ -1,4 +1,10 @@
-package org.firstinspires.ftc.teamcode.subsystems.camera;
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Class managing Camera servo
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
 
 /* System includes */
 import java.util.LinkedHashMap;
@@ -7,17 +13,19 @@ import java.util.Map;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-/* Project includs */
+/* Component includes */
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
 import org.firstinspires.ftc.teamcode.components.ServoCoupled;
 import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
+
+/* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 
 public class Camera {
@@ -34,7 +42,7 @@ public class Camera {
 
     private static final int    sTimeOut = 1000; // Timeout in ms
 
-    Telemetry                   mLogger;      // Local logger
+    Logger                      mLogger;      // Local logger
 
     boolean                     mReady;       // True if component is able to fulfil its mission
     SmartTimer                  mTimer;       // Timer for timeout management
@@ -50,7 +58,7 @@ public class Camera {
     public Position getPosition() { return mPosition; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger = logger;
         mReady = true;
@@ -76,7 +84,7 @@ public class Camera {
                 if(sConfToPosition.containsKey(pos.getKey())) {
                     mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
                 }  else {
-                    mLogger.addLine("Found unmanaged camera position : " + pos.getKey());
+                    mLogger.info("Found unmanaged camera position : " + pos.getKey());
                 }
             }
 
@@ -84,8 +92,8 @@ public class Camera {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  OUT CAM : OK"); }
-        else        { logger.addLine("==>  OUT CAM : KO : " + status); }
+        if (mReady) { logger.info("==>  OUT CAM : OK"); }
+        else        { logger.warning("==>  OUT CAM : KO : " + status); }
 
         // Initialize position
         this.setPosition(Position.TAG);

@@ -1,3 +1,10 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Button class overloads the gamepad buttons to provide advanced
+   functions
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.components;
 
 /* System includes */
@@ -9,12 +16,11 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 /* Project includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-
 public class Button {
 
     static  final   double      sTriggerThreshold = 0;
 
-    final Logger mLogger;
+    final   Logger      mLogger;
 
     final   Gamepad     mGamepad;
     final   String      mName;

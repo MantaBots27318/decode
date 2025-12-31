@@ -1,8 +1,8 @@
 /* -------------------------------------------------------
-   Copyright (c) [2024] FASNY
+   Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   Generic configuration
+   Generic configuration to switch between robot versions
    ------------------------------------------------------- */
 
 package org.firstinspires.ftc.teamcode.configurations;
@@ -13,6 +13,13 @@ import java.util.Map;
 
 abstract public class Configuration {
 
+    public enum Version {
+        V1,
+        V2,
+        NONE
+    };
+
+    protected        Version                     mVersion = Version.NONE;
 
     // Map to store hardware components by reference name
     protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
@@ -22,28 +29,25 @@ abstract public class Configuration {
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V1();
+    public static Configuration s_Current = new V2();
+
+    // Method to retrieve configuration version
+    public Version          getVersion()                { return mVersion; }
 
     // Method to retrieve a motor by its reference name
-    public ConfMotor getMotor(String name) {
-        return mMotors.getOrDefault(name, null);
-    }
+    public ConfMotor        getMotor(String name)       { return mMotors.getOrDefault(name, null); }
 
     // Method to retrieve an imu by its reference name
-    public ConfImu getImu(String name) {
-        return mImus.getOrDefault(name, null);
-    }
+    public ConfImu          getImu(String name)         { return mImus.getOrDefault(name, null); }
 
     // Method to retrieve a pipeline by its reference name
-    public ConfLimelight getLimelight(String name) { return mLimelights.getOrDefault(name, null);}
+    public ConfLimelight    getLimelight(String name)   { return mLimelights.getOrDefault(name, null);}
 
     // Method to retrieve a servo by its reference name
-    public ConfServo getServo(String name) {
-        return mServos.getOrDefault(name, null);
-    }
+    public ConfServo        getServo(String name)       { return mServos.getOrDefault(name, null);  }
 
     // Method to retrieve all servos uncoupled for tuning
-    public Map<String, ConfServo>   getForTuning() { return mServos; }
+    public Map<String, ConfServo>   getForTuning()      { return mServos; }
 
     // Abstract method for initializing specific configurations
     protected abstract void initialize();
@@ -53,9 +57,7 @@ abstract public class Configuration {
         initialize();
     }
     
-    public void reinit() {
-        mInterOpModes.clear();
-    }
+    public void reinit() { mInterOpModes.clear(); }
 
     public void persist(String key, double data) {
         mInterOpModes.put(key, data);

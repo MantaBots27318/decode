@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 /* Component Under Test */
-import org.firstinspires.ftc.teamcode.path.PathAutonomousMiddle;
+import org.firstinspires.ftc.teamcode.pose.PathAutonomousMiddle;
 
 
 @ExtendWith(MockitoExtension.class)

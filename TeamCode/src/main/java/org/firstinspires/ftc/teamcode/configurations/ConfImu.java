@@ -2,7 +2,7 @@
    Copyright (c) [2024] FASNY
    All rights reserved
    -------------------------------------------------------
-   IMU configuration
+   IMU generic configuration
    ------------------------------------------------------- */
 
 package org.firstinspires.ftc.teamcode.configurations;
@@ -14,6 +14,7 @@ public class ConfImu {
 
     // Name
     private String                                          m_name = "";
+
     // Orientation
     private RevHubOrientationOnRobot.LogoFacingDirection    m_logo = RevHubOrientationOnRobot.LogoFacingDirection.UP;
     private RevHubOrientationOnRobot.UsbFacingDirection     m_usb  = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;

@@ -1,3 +1,11 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Axis class overloads the gamepad axes to provide advanced
+   functions
+   ------------------------------------------------------- */
+
 package org.firstinspires.ftc.teamcode.components;
 
 /* System includes */
@@ -14,7 +22,7 @@ public class Axis {
     public  static  final   double      sDefaultMaximum = 1.0;
     public  static  final   double      sDefaultDeadzone = 0.0;
 
-    final Logger mLogger;
+    final   Logger      mLogger;
 
     final   Gamepad     mGamepad;
     final   String      mName;

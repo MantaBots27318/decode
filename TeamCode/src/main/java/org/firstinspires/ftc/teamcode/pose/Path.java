@@ -1,11 +1,21 @@
-package org.firstinspires.ftc.teamcode.path;
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Generic class managing path reference positions for autonomous
+   opmodes
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.pose;
 
 /* ACME ROBOTICS include */
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 
-/* Project includes */
-import org.firstinspires.ftc.teamcode.utils.Logger;
+/* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Path {
 
@@ -43,6 +53,10 @@ public class Path {
     private static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_RED       = Math.PI;
     private static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE      = Math.PI;
 
+    private static final double X_QRCODE_INCHES                                  = 1.482 * M_TO_INCHES;
+    private static final double Y_QRCODE_INCHES_BLUE                             = 1.413 * M_TO_INCHES;
+    private static final double Y_QRCODE_INCHES_RED                              = -1.413 * M_TO_INCHES;
+
     Logger          mLogger;
 
     double          mYDeltaIntakeInches         = 0;
@@ -50,6 +64,7 @@ public class Path {
     Pose2d          mShootingClose              = new Pose2d(0,0,0);
     Pose2d          mShootingFar                = new Pose2d(0,0,0);
     Pose2d          mParking                    = new Pose2d(0,0,0);
+    Vector2d        mQRCode                     = new Vector2d(0,0);
 
     double          mAngleAutoToTeleopRadians   = 0;
     double          mFieldCentric2FTC = 0;
@@ -81,6 +96,7 @@ public class Path {
             }
 
             mFieldCentric2FTC = - Math.PI /2;
+            mQRCode = new Vector2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_RED);
 
         }
 
@@ -104,6 +120,7 @@ public class Path {
 
             }
             mFieldCentric2FTC = Math.PI /2;
+            mQRCode = new Vector2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE);
 
         }
     }
@@ -111,8 +128,10 @@ public class Path {
     public Pose2d   shootingClose()         { return mShootingClose; }
     public Pose2d   shootingFar()           { return mShootingFar; }
     public Pose2d   parking()               { return mParking;}
-    public double   fieldCentric2FTC()      { return mFieldCentric2FTC; }
 
+    public Vector2d qrcode()                { return mQRCode; }
+
+    public double   fieldCentric2FTC()      { return mFieldCentric2FTC; }
     public double   hAutoToTeleopRadians()  { return mAngleAutoToTeleopRadians; }
 
     public void log() {
@@ -120,7 +139,7 @@ public class Path {
         mLogger.info("SHOOTING CLOSE: " + mShootingClose.position.x + " Y: " + mShootingClose.position.y + " H: " + mShootingClose.heading.toDouble());
         mLogger.info("LEAVE: " + mParking.position.x + " Y: " + mParking.position.y + " H: " + mParking.heading.toDouble());
         mLogger.info("AUTO TO TELEOP: " + mAngleAutoToTeleopRadians);
-        mLogger.info("INTAKE DELTA Y : " + mYDeltaIntakeInches);
+        mLogger.info("QRCODE X: " + mQRCode.x + " Y: " + mQRCode.y);
     }
 
 }

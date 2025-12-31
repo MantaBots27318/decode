@@ -1,4 +1,10 @@
-package org.firstinspires.ftc.teamcode.subsystems.outtake;
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Outtake lever arm subsystem
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
 
 /* System includes */
 import java.util.LinkedHashMap;
@@ -6,9 +12,6 @@ import java.util.Map;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
@@ -22,6 +25,7 @@ import org.firstinspires.ftc.teamcode.components.ServoSingle;
 
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class OuttakeLeverArm {
 
@@ -43,7 +47,7 @@ public class OuttakeLeverArm {
 
     private static final int    sTimeOut = 1000; // Timeout in ms
 
-    Telemetry                   mLogger;      // Local logger
+    Logger                      mLogger;      // Local logger
 
     boolean                     mReady;       // True if component is able to fulfil its mission
     SmartTimer                  mTimer;       // Timer for timeout management
@@ -59,7 +63,7 @@ public class OuttakeLeverArm {
     public Position getPosition() { return mPosition; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger = logger;
         mReady = true;
@@ -85,7 +89,7 @@ public class OuttakeLeverArm {
                 if(sConfToPosition.containsKey(pos.getKey())) {
                     mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
                 }  else {
-                    mLogger.addLine("Found unmanaged outtake lever arm position : " + pos.getKey());
+                    mLogger.info("Found unmanaged outtake lever arm position : " + pos.getKey());
                 }
             }
 
@@ -93,8 +97,8 @@ public class OuttakeLeverArm {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  OUT LVR : OK"); }
-        else        { logger.addLine("==>  OUT LVR : KO : " + status); }
+        if (mReady) { logger.info( "==>  OUT LVR : OK"); }
+        else        { logger.warning( "==>  OUT LVR : KO : " + status); }
 
         // Initialize position
         this.setPosition(Position.LOCK);

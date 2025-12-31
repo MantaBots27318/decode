@@ -1,3 +1,11 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Controller class overloads the gamepad to provide advanced
+   functions
+   ------------------------------------------------------- */
+
 package org.firstinspires.ftc.teamcode.components;
 
 
