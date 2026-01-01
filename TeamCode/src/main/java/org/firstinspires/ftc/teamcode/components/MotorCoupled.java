@@ -247,7 +247,7 @@ public class MotorCoupled extends MotorComponent {
     {
         double result = 0;
         if(mReady) {
-            result = 0.5 * mSecond.getVelocity() + 0.5 * mFirst.getVelocity();
+            result = 0.5 * mSecond.getVelocity(AngleUnit.RADIANS)+ 0.5 * mFirst.getVelocity(AngleUnit.RADIANS);
         }
         return result;
 

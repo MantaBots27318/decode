@@ -19,7 +19,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfImu;
+import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Components includes */
+import org.firstinspires.ftc.teamcode.components.LedComponent;
+import org.firstinspires.ftc.teamcode.components.LedCoupled;
+import org.firstinspires.ftc.teamcode.components.LedMock;
+import org.firstinspires.ftc.teamcode.components.LedSingle;
 
 /* Roadrunner includes */
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
@@ -46,6 +53,8 @@ public class LockQRCode {
     Vector2d            mDirection;
     double              mRotation; // The rotation to give to the robot to reach QRCOde
     double              mHeading; // The direction along which the robot moves towards the QRCode
+
+    LedComponent        mLed;
 
     double[]            mBuffer;
     int                 mIndex;
@@ -76,10 +85,22 @@ public class LockQRCode {
             }
         }
 
-        ConfImu pinpoint = null;
         if (mReady) {
 
-            pinpoint = config.getImu("pinpoint");
+            mLed = null;
+            ConfLed led = config.getLed("tracking");
+            if (led == null) { status += " LED"; }
+            else {
+
+                if (led.shallMock()) { mLed = new LedMock("tracking"); }
+                else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hwm, "tracking", mLogger); }
+                else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hwm, "tracking", mLogger); }
+
+                if (!mLed.isReady()) { status += " HW";}
+            }
+
+            mLocalizer = null;
+            ConfImu pinpoint = config.getImu("pinpoint");
             if (pinpoint == null) { status += " PPT"; mReady = false; }
             else {
                 PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
@@ -90,8 +111,8 @@ public class LockQRCode {
             }
         }
 
-        if (mReady) { mLogger.info("==>  HW : OK"); }
-        else { mLogger.warning("==>  HW : KO : " + status); }
+        if (mReady) { mLogger.info("==>  LCK : OK"); }
+        else { mLogger.warning("==>  LCK : KO : " + status); }
     }
 
     public boolean isSet() { return mIsInFTC; }
@@ -102,8 +123,8 @@ public class LockQRCode {
 
             mLocalizer.update();
 
-            Pose3D output = mVision.getPosition();
-
+            Pose3D output = null;
+            //output = mVision.getPosition();
             if (output != null) {
 
                 Pose2d pose = new Pose2d(
@@ -113,6 +134,7 @@ public class LockQRCode {
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
+                if (mLed.isReady()) { mLed.on(LedComponent.Color.GREEN); }
             }
 
             if(mIsInFTC) {

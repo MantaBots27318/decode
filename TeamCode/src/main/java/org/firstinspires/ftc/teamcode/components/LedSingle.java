@@ -7,6 +7,9 @@
 
 package org.firstinspires.ftc.teamcode.components;
 
+/* System includes */
+import java.util.List;
+
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.LED;
@@ -17,12 +20,7 @@ import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class Led {
-
-    public enum Color {
-        RED,
-        GREEN
-    }
+public class LedSingle extends LedComponent {
 
     Logger              mLogger;
 
@@ -33,19 +31,25 @@ public class Led {
     LED                 mGreen;
 
     /* -------------- Constructors --------------- */
-    public Led(ConfLed conf, HardwareMap hwMap, String name, Logger logger)
+    public LedSingle(ConfLed conf, HardwareMap hwMap, String name, Logger logger)
     {
         mReady  = true;
         mLogger = logger;
         mName   = name;
 
-        mRed = hwMap.tryGet(LED.class, conf.getHw() + "Red");
-        if(mRed  == null) { mReady = false; }
+        List<String> hw = conf.getHw();
+        if((hw.size() == 1) && !conf.shallMock()) {
 
-        mGreen = hwMap.tryGet(LED.class, conf.getHw() + "Green");
+            mRed = hwMap.tryGet(LED.class, hw.get(0) + "Red");
+            mGreen = hwMap.tryGet(LED.class, hw.get(0) + "Green");
+        }
+
+        if(mRed  == null) { mReady = false; }
         if(mGreen  == null) { mReady = false; }
 
     }
+
+    public boolean isReady() { return mReady; }
 
     public void on(Color color) {
 

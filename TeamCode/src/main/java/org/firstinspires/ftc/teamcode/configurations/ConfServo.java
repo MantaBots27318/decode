@@ -16,7 +16,7 @@ public class ConfServo {
     // To select if the servo shall be mocked --- not yet activated
     private       boolean                mShallMock;
 
-    // Mapping between servo name on the hub and the motor direction
+    // Mapping between servo name on the hub and the servo direction
     private final Map<String, Boolean>   mHw          = new LinkedHashMap<>();
     // Reference servo positions for the given servo (or servo couple)
     private final Map<String, Double>    mPositions   = new LinkedHashMap<>();

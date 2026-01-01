@@ -17,12 +17,10 @@ public class RollingTest extends OpMode {
     DcMotor mMotor2;
 
     public void init(){
-        mMotor1 = hardwareMap.get(DcMotor.class,"motor1");
-        mMotor2 = hardwareMap.get(DcMotor.class,"motor2");
+        mMotor1 = hardwareMap.get(DcMotor.class,"intakeBelts");
     }
     public void loop(){
         mMotor1.setPower(POWER);
-        mMotor2.setPower(POWER);
     }
 
 }

@@ -8,33 +8,38 @@
 package org.firstinspires.ftc.teamcode.configurations;
 
 /* System includes */
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfLed {
 
     // To select if the limelight shall be mocked --- not yet activated
-    private       boolean                mShallMock;
+    private       boolean                   mShallMock;
 
-    // Mapping between limelight name on the hub and the motor direction
-    private       String                 mName;
+    // Mapping between motor name on the hub and the motor direction
+    private final List<String>  mHw         = new ArrayList<>();
+
 
     public ConfLed(String Name)
     {
-        mName      = Name;
+        mHw.clear();
+        mHw.add(Name);
         mShallMock = false;
     }
 
-    public ConfLed(ConfLed Configuration)
+    // Constructor for single motor with encoder correction
+    public ConfLed(String Name1, String Name2)
     {
-        mShallMock = Configuration.mShallMock;
-        mName = Configuration.mName;
+        mHw.clear();
+        mHw.add(Name1);
+        mHw.add(Name2);
 
+        mShallMock    = false;
     }
 
-    public void addHw(String Name) { mName = Name;  }
+    public void addHw(String Name) { mHw.add(Name);  }
 
-    public String                     getHw()                  { return mName;}
+    public List<String>               getHw()                  { return mHw;}
     public boolean                    shallMock()              { return mShallMock; }
 
 }

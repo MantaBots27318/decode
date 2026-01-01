@@ -18,7 +18,6 @@ import com.acmerobotics.roadrunner.Vector2d;
 
 /* Ftc Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /* Components includes */
 import org.firstinspires.ftc.teamcode.components.Controller;

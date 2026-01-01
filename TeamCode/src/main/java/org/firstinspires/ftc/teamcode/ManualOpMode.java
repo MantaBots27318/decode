@@ -49,12 +49,24 @@ public class ManualOpMode extends LinearOpMode {
         mLogger.update();
 
         waitForStart();
+        long starttime = System.currentTimeMillis();
+
         while (opModeIsActive()){
 
             try {
+                mLogger.debug("STRT CYCLE: " + (System.currentTimeMillis() - starttime));
+                starttime = System.currentTimeMillis();
+                long startcycletime = System.currentTimeMillis();
                 mRobot.control();
+                mLogger.debug("RBT CTRL: " + (System.currentTimeMillis() - starttime));
+                starttime = System.currentTimeMillis();
                 mRobot.loop();
+                mLogger.debug("RBT LOOP: " + (System.currentTimeMillis() - starttime));
+                starttime = System.currentTimeMillis();
                 mLogger.update();
+                mLogger.debug("LOG UPD: " + (System.currentTimeMillis() - starttime));
+                mLogger.debug("CYC: " + (System.currentTimeMillis() - startcycletime));
+                starttime = System.currentTimeMillis();
             } catch (Exception e) {
                 mLogger.error("LOOP error : " + e.getMessage());
                 mLogger.update();
