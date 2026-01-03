@@ -11,6 +11,7 @@ package org.firstinspires.ftc.teamcode.pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Acmerobotics includes */
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 
@@ -39,9 +40,12 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 /* Vision includes */
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
+@Config
 public class LockQRCode {
 
-    static final int    s_WindowSize = 4;
+    static final int     s_WindowSize = 4;
+    public static double COEFF_CORR = 1;
+    public static double COEFF_SPEED = 0.25;
 
     Logger              mLogger;
     boolean             mReady;
@@ -118,7 +122,7 @@ public class LockQRCode {
 
     public boolean isSet() { return mIsInFTC; }
 
-    public void loop() {
+    public void loop(double joystickvx, double joystickvy) {
 
         if (mReady) {
 
@@ -167,10 +171,12 @@ public class LockQRCode {
                 mIndex = (mIndex + 1) % s_WindowSize;
                 if(mCount < s_WindowSize) {mCount ++;}
 
-                mRotation = mSum / (mCount + 1e-10) / Math.PI;
+                //mRotation = mSum / (mCount + 1e-10) / Math.PI;
                 double rotation_predicted = (pos_ftc.y * mLocalizer.driver.getVelX(DistanceUnit.INCH) - pos_ftc.x * mLocalizer.driver.getVelY(DistanceUnit.INCH)) / length / length;
-                mRotation += rotation_predicted;
-                mRotation *= 3;
+                if(Math.sqrt(joystickvx * joystickvx + joystickvy * joystickvy) < 0.01)  { rotation_predicted = 0; }
+                mRotation *= COEFF_CORR;
+                mRotation -= COEFF_SPEED * rotation_predicted;
+
 
                 mLogger.info(String.format("\n==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
 

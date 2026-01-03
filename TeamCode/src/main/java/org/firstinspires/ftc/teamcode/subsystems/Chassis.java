@@ -104,7 +104,7 @@ public class Chassis {
             double rotY = x * Math.sin(heading) + y * Math.cos(heading);
             rotX *= 1.1; // Counteract imperfect strafing
 
-            mLogger.info(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation,heading /Math.PI * 180,rotX,rotY));
+            mLogger.info(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation /Math.PI * 180,heading /Math.PI * 180,rotX,rotY));
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rotation), 1);
             double frontLeftPower = (rotX + rotY + rotation) / denominator * multiplier;

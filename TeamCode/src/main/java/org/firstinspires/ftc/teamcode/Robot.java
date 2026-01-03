@@ -174,7 +174,7 @@ public class Robot {
 
     public void loop() {
 
-        mLocker.loop();
+        mLocker.loop(mX,mY);
         move(mX,mY,mRotation);
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage(); }
