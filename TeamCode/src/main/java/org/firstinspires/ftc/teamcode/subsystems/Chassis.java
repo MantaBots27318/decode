@@ -112,10 +112,12 @@ public class Chassis {
             double frontRightPower = (rotX - rotY - rotation) / denominator * multiplier;
             double backRightPower = (rotX + rotY - rotation) / denominator * multiplier;
 
+            mLogger.trace(Logger.Target.FILE,"before motor powering");
             mFrontLeftMotor.setPower(frontLeftPower);
             mBackLeftMotor.setPower(backLeftPower);
             mFrontRightMotor.setPower(frontRightPower);
             mBackRightMotor.setPower(backRightPower);
+            mLogger.trace(Logger.Target.FILE,"after motor powering");
         }
     }
 }

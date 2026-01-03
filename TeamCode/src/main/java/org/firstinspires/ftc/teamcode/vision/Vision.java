@@ -36,6 +36,7 @@ public class Vision {
 
     private         Integer      mAprilTagPipeline;
     private         Integer      mDetectionPipeline;
+    private         Integer      mCurrentPipeline;
 
     public Vision(ConfLimelight conf, HardwareMap hwMap, String name, Logger logger) {
 
@@ -43,6 +44,7 @@ public class Vision {
 
         mReady        = true;
         String status = "";
+        mCurrentPipeline = -1;
 
         String camera_name = conf.getHw();
         mLimelight = hwMap.tryGet(Limelight3A.class, camera_name);
@@ -90,7 +92,10 @@ public class Vision {
 
             int apriltagId = 0;
 
-            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            if(mCurrentPipeline != mAprilTagPipeline) {
+                mLimelight.pipelineSwitch(mAprilTagPipeline);
+                mCurrentPipeline = mAprilTagPipeline;
+            }
             LLResult res = mLimelight.getLatestResult();
 
             if (res != null) {
@@ -123,7 +128,10 @@ public class Vision {
 
         if(mReady) {
 
-            mLimelight.pipelineSwitch(mDetectionPipeline);
+            if(mCurrentPipeline != mDetectionPipeline) {
+                mLimelight.pipelineSwitch(mDetectionPipeline);
+                mCurrentPipeline = mDetectionPipeline;
+            }
             LLResult llresult = mLimelight.getLatestResult();
 
             if (llresult != null) {
@@ -157,13 +165,20 @@ public class Vision {
 
         if(mReady) {
 
-            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            mLogger.trace(Logger.Target.FILE, "before pipeline switch");
+            if(mCurrentPipeline != mAprilTagPipeline) {
+                mLimelight.pipelineSwitch(mAprilTagPipeline);
+                mCurrentPipeline = mAprilTagPipeline;
+            }
+            mLogger.trace(Logger.Target.FILE, "after pipeline switch");
             LLResult llresult = mLimelight.getLatestResult();
             if (llresult != null) {
                 if (llresult.isValid()) {
                     result = llresult.getBotpose();
                 }
             }
+            mLogger.trace(Logger.Target.FILE, "after result processing");
+
         }
         return result;
 
@@ -175,7 +190,10 @@ public class Vision {
 
         if(mReady) {
 
-            mLimelight.pipelineSwitch(mAprilTagPipeline);
+            if(mCurrentPipeline != mAprilTagPipeline) {
+                mLimelight.pipelineSwitch(mAprilTagPipeline);
+                mCurrentPipeline = mAprilTagPipeline;
+            }
             LLResult llresult = mLimelight.getLatestResult();
             if (llresult != null) {
                 if (llresult.isValid()) {

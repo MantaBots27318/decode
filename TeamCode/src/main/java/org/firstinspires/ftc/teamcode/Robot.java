@@ -166,8 +166,8 @@ public class Robot {
             mLogger.info("======= COLLECTING =======");
             if(mIsEngaged) { mLogger.info("==> SHOOTING ENGAGED"); }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
-            mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity() / Math.PI * 180);
-            mLogger.metric("==> IN VEL : ","" + mIntakeBelts.getVelocity() / Math.PI * 180);
+            //mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity() / Math.PI * 180);
+            //mLogger.metric("==> IN VEL : ","" + mIntakeBelts.getVelocity() / Math.PI * 180);
         }
 
     }

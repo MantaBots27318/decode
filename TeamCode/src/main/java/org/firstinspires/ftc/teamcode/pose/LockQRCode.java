@@ -15,6 +15,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 
 /* FTC Controller includes */
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /* Configuration includes */
@@ -121,10 +122,13 @@ public class LockQRCode {
 
         if (mReady) {
 
+            mLogger.trace(Logger.Target.FILE,"start");
             mLocalizer.update();
+            mLogger.trace(Logger.Target.FILE,"after loc update");
 
             Pose3D output = null;
-            //output = mVision.getPosition();
+            output = mVision.getPosition();
+            mLogger.trace(Logger.Target.FILE,"after vision");
             if (output != null) {
 
                 Pose2d pose = new Pose2d(
@@ -134,8 +138,9 @@ public class LockQRCode {
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
-                if (mLed.isReady()) { mLed.on(LedComponent.Color.GREEN); }
+                if ((mLed != null) && mLed.isReady()) { mLed.on(LedComponent.Color.GREEN); }
             }
+            mLogger.trace(Logger.Target.FILE,"after loc change");
 
             if(mIsInFTC) {
 
@@ -152,8 +157,9 @@ public class LockQRCode {
                 mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
                 mHeading = robot.heading.toDouble() - theta1;
 
+                
                 mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
-
+                
                 mSum -= mBuffer[mIndex];
                 mBuffer[mIndex] = mRotation;
                 mSum += mRotation;
@@ -161,9 +167,18 @@ public class LockQRCode {
                 mIndex = (mIndex + 1) % s_WindowSize;
                 if(mCount < s_WindowSize) {mCount ++;}
 
-                mRotation = mSum / (mCount + 1e-10) / Math.PI * 3;
+                mRotation = mSum / (mCount + 1e-10) / Math.PI;
+                double rotation_predicted = (pos_ftc.y * mLocalizer.driver.getVelX(DistanceUnit.INCH) - pos_ftc.x * mLocalizer.driver.getVelY(DistanceUnit.INCH)) / length / length;
+                mRotation += rotation_predicted;
+                mRotation *= 3;
+
+                mLogger.info(String.format("\n==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
+
 
             }
+
+            mLogger.trace(Logger.Target.FILE,"after qrcode centric computation");
+
         }
     }
 
