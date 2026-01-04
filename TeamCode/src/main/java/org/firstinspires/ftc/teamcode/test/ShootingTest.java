@@ -9,7 +9,6 @@ package org.firstinspires.ftc.teamcode.test;
 /* Java includes */
 import java.io.IOException;
 import java.io.FileWriter;
-import java.util.Map;
 
 /* Qualcomm includes */
 import android.os.Environment;
@@ -21,7 +20,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /* Acmerobotics includes */
-import com.acmerobotics.dashboard.config.ValueProvider;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
@@ -42,6 +40,7 @@ import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
 
 @Config
 @TeleOp
@@ -61,10 +60,10 @@ public class ShootingTest extends OpMode {
     double          mCurrentSpeed = 0;
     double          mPosition = 0;
 
-    PIDFProvider    mP;
-    PIDFProvider    mI;
-    PIDFProvider    mD;
-    PIDFProvider    mF;
+    PIDFController.PIDFProvider    mP;
+    PIDFController.PIDFProvider    mI;
+    PIDFController.PIDFProvider    mD;
+    PIDFController.PIDFProvider    mF;
 
     double          mPCurrent;
     double          mICurrent;
@@ -93,10 +92,10 @@ public class ShootingTest extends OpMode {
                 mDCurrent = initial.d;
                 mFCurrent = initial.f;
 
-                mP = new PIDFProvider(initial.p);
-                mI = new PIDFProvider(initial.i);
-                mD = new PIDFProvider(initial.d);
-                mF = new PIDFProvider(initial.f);
+                mP = new PIDFController.PIDFProvider(initial.p);
+                mI = new PIDFController.PIDFProvider(initial.i);
+                mD = new PIDFController.PIDFProvider(initial.d);
+                mF = new PIDFController.PIDFProvider(initial.f);
 
                 FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"P",mP);
                 FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"I",mI);
@@ -212,15 +211,5 @@ public class ShootingTest extends OpMode {
     }
 
 
-    static class PIDFProvider implements ValueProvider<Double> {
-        Double mValue;
-        public PIDFProvider( double Value) {
-            mValue = Value;
-        }
-        @Override
-        public Double get()              { return mValue;  }
-        @Override
-        public void set(Double Value)    { mValue = Value; }
-    }
 
 }

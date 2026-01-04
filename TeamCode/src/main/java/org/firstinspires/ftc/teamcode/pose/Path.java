@@ -56,8 +56,8 @@ public class Path {
     private static final double X_QRCODE_INCHES                                  = 1.482 * M_TO_INCHES;
     private static final double Y_QRCODE_INCHES_BLUE                             = 1.413 * M_TO_INCHES;
     private static final double Y_QRCODE_INCHES_RED                              = -1.413 * M_TO_INCHES;
-    private static final double ANGLE_QRCODE_RADIANS_BLUE                        = 54 * Math.PI / 180;
-    private static final double ANGLE_QRCODE_RADIANS_RED                         = -54 * Math.PI / 180;
+    private static final double ANGLE_QRCODE_RADIANS_BLUE                        = 45 * Math.PI / 180;
+    private static final double ANGLE_QRCODE_RADIANS_RED                         = -45 * Math.PI / 180;
 
 
     Logger          mLogger;
