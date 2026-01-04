@@ -137,7 +137,7 @@ public class Button {
         boolean result = !is_pressed && mWasPressed;
         mWasPressed = is_pressed;
 
-        if(result) { mLogger.error("Button " + mName + " is released"); }
+        if(result) { mLogger.trace("Button " + mName + " is released"); }
 
         return result;
     }

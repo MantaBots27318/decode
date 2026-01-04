@@ -86,7 +86,7 @@ public class ShootingTest extends OpMode {
 
             if(mMotor != null) {
                 PIDFCoefficients initial = mMotor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-                if(initial == null) initial = new PIDFCoefficients(0,0,0,0);
+                if(initial == null) initial = new PIDFCoefficients(200,3,0,0);
 
                 mPCurrent = initial.p;
                 mICurrent = initial.i;

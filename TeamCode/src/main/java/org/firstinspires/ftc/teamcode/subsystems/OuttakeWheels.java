@@ -46,6 +46,7 @@ public class OuttakeWheels {
         if(mReady) {
             if (mMotor.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER) {
                 result = mTimer.isArmed();
+                mLogger.trace("without");
             } else if (mMotor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
                 double velocity = mMotor.getVelocity();
                 mLogger.trace("Velocity : " + velocity);
@@ -53,9 +54,9 @@ public class OuttakeWheels {
                 mLogger.trace("Power : " + power);
                 double ratio = Math.abs(mTargetVelocity - mMotor.getVelocity());
                 mLogger.trace("Difference : " + ratio);
-                ratio /= Math.abs(mTargetVelocity);
+                ratio = ratio / Math.abs(mTargetVelocity);
                 mLogger.trace("Ratio : " + ratio);
-                result = mTimer.isArmed() && (ratio < 0.1);
+                result = mTimer.isArmed() && (ratio > 0.01);
             }
         }
 
@@ -133,16 +134,18 @@ public class OuttakeWheels {
 
     }
 
-    // Start the brushes with a given power
     public void control(double velocity)   {
 
-        if(mReady && !this.isTransitioning())
+        // Juste pour avoir les logs
+        if(mReady)
         {
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;
             mTimer.arm(sTimeOut);
+            mLogger.info("here");
+            mLogger.info("" + mTargetVelocity + " " + getVelocity());
         }
 
     }
@@ -157,6 +160,8 @@ public class OuttakeWheels {
             mTargetVelocity = velocity;
             mIsMoving = true;
             mTimer.arm(timeout);
+            mLogger.info("here");
+            mLogger.info("" + mTargetVelocity + " " + getVelocity());
         }
 
     }

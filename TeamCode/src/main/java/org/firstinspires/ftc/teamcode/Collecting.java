@@ -143,7 +143,7 @@ public class Collecting{
     }
 
     public void control() {
-
+        mLogger.info(Logger.Target.DASHBOARD,"" + mOuttakeWheels.getVelocity());
         mLogger.info(Logger.Target.DRIVER_STATION,"======= COLLECTING =======");
         mLogger.info(Logger.Target.DRIVER_STATION,"-------- FUNCTION --------");
 

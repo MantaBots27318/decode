@@ -306,6 +306,9 @@ public class Driving {
             mLogger.info(String.format("\n==>  X : %6.1f Y : %6.1f R:%6.1f", mDrive.getPose().position.x, mDrive.getPose().position.y, mDrive.getPose().heading.toDouble() / Math.PI / 180));
             mIsAutomated = mAction.run(new TelemetryPacket());
         }
+
+        Pose3D output = mVision.getRelativePosition();
+        if(output != null){ mLogger.info(""+output); }
     }
 
     public void shootPosition(Range range){

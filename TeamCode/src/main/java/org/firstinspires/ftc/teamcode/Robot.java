@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 /* Acmerobotics includes */
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
@@ -54,6 +53,7 @@ public class Robot {
     public enum Engage {
         NONE,
         WAITING,
+        ARM,
         WHEELS
     }
 
@@ -103,6 +103,7 @@ public class Robot {
     Engage                  mEngageMode;
     Shoot                   mShootMode;
     boolean                 mIsEngaged;
+    double                  mEngagedVelocity;
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -164,7 +165,10 @@ public class Robot {
             else if (mMode == Mode.QRCODE_CENTRIC) { mLogger.info("==> MODE : QC"); }
 
             mLogger.info("======= COLLECTING =======");
-            if(mIsEngaged) { mLogger.info("==> SHOOTING ENGAGED"); }
+            if(mIsEngaged) {
+                mLogger.info("==> SHOOTING ENGAGED");
+                mLogger.info("==> ENGAGED VELOCITY : " + mEngagedVelocity);
+            }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
             //mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity() / Math.PI * 180);
             //mLogger.metric("==> IN VEL : ","" + mIntakeBelts.getVelocity() / Math.PI * 180);
@@ -188,21 +192,34 @@ public class Robot {
 
     void engage() {
 
+        mLogger.trace("" + mEngageMode);
+
+        mOuttakeWheels.isTransitioning();
+
         if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
             mOuttakeWheels.control(mEngageVelocity);
-            if (mOuttakeWheels.isTransitioning() && (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK)) {
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
+                mEngageMode = Engage.ARM;
+            }
+        }
+        else if(mEngageMode == Engage.ARM && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeWheels.control(mEngageVelocity);
+            if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
             }
         }
-        else if (mEngageMode == Engage.WHEELS && !mOuttakeLeverArm.isMoving() && !mOuttakeWheels.isTransitioning()) {
+        else if (mEngageMode == Engage.WHEELS) {
             mEngageMode = Engage.NONE;
             mIsEngaged = true;
+            mEngagedVelocity = mOuttakeWheels.getVelocity();
         }
     }
 
     public void shoot() {
+
+        mLogger.trace("" + mShootMode);
 
         if (mShootMode == Shoot.NONE && mIsEngaged ) { mShootMode = Shoot.WAITING; }
         else if (mShootMode == Shoot.WAITING) {
@@ -245,33 +262,25 @@ public class Robot {
 
     void control_attachments() {
 
-        if (mGamepadAttachments.buttons.left_bumper.pressedOnce()) {
-            mLogger.info("==> STR INTAKE");
-            mIntakeBelts.start(1.0);
-        }
-        if (mGamepadAttachments.buttons.left_trigger.pressedOnce()){
-            mLogger.info("==> STP INTAKE");
-            mIntakeBelts.stop();
-        }
-        if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {
-            mLogger.info("==> RVS INTAKE");
-            mIntakeBelts.start(-1.0);
-        }
-        if (mGamepadAttachments.buttons.right_trigger.releasedOnce()){
-            mLogger.info("==> STP INTAKE");
-            mIntakeBelts.stop();
-        }
+        if (mGamepadAttachments.buttons.left_bumper.pressedOnce())   { start_intake();   }
+        if (mGamepadAttachments.buttons.left_bumper.releasedOnce())  { stop_intake();    }
+        if (mGamepadAttachments.buttons.right_bumper.pressedOnce())  { reverse_intake(); }
+        if (mGamepadAttachments.buttons.right_bumper.releasedOnce()) { stop_intake();    }
 
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
-            mLogger.info("==> SHT");
             Vector2d direction = mLocker.getDirection();
             if(direction != null) {
                 double distance = direction.norm();
                 double velocity = VelocityAbacus.getVelocity(distance);
+                mLogger.trace("velocity : " + velocity + " distance " + distance);
                 if (!mIsEngaged) { this.engage(velocity); }
                 else             { this.shoot();          }
             }
         }
+        if (mGamepadAttachments.buttons.dpad_left.pressed()) {
+            mOuttakeWheels.stop();
+        }
+
     }
 
     void move(double x, double y, double rotation) {
@@ -388,6 +397,66 @@ public class Robot {
         }
 
         return result;
+
+    }
+
+    public boolean start_intake() {
+        mLogger.info("==> STR INTAKE");
+        mIntakeBelts.start(1.0);
+        return false;
+    }
+    public boolean reverse_intake() {
+        mLogger.info("==> RVS INTAKE");
+        mIntakeBelts.start(-1.0);
+        return false;
+    }
+    public boolean stop_intake() {
+        mLogger.info("==> STP INTAKE");
+        mIntakeBelts.stop();
+        return false;
+    }
+    public boolean start_engage(double velocity) {
+        this.engage(velocity);
+        return mEngageMode != Engage.NONE;
+    }
+    public void shoot4(double velocity) {
+        mLogger.info(Logger.Target.DRIVER_STATION,"==> CFG : SHOOTING 4");
+        this.shoot();
+        while (mShootMode != Shoot.NONE){
+            mLogger.info("CFG : SHOOTING");
+            this.shoot();
+        }
+        this.engage(velocity);
+        while (mEngageMode != Engage.NONE){
+            mLogger.info("CFG : ENGAGING");
+            this.engage();
+        }
+        this.shoot();
+        while (mShootMode != Shoot.NONE){
+            mLogger.info("CFG : SHOOTING");
+            this.shoot();
+        }
+        this.engage(velocity);
+        while (mEngageMode != Engage.NONE){
+            mLogger.info("CFG : ENGAGING");
+            this.engage();
+        }
+        this.shoot();
+        while (mShootMode != Shoot.NONE){
+            mLogger.info("CFG : SHOOTING");
+            this.shoot();
+        }
+        this.engage(velocity);
+        while (mEngageMode != Engage.NONE){
+            mLogger.info("CFG : ENGAGING");
+            this.engage();
+        }
+        this.shoot();
+        while (mShootMode != Shoot.NONE){
+            mLogger.info("CFG : SHOOTING");
+            this.shoot();
+        }
+        mOuttakeWheels.stop();
 
     }
 
