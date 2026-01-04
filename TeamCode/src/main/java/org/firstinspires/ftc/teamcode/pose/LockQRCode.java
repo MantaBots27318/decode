@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 @Config
 public class LockQRCode {
 
-    public static double COEFF_SPEED = 0;
+    public static double COEFF_SPEED = 0.2;
 
     PIDFController.PIDFProvider    mP;
     PIDFController.PIDFProvider    mI;
@@ -94,9 +94,9 @@ public class LockQRCode {
             mRotation = 0;
             mHeading = 0;
 
-            mP = new PIDFController.PIDFProvider(1);
+            mP = new PIDFController.PIDFProvider(2);
             mI = new PIDFController.PIDFProvider(0);
-            mD = new PIDFController.PIDFProvider(10);
+            mD = new PIDFController.PIDFProvider(20);
             mF = new PIDFController.PIDFProvider(0);
             m1 = new PIDFController.PIDFProvider(0);
             m2 = new PIDFController.PIDFProvider(0);
