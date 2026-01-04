@@ -24,8 +24,8 @@ public class V2 extends Configuration {
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint"));
-        mImus.get("pinpoint").setPar(3.5, false);
-        mImus.get("pinpoint").setPerp(-5.625, true);
+        mImus.get("pinpoint").setPar(-3.1, false);
+        mImus.get("pinpoint").setPerp(-8, true);
 
         /* Intake configuration */
         mMotors.put("intake-belts",new ConfMotor("intakeBelts",false));
