@@ -8,6 +8,7 @@
 package org.firstinspires.ftc.teamcode.pose;
 
 /* Qualcomm includes */
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Acmerobotics includes */
@@ -38,14 +39,20 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 /* Vision includes */
+import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @Config
 public class LockQRCode {
 
-    static final int     s_WindowSize = 4;
-    public static double COEFF_CORR = 1;
-    public static double COEFF_SPEED = 0.25;
+    public static double COEFF_SPEED = 0;
+
+    PIDFController.PIDFProvider    mP;
+    PIDFController.PIDFProvider    mI;
+    PIDFController.PIDFProvider    mD;
+    PIDFController.PIDFProvider    mF;
+    PIDFController.PIDFProvider    m1;
+    PIDFController.PIDFProvider    m2;
 
     Logger              mLogger;
     boolean             mReady;
@@ -61,10 +68,15 @@ public class LockQRCode {
 
     LedComponent        mLed;
 
-    double[]            mBuffer;
-    int                 mIndex;
-    int                 mCount;
-    double              mSum;
+    PIDFController      mPID;
+
+    double              mPCurrent;
+    double              mICurrent;
+    double              mDCurrent;
+    double              mFCurrent;
+    double              m1Current;
+    double              m2Current;
+
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision) {
 
@@ -81,13 +93,31 @@ public class LockQRCode {
             mDirection = null;
             mRotation = 0;
             mHeading = 0;
-            mBuffer = new double[s_WindowSize];
-            mIndex = 0;
-            mCount = 0;
-            mSum = 0;
-            for (int i = 0; i < s_WindowSize; i ++) {
-                mBuffer[i] = 0;
-            }
+
+            mP = new PIDFController.PIDFProvider(1);
+            mI = new PIDFController.PIDFProvider(0);
+            mD = new PIDFController.PIDFProvider(10);
+            mF = new PIDFController.PIDFProvider(0);
+            m1 = new PIDFController.PIDFProvider(0);
+            m2 = new PIDFController.PIDFProvider(0);
+
+            mPID = new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get());
+
+            mPCurrent = mP.get();
+            mICurrent = mI.get();
+            mDCurrent = mD.get();
+            mFCurrent = mF.get();
+            m1Current = m1.get();
+            m2Current = m2.get();
+
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"P",mP);
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"I",mI);
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"D",mD);
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"F",mF);
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"1",m1);
+            FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"2",m2);
+
+            FtcDashboard.getInstance().updateConfig();
         }
 
         if (mReady) {
@@ -126,6 +156,18 @@ public class LockQRCode {
 
         if (mReady) {
 
+            if((Math.abs(mP.get() - mPCurrent) > 0.01) || (Math.abs(mI.get() - mICurrent) > 0.01) || (Math.abs(mD.get() - mDCurrent) > 0.01) || (Math.abs(mF.get() - mFCurrent) > 0.01) || (Math.abs(m1.get() - m1Current) > 0.01) || (Math.abs(m2.get() - m2Current) > 0.01)) {
+
+                mPID = new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get());
+
+                mPCurrent = mP.get();
+                mICurrent = mI.get();
+                mDCurrent = mD.get();
+                mFCurrent = mF.get();
+                m1Current = m1.get();
+                m2Current = m2.get();
+            }
+
             mLogger.trace(Logger.Target.FILE,"start");
             mLocalizer.update();
             mLogger.trace(Logger.Target.FILE,"after loc update");
@@ -139,6 +181,7 @@ public class LockQRCode {
                         -output.getPosition().x * Path.M_TO_INCHES,
                         -output.getPosition().y * Path.M_TO_INCHES,
                         (output.getOrientation().getYaw() + 180) * Math.PI / 180);
+                mLogger.info(String.format("VIS : X: %2.2f Y: %2.2f HD : %2.2f" , pose.position.x,pose.position.y,pose.heading.toDouble() / Math.PI * 180));
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
@@ -149,33 +192,36 @@ public class LockQRCode {
             if(mIsInFTC) {
 
                 Pose2d qrcode = mPath.qrcode();
+
                 Pose2d robot = mLocalizer.getPose();
+                mLogger.info(String.format("PPT : X: %2.2f Y: %2.2f HD : %2.2f" , robot.position.x,robot.position.y,robot.heading.toDouble() / Math.PI * 180));
 
                 Vector2d pos_ftc = new Vector2d(qrcode.position.x - robot.position.x, qrcode.position.y - robot.position.y);
                 double length = pos_ftc.norm();
+                mLogger.trace("" + length);
                 double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
+                mLogger.trace("" + theta1);
                 double theta2 = qrcode.heading.toDouble() - theta1;
 
                 mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
                 double yaw = -Math.atan2(mDirection.x, mDirection.y);
+                mLogger.trace("" + yaw);
                 mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
                 mHeading = robot.heading.toDouble() - theta1;
 
-                
                 mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
-                
-                mSum -= mBuffer[mIndex];
-                mBuffer[mIndex] = mRotation;
-                mSum += mRotation;
 
-                mIndex = (mIndex + 1) % s_WindowSize;
-                if(mCount < s_WindowSize) {mCount ++;}
+                mRotation = mPID.update(mRotation,0,System.currentTimeMillis());
 
-                //mRotation = mSum / (mCount + 1e-10) / Math.PI;
                 double rotation_predicted = (pos_ftc.y * mLocalizer.driver.getVelX(DistanceUnit.INCH) - pos_ftc.x * mLocalizer.driver.getVelY(DistanceUnit.INCH)) / length / length;
-                if(Math.sqrt(joystickvx * joystickvx + joystickvy * joystickvy) < 0.01)  { rotation_predicted = 0; }
-                mRotation *= COEFF_CORR;
+
+                mLogger.metric("rotation",""+mRotation);
+
                 mRotation -= COEFF_SPEED * rotation_predicted;
+
+                mLogger.metric("rot pred", ""+rotation_predicted);
+
+                if(Math.sqrt(joystickvx * joystickvx + joystickvy * joystickvy) < 0.01)  { mRotation = 0; rotation_predicted = 0; }
 
 
                 mLogger.info(String.format("\n==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
