@@ -17,8 +17,8 @@ public class V2 extends Configuration {
 
         /* Moving configuration : Positive power makes wheel go forward */
         mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));
-        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));
+        mMotors.put("back-left-wheel",new ConfMotor("backLeft",true));
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));
         mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
 
         /* IMUs configuration */
@@ -28,6 +28,7 @@ public class V2 extends Configuration {
         mImus.get("pinpoint").setPerp(-8.0, true);
 
         /* Intake configuration */
+
         mMotors.put("intake-belts",new ConfMotor("intakeBelts",false));
         mServos.put("intake-entry-arm", new ConfServo("intakeEntryArm", false));
         mServos.get("intake-entry-arm").addPosition("let", 0.28);

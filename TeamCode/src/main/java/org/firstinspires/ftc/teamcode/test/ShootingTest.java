@@ -161,14 +161,14 @@ public class ShootingTest extends OpMode {
         if(mMotorOuttake != null) {
 
             if(Math.abs(mSpeedOuttake - VELOCITY_OUTTAKE) > 0.01) {
-                mMotorOuttake.setVelocity(VELOCITY_OUTTAKE * Math.PI / 180);
+                mMotorOuttake.setVelocity(VELOCITY_OUTTAKE);
                 mSpeedOuttake = VELOCITY_OUTTAKE;
 
 
                 mLogger.info("Changing Speed");
             }
 
-            mCurrentSpeedOuttake = mMotorOuttake.getVelocity()/ Math.PI * 180;
+            mCurrentSpeedOuttake = mMotorOuttake.getVelocity();
 
             mLogger.metric("COMMAND_OUTTAKE",""+mSpeedOuttake);
             mLogger.metric("VELOCITY_OUTTAKE", ""+mCurrentSpeedOuttake);
@@ -185,7 +185,7 @@ public class ShootingTest extends OpMode {
                 mLogger.info("Changing Speed");
             }
 
-            mCurrentSpeedIntake = mMotorIntake.getVelocity()/ Math.PI * 180;
+            mCurrentSpeedIntake = mMotorIntake.getVelocity();
 
             mLogger.metric("COMMAND_INTAKE",""+mSpeedIntake);
             mLogger.metric("VELOCITY_INTAKE", ""+mCurrentSpeedIntake);

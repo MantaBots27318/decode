@@ -54,9 +54,9 @@ public class Robot {
     public enum Engage {
         NONE,
         WAITING,
+        ARM_AND_PUSH,
+        ARM_AND_LET,
         ARM,
-        PUSH,
-        LET,
         WHEELS
     }
 
@@ -80,7 +80,8 @@ public class Robot {
     OuttakeWheels           mOuttakeWheels;
     OuttakeLeverArm         mOuttakeLeverArm;
     IntakeEntryArm          mIntakeEntryArm;
-    double                  mEngageVelocity;
+    double                  mTargetVelocity;
+    double                  mTargetDistance;
 
     Camera                  mCamera;
 
@@ -107,7 +108,10 @@ public class Robot {
     Engage                  mEngageMode;
     Shoot                   mShootMode;
     boolean                 mIsEngaged;
-    double                  mEngagedVelocity;
+    double                  mEngagedTargetVelocity;
+    double                  mEngagedRealVelocity;
+    double                  mEngagedDistance;
+    boolean                 mIsEngagingFirst;
 
     boolean                 mShallCorrectSmallResidue = false;
 
@@ -142,6 +146,7 @@ public class Robot {
             mShootMode = Shoot.NONE;
             mEngageMode = Engage.NONE;
             mIsEngaged = false;
+            mIsEngagingFirst = false;
         }
 
         if(mReady) { mLogger.info("==>  READY"); }
@@ -168,16 +173,19 @@ public class Robot {
             mLogger.info("======== DRIVING =========");
             if (mMode == Mode.FIELD_CENTRIC)       { mLogger.info("==> MODE : FC"); }
             else if (mMode == Mode.ROBOT_CENTRIC)  { mLogger.info("==> MODE : RC"); }
-            else if (mMode == Mode.QRCODE_CENTRIC) { mLogger.info("==> MODE : QC"); }
+            else if (mMode == Mode.QRCODE_CENTRIC && !mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC"); }
+            else if (mMode == Mode.QRCODE_CENTRIC && mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC CORRECT"); }
 
             mLogger.info("======= COLLECTING =======");
             if(mIsEngaged) {
                 mLogger.info("==> SHOOTING ENGAGED");
-                mLogger.info("==> ENGAGED VELOCITY : " + mEngagedVelocity);
+                mLogger.info("==> ENGAGED TARGET VELOCITY : " + mEngagedTargetVelocity);
+                mLogger.info("==> ENGAGED CURRENT VELOCITY : " + mEngagedRealVelocity);
+                mLogger.info("==> ENGAGED DISTANCE : " + mEngagedDistance);
+                mLogger.info("==> ENGAGING FIRST : " + mIsEngagingFirst);
             }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
             mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity());
-            //mLogger.metric("==> IN VEL : ","" + mIntakeBelts.getVelocity() / Math.PI * 180);
         }
 
     }
@@ -192,7 +200,7 @@ public class Robot {
     }
 
     void engage(double velocity) {
-        mEngageVelocity = velocity;
+        mTargetVelocity = velocity;
         this.engage();
     }
 
@@ -204,28 +212,32 @@ public class Robot {
 
         if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
         else if (mEngageMode == Engage.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
-            mOuttakeWheels.control(mEngageVelocity);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,300);
+            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,300); }
+            mIntakeBelts.start(0.2);
+            mOuttakeWheels.control(mTargetVelocity);
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
+                mEngageMode = Engage.ARM_AND_PUSH;
+            }
+        }
+        else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
+            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,300); }
+            mIntakeBelts.start(-1.0);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,300);
+            mOuttakeWheels.control(mTargetVelocity);
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET)))  {
+                mEngageMode = Engage.ARM_AND_LET;
+            }
+        }
+        else if(mEngageMode == Engage.ARM_AND_LET && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,400);
+            mOuttakeWheels.control(mTargetVelocity);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
                 mEngageMode = Engage.ARM;
             }
         }
         else if(mEngageMode == Engage.ARM && !mOuttakeLeverArm.isMoving()) {
-            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,300);
-            mIntakeBelts.start(0.2);
-            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH) {
-                mEngageMode = Engage.PUSH;
-            }
-        }
-        else if(mEngageMode == Engage.PUSH && !mIntakeEntryArm.isMoving()) {
-            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,300);
-            mIntakeBelts.start(-1.0);
-            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET) {
-                mEngageMode = Engage.LET;
-            }
-        }
-        else if(mEngageMode == Engage.LET && !mIntakeEntryArm.isMoving()) {
-            mOuttakeWheels.control(mEngageVelocity);
+            mOuttakeWheels.control(mTargetVelocity);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
             }
@@ -233,7 +245,9 @@ public class Robot {
         else if (mEngageMode == Engage.WHEELS) {
             mEngageMode = Engage.NONE;
             mIsEngaged = true;
-            mEngagedVelocity = mOuttakeWheels.getVelocity();
+            mEngagedTargetVelocity = mTargetVelocity;
+            mEngagedDistance = mTargetDistance;
+            mEngagedRealVelocity = mOuttakeWheels.getVelocity();
         }
     }
 
@@ -295,12 +309,15 @@ public class Robot {
         if (mGamepadAttachments.buttons.right_bumper.pressedOnce())  { reverse_intake(); }
         if (mGamepadAttachments.buttons.right_bumper.releasedOnce()) { stop_intake();    }
 
+        if(mGamepadAttachments.buttons.dpad_up.pressedOnce()) {
+            mIsEngagingFirst = true;
+        }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();
             if(direction != null) {
-                double distance = direction.norm();
-                double velocity = VelocityAbacus.getVelocity(distance);
-                mLogger.trace("velocity : " + velocity + " distance " + distance);
+                mTargetDistance = direction.norm();
+                mLogger.trace("Distance : " + mTargetDistance);
+                double velocity = VelocityAbacus.getVelocity(mTargetDistance);
                 if (!mIsEngaged) { this.engage(velocity); }
                 else             { this.shoot();          }
             }
@@ -330,8 +347,6 @@ public class Robot {
         }
         else if(mMode == Mode.QRCODE_CENTRIC) {
             if(mLocker.isSet()) {
-                mLogger.trace("" + mShallCorrectSmallResidue);
-                mLogger.trace("" + Math.sqrt(x * x + y * y));
 
                 if((Math.sqrt(x * x + y * y) < 0.01) && !mShallCorrectSmallResidue) {
                     mChassis.drive(x, y, 0, mLocker.getHeading(), multiplier);

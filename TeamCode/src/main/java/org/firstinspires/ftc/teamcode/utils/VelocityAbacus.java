@@ -6,8 +6,8 @@ public class VelocityAbacus {
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
             {40, 2.618},
-            {73,  2.98},
-            {116, 3.1416}
+            {73,  160.0/180*3.1416},
+            {116, 175.0/180*3.1416}
     };
 
     /**

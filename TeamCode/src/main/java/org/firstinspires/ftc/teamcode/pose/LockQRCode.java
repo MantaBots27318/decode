@@ -176,13 +176,10 @@ public class LockQRCode {
                 m2Current = m2.get();
             }
 
-            mLogger.trace(Logger.Target.FILE,"start");
             mLocalizer.update();
-            mLogger.trace(Logger.Target.FILE,"after loc update");
 
             Pose3D output = null;
             output = mVision.getPosition();
-            mLogger.trace(Logger.Target.FILE,"after vision");
             if (output != null) {
 
                 Pose2d pose = new Pose2d(
@@ -195,7 +192,6 @@ public class LockQRCode {
                 mIsInFTC = true;
                 if ((mLed != null) && mLed.isReady()) { mLed.on(LedComponent.Color.GREEN); }
             }
-            mLogger.trace(Logger.Target.FILE,"after loc change");
 
             if(mIsInFTC) {
 
@@ -206,9 +202,7 @@ public class LockQRCode {
 
                 Vector2d pos_ftc = new Vector2d(qrcode.position.x - robot.position.x, qrcode.position.y - robot.position.y);
                 double length = pos_ftc.norm();
-                mLogger.trace("" + length);
                 double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
-                mLogger.trace("" + theta1);
                 double theta2 = qrcode.heading.toDouble() - theta1;
 
                 mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
