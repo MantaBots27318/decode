@@ -8,13 +8,13 @@
 package org.firstinspires.ftc.teamcode.pose;
 
 /* Qualcomm includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Acmerobotics includes */
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.dashboard.FtcDashboard;
 
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -42,10 +42,14 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Config
 public class LockQRCode {
 
-    public static double COEFF_SPEED = 0.2;
+    public static double COEFF_SPEED1 = 0.2;
+    public static double COEFF_SPEED2 = 0.2;
 
     PIDFController.PIDFProvider    mP;
     PIDFController.PIDFProvider    mI;
@@ -64,11 +68,13 @@ public class LockQRCode {
 
     Vector2d            mDirection;
     double              mRotation; // The rotation to give to the robot to reach QRCOde
+    double              mRotation1; // The rotation to give to the robot to reach QRCOde
+    double              mRotation2; // The rotation to give to the robot to reach QRCOde
     double              mHeading; // The direction along which the robot moves towards the QRCode
 
     LedComponent        mLed;
 
-    PIDFController      mPID;
+    List<PIDFController> mPIDs;
 
     double              mPCurrent;
     double              mICurrent;
@@ -98,10 +104,12 @@ public class LockQRCode {
             mI = new PIDFController.PIDFProvider(0);
             mD = new PIDFController.PIDFProvider(20);
             mF = new PIDFController.PIDFProvider(0);
-            m1 = new PIDFController.PIDFProvider(0);
-            m2 = new PIDFController.PIDFProvider(0);
+            m1 = new PIDFController.PIDFProvider(-10);
+            m2 = new PIDFController.PIDFProvider(10);
 
-            mPID = new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get());
+            mPIDs = new ArrayList<>();
+            mPIDs.add(new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get()));
+            mPIDs.add(new PIDFController(1,0,20,0,-10,10));
 
             mPCurrent = mP.get();
             mICurrent = mI.get();
@@ -152,13 +160,13 @@ public class LockQRCode {
 
     public boolean isSet() { return mIsInFTC; }
 
-    public void loop(double joystickvx, double joystickvy) {
+    public void loop() {
 
         if (mReady) {
 
             if((Math.abs(mP.get() - mPCurrent) > 0.01) || (Math.abs(mI.get() - mICurrent) > 0.01) || (Math.abs(mD.get() - mDCurrent) > 0.01) || (Math.abs(mF.get() - mFCurrent) > 0.01) || (Math.abs(m1.get() - m1Current) > 0.01) || (Math.abs(m2.get() - m2Current) > 0.01)) {
 
-                mPID = new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get());
+                mPIDs.set(0,new PIDFController(mP.get(),mI.get(),mD.get(),mF.get(),m1.get(),m2.get()));
 
                 mPCurrent = mP.get();
                 mICurrent = mI.get();
@@ -211,18 +219,13 @@ public class LockQRCode {
 
                 mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
 
-                mRotation = mPID.update(mRotation,0,System.currentTimeMillis());
+                mRotation1 = mPIDs.get(0).update(mRotation,0,System.currentTimeMillis());
+                mRotation2 = mPIDs.get(1).update(mRotation,0,System.currentTimeMillis());
 
                 double rotation_predicted = (pos_ftc.y * mLocalizer.driver.getVelX(DistanceUnit.INCH) - pos_ftc.x * mLocalizer.driver.getVelY(DistanceUnit.INCH)) / length / length;
 
-                mLogger.metric("rotation",""+mRotation);
-
-                mRotation -= COEFF_SPEED * rotation_predicted;
-
-                mLogger.metric("rot pred", ""+rotation_predicted);
-
-                if(Math.sqrt(joystickvx * joystickvx + joystickvy * joystickvy) < 0.01)  { mRotation = 0; rotation_predicted = 0; }
-
+                mRotation1 -= COEFF_SPEED1 * rotation_predicted;
+                mRotation2 -= COEFF_SPEED2 * rotation_predicted;
 
                 mLogger.info(String.format("\n==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
 
@@ -235,6 +238,7 @@ public class LockQRCode {
     }
 
     public Vector2d            getDirection() { return mDirection; }
-    public double              getRotation()  { return mRotation;  }
+    public double              getRotation1()  { return mRotation1;  }
+    public double              getRotation2()  { return mRotation2;  }
     public double              getHeading()   { return mHeading;   }
 }

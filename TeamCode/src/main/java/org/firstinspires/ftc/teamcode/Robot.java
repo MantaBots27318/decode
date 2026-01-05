@@ -109,6 +109,8 @@ public class Robot {
     boolean                 mIsEngaged;
     double                  mEngagedVelocity;
 
+    boolean                 mShallCorrectSmallResidue = false;
+
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
 
@@ -182,7 +184,7 @@ public class Robot {
 
     public void loop() {
 
-        mLocker.loop(mX,mY);
+        mLocker.loop();
         move(mX,mY,mRotation);
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage(); }
@@ -255,12 +257,19 @@ public class Robot {
     void control_chassis() {
 
         if (mGamepadChassis.buttons.a.pressed()) {
-            mLogger.info("==> QRCODE MODE");
+            mLogger.info("==> QRCODE MODE A");
             mMode = Mode.QRCODE_CENTRIC;
+            mShallCorrectSmallResidue = false;
         }
-        if (mGamepadChassis.buttons.a.notPressed()) {
+        else if (mGamepadChassis.buttons.b.pressed()) {
+            mLogger.info("==> QRCODE MODE B");
+            mMode = Mode.QRCODE_CENTRIC;
+            mShallCorrectSmallResidue = true;
+        }
+        else if (mGamepadChassis.buttons.a.notPressed() && mGamepadChassis.buttons.b.notPressed()) {
             mLogger.info("==> FALLBACK MODE");
             mMode = mFallbackMode;
+            mShallCorrectSmallResidue = false;
         }
         if (mGamepadChassis.buttons.x.pressed()) {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
@@ -270,6 +279,7 @@ public class Robot {
             else if(mFallbackMode == Mode.ROBOT_CENTRIC)      {
                 mLogger.info("==> FIELD CENTRIC MODE");
                 mFallbackMode = mMode = Mode.FIELD_CENTRIC;
+                mShallCorrectSmallResidue = false;
             }
         }
 
@@ -320,7 +330,18 @@ public class Robot {
         }
         else if(mMode == Mode.QRCODE_CENTRIC) {
             if(mLocker.isSet()) {
-                mChassis.drive(x, y, mLocker.getRotation(), mLocker.getHeading(), multiplier);
+                mLogger.trace("" + mShallCorrectSmallResidue);
+                mLogger.trace("" + Math.sqrt(x * x + y * y));
+
+                if((Math.sqrt(x * x + y * y) < 0.01) && !mShallCorrectSmallResidue) {
+                    mChassis.drive(x, y, 0, mLocker.getHeading(), multiplier);
+                }
+                else if (!mShallCorrectSmallResidue){
+                    mChassis.drive(x, y, mLocker.getRotation1(), mLocker.getHeading(), multiplier);
+                }
+                else {
+                    mChassis.drive(x, y, mLocker.getRotation2(), mLocker.getHeading(), multiplier);
+                }
             }
         }
     }
