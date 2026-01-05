@@ -5,8 +5,9 @@ public class VelocityAbacus {
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {27.375, 2.8},
-            {57.153, 3.25}
+            {40, 2.618},
+            {73,  2.98},
+            {116, 3.1416}
     };
 
     /**

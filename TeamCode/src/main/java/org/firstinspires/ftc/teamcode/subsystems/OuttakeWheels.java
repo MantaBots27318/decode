@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /* Component includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
@@ -89,6 +90,9 @@ public class OuttakeWheels {
             else {
                 // Initialize motor
                 mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                PIDFCoefficients coefficients = new PIDFCoefficients(200,3,0,0);
+                mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,coefficients);
+
             }
 
         }

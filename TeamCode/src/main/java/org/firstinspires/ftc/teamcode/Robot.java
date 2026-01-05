@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 /* Subsystem includes */
 import org.firstinspires.ftc.teamcode.subsystems.IntakeBelts;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeEntryArm;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeLeverArm;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeWheels;
 import org.firstinspires.ftc.teamcode.subsystems.Camera;
@@ -54,6 +55,8 @@ public class Robot {
         NONE,
         WAITING,
         ARM,
+        PUSH,
+        LET,
         WHEELS
     }
 
@@ -76,6 +79,7 @@ public class Robot {
     IntakeBelts             mIntakeBelts;
     OuttakeWheels           mOuttakeWheels;
     OuttakeLeverArm         mOuttakeLeverArm;
+    IntakeEntryArm          mIntakeEntryArm;
     double                  mEngageVelocity;
 
     Camera                  mCamera;
@@ -170,7 +174,7 @@ public class Robot {
                 mLogger.info("==> ENGAGED VELOCITY : " + mEngagedVelocity);
             }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
-            //mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity() / Math.PI * 180);
+            mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity());
             //mLogger.metric("==> IN VEL : ","" + mIntakeBelts.getVelocity() / Math.PI * 180);
         }
 
@@ -205,6 +209,20 @@ public class Robot {
             }
         }
         else if(mEngageMode == Engage.ARM && !mOuttakeLeverArm.isMoving()) {
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,300);
+            mIntakeBelts.start(0.2);
+            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH) {
+                mEngageMode = Engage.PUSH;
+            }
+        }
+        else if(mEngageMode == Engage.PUSH && !mIntakeEntryArm.isMoving()) {
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,300);
+            mIntakeBelts.start(-1.0);
+            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET) {
+                mEngageMode = Engage.LET;
+            }
+        }
+        else if(mEngageMode == Engage.LET && !mIntakeEntryArm.isMoving()) {
             mOuttakeWheels.control(mEngageVelocity);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
@@ -277,8 +295,9 @@ public class Robot {
                 else             { this.shoot();          }
             }
         }
-        if (mGamepadAttachments.buttons.dpad_left.pressed()) {
+        if (mGamepadAttachments.buttons.dpad_left.pressedOnce()) {
             mOuttakeWheels.stop();
+            mIsEngaged = false;
         }
 
     }
@@ -315,10 +334,12 @@ public class Robot {
         mIntakeBelts        = new IntakeBelts();
         mOuttakeWheels      = new OuttakeWheels();
         mOuttakeLeverArm    = new OuttakeLeverArm();
+        mIntakeEntryArm     = new IntakeEntryArm();
 
         mIntakeBelts.setHW(config, hwm, mLogger);
         mOuttakeWheels.setHW(config, hwm, mLogger);
         mOuttakeLeverArm.setHW(config, hwm, mLogger);
+        mIntakeEntryArm.setHW(config,hwm,mLogger);
 
         return result;
 
@@ -396,18 +417,22 @@ public class Robot {
 
         }
 
+        if(result) { mLogger.info("==>  CONF : OK"); }
+        else       { mLogger.warning("==>  CONF : KO : " + status); }
+
+
         return result;
 
     }
 
     public boolean start_intake() {
         mLogger.info("==> STR INTAKE");
-        mIntakeBelts.start(1.0);
+        mIntakeBelts.start(-1.0);
         return false;
     }
     public boolean reverse_intake() {
         mLogger.info("==> RVS INTAKE");
-        mIntakeBelts.start(-1.0);
+        mIntakeBelts.start(1.0);
         return false;
     }
     public boolean stop_intake() {

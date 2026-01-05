@@ -22,21 +22,24 @@ public class V2 extends Configuration {
         mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
 
         /* IMUs configuration */
-        mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.DOWN));
         mImus.put("pinpoint", new ConfImu("pinpoint"));
         mImus.get("pinpoint").setPar(-3.1, false);
         mImus.get("pinpoint").setPerp(-8.0, true);
 
         /* Intake configuration */
         mMotors.put("intake-belts",new ConfMotor("intakeBelts",false));
+        mServos.put("intake-entry-arm", new ConfServo("intakeEntryArm", false));
+        mServos.get("intake-entry-arm").addPosition("let", 0.28);
+        mServos.get("intake-entry-arm").addPosition("push", 0.6);
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(
                 "outtakeWheelsLeft",false, false,
                 "outtakeWheelsRight",true, false));
         mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false));
-        mServos.get("outtake-lever-arm").addPosition("lock", 0.0);
-        mServos.get("outtake-lever-arm").addPosition("shoot", 0.3);
+        mServos.get("outtake-lever-arm").addPosition("lock", 0.1);
+        mServos.get("outtake-lever-arm").addPosition("shoot", 0.28);
 
         /* Camera servo configuration */
         mServos.put("camera", new ConfServo("camera", false));
