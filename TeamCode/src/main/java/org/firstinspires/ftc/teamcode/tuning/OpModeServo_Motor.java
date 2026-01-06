@@ -21,8 +21,8 @@ public class OpModeServo_Motor extends OpMode {
 
     public void init(){
         mServo = hardwareMap.get(Servo.class, "camera");
-        mDcMotor1 = hardwareMap.get(DcMotor.class,"outtakeWheelsRight");
-        mDcMotor2 = hardwareMap.get(DcMotor.class,"outtakeWheelsLeft");
+        mDcMotor1 = hardwareMap.get(DcMotor.class,"intakeBeltsFront");
+        mDcMotor2 = hardwareMap.get(DcMotor.class,"intakeBeltsBack");
     }
     public void loop(){
         mServo.setPosition(SERVO);

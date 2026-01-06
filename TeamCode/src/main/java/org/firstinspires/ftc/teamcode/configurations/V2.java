@@ -29,10 +29,10 @@ public class V2 extends Configuration {
 
         /* Intake configuration */
 
-        mMotors.put("intake-belts",new ConfMotor("intakeBelts",false));
+        mMotors.put("intake-belts",new ConfMotor("intakeBeltsFront",false, "intakeBeltsBack", true));
         mServos.put("intake-entry-arm", new ConfServo("intakeEntryArm", false));
         mServos.get("intake-entry-arm").addPosition("let", 0.28);
-        mServos.get("intake-entry-arm").addPosition("push", 0.6);
+        mServos.get("intake-entry-arm").addPosition("push", 0.5);
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(

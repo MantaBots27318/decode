@@ -28,7 +28,7 @@ public class PathAutonomousGoal extends Path {
     public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 51;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 8;
-    public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 8;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 3;
     public static final double X_PPG_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 8;
     public static final double X_GPP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 30 + 8;
     public static final double X_PGP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;

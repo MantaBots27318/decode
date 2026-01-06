@@ -5,7 +5,7 @@
             <goBILDA5202SeriesMotor name="backLeft" port="3" />
             <goBILDA5202SeriesMotor name="frontLeft" port="2" />
             <goBILDA5202SeriesMotor name="outtakeWheelsLeft" port="0" />
-            <goBILDA5202SeriesMotor name="intakeBelts" port="1" />
+            <goBILDA5202SeriesMotor name="intakeBeltsFront" port="1" />
             <Servo name="outtakeLeverArm" port="4" />
             <Servo name="camera" port="5" />
         </LynxModule>
@@ -13,6 +13,7 @@
             <goBILDA5202SeriesMotor name="outtakeWheelsRight" port="1" />
             <goBILDA5202SeriesMotor name="frontRight" port="3" />
             <goBILDA5202SeriesMotor name="backRight" port="2" />
+            <goBILDA5202SeriesMotor name="intakeBeltsBack" port="0" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
             <Led name="trackingRightRed" port="6" />
             <Led name="trackingRightGreen" port="7" />

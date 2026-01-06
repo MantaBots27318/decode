@@ -16,6 +16,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -171,7 +172,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         Pose2d end_intake = mPath.endIntake();
         Pose2d back_intake = mPath.backIntake();
         Pose2d calibration = mPath.calibration();
-        Pose2d shoot = mPath.shootingClose();
+        Pose2d shoot = mPath.shootingFar();
         Pose2d leave = mPath.parking();
 
         double distance_intake = end_intake.minus(pattern).line.norm();
@@ -183,25 +184,14 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .lineToXConstantHeading(mPath.xCalibrationFromGoal())
                         .build());
 
-        updatePoseFromAprilTagIfVisible();
-
-        mLogger.info("==> CALIBRATION");
-        mLogger.info("REF POSE :" + mDrive.getPose());
-        mLogger.info("==> GO TO SHOOTING");
-        mLogger.update();
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(shoot,shoot.heading.toDouble())
-                        .build());
-
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        mRobot.shoot4(2.8) ;
+        mRobot.shoot4(155.0/180*3.1416) ;
+        updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
-                mDrive.actionBuilder(shoot)
+                mDrive.actionBuilder(mDrive.getPose())
                         .turn(mPath.hObeliskFTCRadians() )
                         .build());
 
@@ -225,7 +215,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .turnTo(Math.PI).afterDisp(1,startIntakeAction)
+                        .turnTo(Math.PI)
+                        .afterDisp(1,startIntakeAction)
                         .setTangent(Math.PI)
                         .splineToLinearHeading(pattern,pattern.heading.toDouble())
                         .afterDisp(0.9 * distance_intake,stopIntakeAction)
@@ -233,9 +224,21 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .setTangent(-pattern.heading.toDouble())
                         .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .afterDisp(0.1,engageAction)
+                        .setTangent(mPath.tgtIntakeToCalibrationRadians())
+                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                         .build());
 
-        Configuration.s_Current.persist("heading",mPath.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - leave.heading.toDouble());
+
+        mRobot.shoot4(155.0/180*3.1416) ;
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(shoot)
+                        .setTangent(shoot.heading.toDouble() + Math.PI)
+                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
+                        .build());
+
+        Configuration.s_Current.persist("heading", mPath.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - leave.heading.toDouble());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

@@ -212,8 +212,8 @@ public class Robot {
 
         if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
         else if (mEngageMode == Engage.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,300);
-            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,300); }
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
+            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,200); }
             mIntakeBelts.start(0.2);
             mOuttakeWheels.control(mTargetVelocity);
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
@@ -221,22 +221,14 @@ public class Robot {
             }
         }
         else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
-            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,300); }
+            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200); }
             mIntakeBelts.start(-1.0);
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,300);
             mOuttakeWheels.control(mTargetVelocity);
-            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET)))  {
-                mEngageMode = Engage.ARM_AND_LET;
-            }
-        }
-        else if(mEngageMode == Engage.ARM_AND_LET && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,400);
-            mOuttakeWheels.control(mTargetVelocity);
-            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
+            if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
                 mEngageMode = Engage.ARM;
             }
         }
-        else if(mEngageMode == Engage.ARM && !mOuttakeLeverArm.isMoving()) {
+        else if(mEngageMode == Engage.ARM ){//&& !mOuttakeLeverArm.isMoving()) {
             mOuttakeWheels.control(mTargetVelocity);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
@@ -245,6 +237,7 @@ public class Robot {
         else if (mEngageMode == Engage.WHEELS) {
             mEngageMode = Engage.NONE;
             mIsEngaged = true;
+            mIsEngagingFirst = false;
             mEngagedTargetVelocity = mTargetVelocity;
             mEngagedDistance = mTargetDistance;
             mEngagedRealVelocity = mOuttakeWheels.getVelocity();
@@ -257,7 +250,7 @@ public class Robot {
 
         if (mShootMode == Shoot.NONE && mIsEngaged ) { mShootMode = Shoot.WAITING; }
         else if (mShootMode == Shoot.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT, 400);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
                 mShootMode = Shoot.ARM;
             }
@@ -312,6 +305,9 @@ public class Robot {
         if(mGamepadAttachments.buttons.dpad_up.pressedOnce()) {
             mIsEngagingFirst = true;
         }
+        if(mGamepadAttachments.buttons.dpad_up.releasedOnce()) {
+            mIntakeBelts.stop();
+        }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();
             if(direction != null) {
@@ -324,6 +320,7 @@ public class Robot {
         }
         if (mGamepadAttachments.buttons.dpad_left.pressedOnce()) {
             mOuttakeWheels.stop();
+            mIntakeBelts.stop();
             mIsEngaged = false;
         }
 
@@ -477,6 +474,7 @@ public class Robot {
         return false;
     }
     public boolean start_engage(double velocity) {
+        mIsEngagingFirst = true;
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }
