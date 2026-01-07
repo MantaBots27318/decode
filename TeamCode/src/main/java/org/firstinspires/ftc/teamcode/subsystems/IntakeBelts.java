@@ -91,6 +91,7 @@ public class IntakeBelts {
     // Stop brushes
     public void stop() {
         if(mReady) {
+            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mMotor.setPower(0);
             mIsMoving = false;
             mIsReversed = false;

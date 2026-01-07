@@ -120,9 +120,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             Pattern pattern = mVision.readPattern();
             if (pattern != Pattern.NONE) {
                 mPattern = pattern;
-                if(mPattern == Pattern.PPG) { mTargetPattern = Pattern.PGP; }
-                if(mPattern == Pattern.PGP) { mTargetPattern = Pattern.PPG; }
-                if(mPattern == Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
+                mTargetPattern = this.computePattern(mPattern,mPatternShift);
                 mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
 
@@ -186,15 +184,25 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Pose2d end_intake = mPath.endIntake();
         Pose2d back_intake = mPath.backIntake();
         Pose2d calibration = mPath.calibration();
-        Pose2d shoot = mPath.shootingClose();
+        Pose2d shoot = mPath.shootingFar();
+        Pose2d shootinit = mPath.shootingVeryFar();
         Pose2d leave = mPath.parking();
 
-        double distance_pattern = pattern.minus(start).line.norm();
+        double distance_pattern = pattern.minus(shootinit).line.norm();
         double distance_intake = end_intake.minus(pattern).line.norm();
         Actions.runBlocking(
             mDrive.actionBuilder(start)
                     .waitSeconds(mWaitingTime)
-                    .afterDisp(0.4 * distance_pattern,startIntakeAction)
+                    .afterDisp(0.01,engageAction)
+                    .setTangent(start.heading.toDouble())
+                    .splineToLinearHeading(shootinit,shootinit.heading)
+                    .build());
+
+        mRobot.shoot3(185.0/180*3.1416);
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(shootinit)
+                    .afterDisp(0.1 * distance_pattern,startIntakeAction)
                     .setTangent(start.heading)
                     .splineToLinearHeading(pattern,start.heading)
                     .afterDisp(0.9 * distance_intake,stopIntakeAction)
@@ -207,20 +215,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .splineToLinearHeading(calibration,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                     .build());
 
-
         updatePoseFromAprilTagIfVisible();
-
-        mLogger.info("==> CALIBRATION");
-        mLogger.info("REF POSE :" + mDrive.getPose());
-        mLogger.info("==> GO TO SHOOTING");
-        mLogger.update();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .splineToLinearHeading(shoot,shoot.heading.toDouble())
                         .build());
 
-        mRobot.shoot4(2.8);
+        mRobot.shoot3(155.0/180*3.1416);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)
@@ -228,7 +230,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading", mPath.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - leave.heading.toDouble());
+        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

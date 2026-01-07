@@ -22,8 +22,8 @@ public class Path {
     public static final double FIELD_SIZE_INCHES                                 = 12 * 12;
     public static final double M_TO_INCHES                                       = 39.37;
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                     = 40;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED                      = -40;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                     = 30;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED                      = -30;
 
     private static final double X_SHOOTING_CLOSE_INCHES                          = 36;
     private static final double Y_SHOOTING_CLOSE_INCHES_BLUE                     = 36;
@@ -36,6 +36,13 @@ public class Path {
     private static final double ANGLE_SHOOTING_FAR_RADIANS_BLUE                  = Math.PI / 4;
     private static final double Y_SHOOTING_FAR_INCHES_RED                        = -16;
     private static final double ANGLE_SHOOTING_FAR_RADIANS_RED                   = - Math.PI / 4;
+
+    private static final double X_SHOOTING_VERY_FAR_INCHES                      = -52;
+    private static final double Y_SHOOTING_VERY_FAR_INCHES_BLUE                 = 19;
+    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE            = 0.365424564;
+    private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -19;
+    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = - 0.365424564;
+
 
     private static final double X_PARKING_GATE_ZONE_INCHES                       = 32;
     private static final double Y_PARKING_GATE_ZONE_INCHES_BLUE                  = 53;
@@ -66,8 +73,9 @@ public class Path {
 
     Pose2d          mShootingClose              = new Pose2d(0,0,0);
     Pose2d          mShootingFar                = new Pose2d(0,0,0);
+    Pose2d          mShootingVeryFar            = new Pose2d(0,0,0);
     Pose2d          mParking                    = new Pose2d(0,0,0);
-    Pose2d        mQRCode                       = new Pose2d(0,0,0);
+    Pose2d          mQRCode                     = new Pose2d(0,0,0);
 
     double          mAngleAutoToTeleopRadians   = 0;
     double          mFieldCentric2FTC = 0;
@@ -83,6 +91,7 @@ public class Path {
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_RED;
 
             mShootingFar = new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_RED,ANGLE_SHOOTING_FAR_RADIANS_RED);
+            mShootingVeryFar = new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_RED,ANGLE_SHOOTING_VERY_FAR_RADIANS_RED);
             mShootingClose = new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_RED,ANGLE_SHOOTING_CLOSE_RADIANS_RED);
 
             if(ShallParkInLaunchZone) {
@@ -109,6 +118,7 @@ public class Path {
 
             mShootingClose = new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_BLUE,ANGLE_SHOOTING_CLOSE_RADIANS_BLUE);
             mShootingFar = new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_BLUE,ANGLE_SHOOTING_FAR_RADIANS_BLUE);
+            mShootingVeryFar = new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_BLUE,ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE);
 
             if(ShallParkInLaunchZone) {
 
@@ -122,6 +132,7 @@ public class Path {
                 mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE;
 
             }
+
             mFieldCentric2FTC = Math.PI /2;
             mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE,ANGLE_QRCODE_RADIANS_BLUE);
 
@@ -130,6 +141,7 @@ public class Path {
 
     public Pose2d   shootingClose()         { return mShootingClose; }
     public Pose2d   shootingFar()           { return mShootingFar; }
+    public Pose2d   shootingVeryFar()       { return mShootingVeryFar; }
     public Pose2d   parking()               { return mParking;}
     public Pose2d   qrcode()                { return mQRCode; }
 

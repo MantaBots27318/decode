@@ -186,7 +186,7 @@ public class LockQRCode {
                         -output.getPosition().x * Path.M_TO_INCHES,
                         -output.getPosition().y * Path.M_TO_INCHES,
                         (output.getOrientation().getYaw() + 180) * Math.PI / 180);
-                mLogger.info(String.format("VIS : X: %2.2f Y: %2.2f HD : %2.2f" , pose.position.x,pose.position.y,pose.heading.toDouble() / Math.PI * 180));
+                mLogger.info(String.format("==> VIS : X: %2.2f Y: %2.2f HD : %2.2f" , pose.position.x,pose.position.y,pose.heading.toDouble() / Math.PI * 180));
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
@@ -198,7 +198,7 @@ public class LockQRCode {
                 Pose2d qrcode = mPath.qrcode();
 
                 Pose2d robot = mLocalizer.getPose();
-                mLogger.info(String.format("PPT : X: %2.2f Y: %2.2f HD : %2.2f" , robot.position.x,robot.position.y,robot.heading.toDouble() / Math.PI * 180));
+                mLogger.info(String.format("==> PPT : X: %2.2f Y: %2.2f HD : %2.2f" , robot.position.x,robot.position.y,robot.heading.toDouble() / Math.PI * 180));
 
                 Vector2d pos_ftc = new Vector2d(qrcode.position.x - robot.position.x, qrcode.position.y - robot.position.y);
                 double length = pos_ftc.norm();
@@ -211,7 +211,7 @@ public class LockQRCode {
                 mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
                 mHeading = robot.heading.toDouble() - theta1;
 
-                mLogger.info(String.format("\n==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
+                mLogger.info(String.format("==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
 
                 mRotation1 = mPIDs.get(0).update(mRotation,0,System.currentTimeMillis());
                 mRotation2 = mPIDs.get(1).update(mRotation,0,System.currentTimeMillis());
@@ -221,7 +221,7 @@ public class LockQRCode {
                 mRotation1 -= COEFF_SPEED1 * rotation_predicted;
                 mRotation2 -= COEFF_SPEED2 * rotation_predicted;
 
-                mLogger.info(String.format("\n==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
+                mLogger.info(String.format("==> LCK RTPRED : %2.2f RT: %2.2f",rotation_predicted / Math.PI * 180, mRotation / Math.PI * 180));
 
 
             }

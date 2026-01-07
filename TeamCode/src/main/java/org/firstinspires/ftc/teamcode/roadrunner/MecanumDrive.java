@@ -264,9 +264,6 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
-        FtcDashboard.getInstance().getTelemetry().addData("parYTicks",PinpointLocalizer.PARAMS.parYTicks);
-        FtcDashboard.getInstance().getTelemetry().addData("perpXTicks",PinpointLocalizer.PARAMS.perpXTicks);
-        FtcDashboard.getInstance().getTelemetry().update();
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
     public void updatePose (Pose2d newPose ){

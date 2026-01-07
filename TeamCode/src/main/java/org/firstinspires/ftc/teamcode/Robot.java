@@ -56,7 +56,6 @@ public class Robot {
         WAITING,
         ARM_AND_PUSH,
         ARM_AND_LET,
-        ARM,
         WHEELS
     }
 
@@ -225,10 +224,10 @@ public class Robot {
             mIntakeBelts.start(-1.0);
             mOuttakeWheels.control(mTargetVelocity);
             if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
-                mEngageMode = Engage.ARM;
+                mEngageMode = Engage.ARM_AND_LET;
             }
         }
-        else if(mEngageMode == Engage.ARM ){//&& !mOuttakeLeverArm.isMoving()) {
+        else if(mEngageMode == Engage.ARM_AND_LET ) {
             mOuttakeWheels.control(mTargetVelocity);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
@@ -290,8 +289,7 @@ public class Robot {
             }
         }
 
-        if(mGamepadChassis.buttons.left_bumper.pressed()) { mIsPrecise = true; }
-        else                                              { mIsPrecise = false; }
+        mIsPrecise = mGamepadChassis.buttons.left_bumper.pressed();
 
     }
 
@@ -307,6 +305,7 @@ public class Robot {
         }
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce()) {
             mIntakeBelts.stop();
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();
@@ -321,8 +320,17 @@ public class Robot {
         if (mGamepadAttachments.buttons.dpad_left.pressedOnce()) {
             mOuttakeWheels.stop();
             mIntakeBelts.stop();
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+            mEngageMode = Engage.NONE;
+            mShootMode = Shoot.NONE;
             mIsEngaged = false;
         }
+        if (mGamepadAttachments.buttons.a.pressed()) {
+            mIsEngaged = true;
+            mEngageMode = Engage.NONE;
+            this.shoot();
+        }
+
 
     }
 
@@ -331,7 +339,7 @@ public class Robot {
         double             multiplier = 0.9;
         if (mIsPrecise)  { multiplier = 0.3; }
 
-        mLogger.info(String.format("\n==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
+        mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
 
         if(mMode == Mode.ROBOT_CENTRIC) {
             mChassis.drive(x,y,rotation, 0, multiplier);
@@ -339,6 +347,7 @@ public class Robot {
         else if (mMode == Mode.FIELD_CENTRIC)
         {
             double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            mLogger.trace("yaw : " + heading / Math.PI * 180);
             heading += mHeadingOffset;
             mChassis.drive(x,y,rotation, heading, multiplier);
         }
@@ -426,8 +435,7 @@ public class Robot {
             mChassis.setHW(config, hwm, mLogger);
 
             mImu = null;
-            if (imu != null) { mImu = hwm.tryGet(IMU.class, imu.getName()); }
-
+            mImu = hwm.tryGet(IMU.class, imu.getName());
             if (mImu == null)                { status += " IMU"; result = false; }
         }
 
@@ -437,6 +445,9 @@ public class Robot {
                     imu.getLogo(), imu.getUsb());
             mImu.initialize(new IMU.Parameters(RevOrientation));
             mImu.resetYaw();
+            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            mLogger.trace("yaw : " + heading / Math.PI * 180);
+
 
             mHeadingOffset = 0;
             Double initialHeading = config.retrieve("heading");
@@ -478,7 +489,7 @@ public class Robot {
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }
-    public void shoot4(double velocity) {
+    public void shoot3(double velocity) {
         mLogger.info(Logger.Target.DRIVER_STATION,"==> CFG : SHOOTING 4");
         this.shoot();
         while (mShootMode != Shoot.NONE){
@@ -505,16 +516,7 @@ public class Robot {
             mLogger.info("CFG : SHOOTING");
             this.shoot();
         }
-        this.engage(velocity);
-        while (mEngageMode != Engage.NONE){
-            mLogger.info("CFG : ENGAGING");
-            this.engage();
-        }
-        this.shoot();
-        while (mShootMode != Shoot.NONE){
-            mLogger.info("CFG : SHOOTING");
-            this.shoot();
-        }
+        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();
 
     }

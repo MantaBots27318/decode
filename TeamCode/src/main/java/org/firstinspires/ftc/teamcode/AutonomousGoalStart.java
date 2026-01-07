@@ -16,7 +16,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -110,6 +109,12 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mPatternShift = Math.min(mPatternShift,3);
                 mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
             }
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mShallParkInLaunchZone = true;
+            }
+            if(mGamepad1.buttons.a.pressedOnce()){
+                mShallParkInLaunchZone = false;
+            }
 
 
             mLogger.info("=========== MENU ============");
@@ -119,11 +124,9 @@ public class AutonomousGoalStart extends LinearOpMode {
             mLogger.info("Choose Park Position: Y/A");
 
             mLogger.info("======= CONFIGURATION =======");
-            mLogger.metric("==> PATTERN : " , mPattern.text());
-            mLogger.metric("==> PATTERN SHIFT : " , "" + mPatternShift);
-            mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
             mLogger.metric("==> ALLIANCE : ", mAlliance.name());
             mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
+            mLogger.metric("==> PATTERN SHIFT : ", ""+mPatternShift);
 
             if (!mShallParkInLaunchZone) {
                 mLogger.metric("==> PARKING POSITION","Gate Zone");
@@ -168,14 +171,6 @@ public class AutonomousGoalStart extends LinearOpMode {
         };
 
         Pose2d start = mPath.start();
-        Pose2d pattern = mPath.pattern();
-        Pose2d end_intake = mPath.endIntake();
-        Pose2d back_intake = mPath.backIntake();
-        Pose2d calibration = mPath.calibration();
-        Pose2d shoot = mPath.shootingFar();
-        Pose2d leave = mPath.parking();
-
-        double distance_intake = end_intake.minus(pattern).line.norm();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(start)
@@ -187,7 +182,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        mRobot.shoot4(155.0/180*3.1416) ;
+        mRobot.shoot3(155.0/180*3.1416) ;
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
@@ -197,21 +192,29 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mTimer.arm(100);
         Pattern pat = mVision.readPattern();
+        mLogger.metric("READ PATTERN" , ""+pat);
         while(pat == Pattern.NONE && mTimer.isArmed()) {
             pat = mVision.readPattern();
+            mLogger.metric("READ PATTERN" , ""+pat);
         }
         if(pat == Pattern.NONE) { pat = Pattern.PGP; }
-        if (pat != Pattern.NONE) {
-            mPattern = pat;
-            if(mPattern == Pattern.PPG) { mTargetPattern = Pattern.PGP; }
-            if(mPattern == Pattern.PGP) { mTargetPattern = Pattern.PPG; }
-            if(mPattern == Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-            mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
-        }
 
-        mLogger.metric("PATTERN" , mPattern.text());
-        mLogger.metric("PATTERN TARGET" , mTargetPattern.text());
+        mPattern = pat;
+        mTargetPattern = this.computePattern(mPattern,mPatternShift);
+        mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+
+        mLogger.metric("==> PATTERN : " , mPattern.text());
+        mLogger.metric("==> PATTERN SHIFT : " , "" + mPatternShift);
+        mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
         mLogger.update();
+
+        Pose2d pattern = mPath.pattern();
+        Pose2d end_intake = mPath.endIntake();
+        Pose2d back_intake = mPath.backIntake();
+        Pose2d shoot = mPath.shootingFar();
+        Pose2d leave = mPath.parking();
+
+        double distance_intake = end_intake.minus(pattern).line.norm();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -230,7 +233,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .build());
 
 
-        mRobot.shoot4(155.0/180*3.1416) ;
+        mRobot.shoot3(155.0/180*3.1416) ;
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)
@@ -238,7 +241,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
                         .build());
 
-        Configuration.s_Current.persist("heading", mPath.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - leave.heading.toDouble());
+        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
@@ -259,6 +262,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
             mDrive.updatePose(newPose);
+            mLogger.metric("==> POSE","UPDATED");
         }
     }
 

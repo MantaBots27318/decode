@@ -66,7 +66,7 @@ public class LedTest extends OpMode {
 
         if(mLed != null) {
             
-            if(COLOR != mColor.text()) {
+            if(!COLOR.equals(mColor.text())) {
                 if(COLOR.compareTo(LedComponent.Color.GREEN.text()) == 0) {
                     mLogger.info("vert");
                     mLed.on(LedComponent.Color.GREEN);

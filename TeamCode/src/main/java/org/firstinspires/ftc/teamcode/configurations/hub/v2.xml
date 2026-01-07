@@ -14,7 +14,7 @@
             <goBILDA5202SeriesMotor name="frontRight" port="3" />
             <goBILDA5202SeriesMotor name="backRight" port="2" />
             <goBILDA5202SeriesMotor name="intakeBeltsBack" port="0" />
-            <LynxEmbeddedIMU name="imu" port="0" bus="0" />
+            <ControlHubImuBHI260AP name="imu" port="0" bus="0" />
             <Led name="trackingRightRed" port="6" />
             <Led name="trackingRightGreen" port="7" />
             <Led name="trackingLeftRed" port="4" />

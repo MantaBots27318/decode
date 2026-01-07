@@ -8,7 +8,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
@@ -28,7 +27,7 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class OuttakeWheels {
 
-    private static final int    sTimeOut = 5000; // Timeout in ms
+    private static final int    sTimeOut = 2000; // Timeout in ms
 
     Logger                      mLogger;      // Local logger
 
@@ -39,6 +38,8 @@ public class OuttakeWheels {
 
     MotorComponent              mMotor;       // Motor rotating the wheels
     double                      mTargetVelocity;
+    PIDFCoefficients            mCoefficients;
+
 
     // Check if the component is currently moving on command
 
@@ -47,12 +48,9 @@ public class OuttakeWheels {
         if(mReady) {
             if (mMotor.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER) {
                 result = mTimer.isArmed();
-                mLogger.trace("without");
             } else if (mMotor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
                 double velocity = mMotor.getVelocity();
                 mLogger.trace("Velocity : " + velocity);
-                double power = mMotor.getPower();
-                mLogger.trace("Power : " + power);
                 double ratio = Math.abs(mTargetVelocity - mMotor.getVelocity());
                 mLogger.trace("Difference : " + ratio);
                 ratio = ratio / Math.abs(mTargetVelocity);
@@ -90,9 +88,8 @@ public class OuttakeWheels {
             else {
                 // Initialize motor
                 mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                PIDFCoefficients coefficients = new PIDFCoefficients(200,3,0,0);
-                mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,coefficients);
-
+                mCoefficients = new PIDFCoefficients(200,3,0,0);
+                mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }
 
         }
@@ -113,43 +110,16 @@ public class OuttakeWheels {
         return result;
     }
 
-    // Start the brushes with a given power
-    public void start(double power)   {
-
-        if(mReady && !this.isTransitioning())
-        {
-            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mMotor.setPower(power);
-            mIsMoving = true;
-            mTimer.arm(sTimeOut);
-        }
-
-    }
-
-    public void start(double power, int timeout) {
-
-        if(mReady && !this.isTransitioning())
-        {
-            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mMotor.setPower(power);
-            mIsMoving = true;
-            mTimer.arm(timeout);
-        }
-
-    }
-
     public void control(double velocity)   {
 
-        // Juste pour avoir les logs
         if(mReady)
         {
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;
             mTimer.arm(sTimeOut);
-            mLogger.info("here");
-            mLogger.info("" + mTargetVelocity + " " + getVelocity());
         }
 
     }
@@ -160,12 +130,11 @@ public class OuttakeWheels {
         {
 
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            //mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;
             mTimer.arm(timeout);
-            mLogger.info("here");
-            mLogger.info("" + mTargetVelocity + " " + getVelocity());
         }
 
     }
@@ -173,6 +142,7 @@ public class OuttakeWheels {
     // Stop brushes
     public void stop() {
         if(mReady) {
+            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mMotor.setPower(0);
             mIsMoving = false;
         }

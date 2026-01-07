@@ -15,8 +15,6 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -24,14 +22,10 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousShootFar;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Camera;
@@ -167,60 +161,14 @@ public class AutonomousShootFar extends LinearOpMode {
             if (mShallParkInLaunchZone) {
                 mLogger.metric("==> PARKING POSITION", "Launch Zone");
             }
-            Action startIntakeAction = new Action() {
-                @Override
-                public boolean run(@NonNull TelemetryPacket p) {
-
-                    return mRobot.start_intake();
-                }
-            };
-
-            Action stopIntakeAction = new Action() {
-                @Override
-                public boolean run(@NonNull TelemetryPacket p) {
-
-                    return mRobot.stop_intake();
-                }
-            };
-
-            Action engageAction = new Action() {
-                @Override
-                public boolean run(@NonNull TelemetryPacket p) {
-
-                    return mRobot.start_engage(2.8);
-                }
-            };
-
-            Pose2d start            = mPath.start();
-            Pose2d patternPos       = mPath.pattern();
-            Pose2d shoot            = mPath.shoot();
-
 
 
         }
-        Action startIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
+        Action startIntakeAction = p -> mRobot.start_intake();
 
-                return mRobot.start_intake();
-            }
-        };
+        Action stopIntakeAction = p -> mRobot.stop_intake();
 
-        Action stopIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                return mRobot.stop_intake();
-            }
-        };
-
-        Action engageAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                return mRobot.start_engage(2.8);
-            }
-        };
+        Action engageAction = p -> mRobot.start_engage(2.8);
 
 
 
@@ -229,7 +177,8 @@ public class AutonomousShootFar extends LinearOpMode {
                 .splineToLinearHeading(mPath.shoot(),mPath.shoot().heading)
                 .build()
         );
-        mRobot.shoot4(3.25);
+
+        mRobot.shoot3(3.25);
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .splineToLinearHeading(mPath.pattern(),mPath.pattern().heading)
@@ -258,7 +207,7 @@ public class AutonomousShootFar extends LinearOpMode {
                         .splineToLinearHeading(mPath.shoot(),mPath.shoot().heading)
                         .build()
         );
-        mRobot.shoot4(3.25);
+        mRobot.shoot3(3.25);
 
 
     }
