@@ -166,7 +166,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mRobot.start_engage(2.8);
+                return mRobot.start_engage(155.0/180*3.1416);
             }
         };
 
@@ -232,8 +232,8 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                         .build());
 
-
         mRobot.shoot3(155.0/180*3.1416) ;
+        updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)
@@ -261,6 +261,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                     -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
+            mDrive.localizer.update();
             mDrive.updatePose(newPose);
             mLogger.metric("==> POSE","UPDATED");
         }

@@ -72,12 +72,12 @@ public final class MecanumDrive {
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
         public double inPerTick = 0.0019680681;
-        public double lateralInPerTick = 0.0014073703982018582; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 7168.21685108403;
+        public double lateralInPerTick = 0.001325911381078723; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 7485.690440328057;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.98428244088846;
-        public double kV = 0.00027017991524851717;
+        public double kS = 1.0150598674884947;
+        public double kV = 0.0002642055174793146;
         public double kA = 0.00001;
 
         // path profile parameters (in inches)

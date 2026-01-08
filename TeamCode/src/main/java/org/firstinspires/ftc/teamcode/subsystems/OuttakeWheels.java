@@ -29,9 +29,9 @@ public class OuttakeWheels {
 
     private static final int    sTimeOut = 2000; // Timeout in ms
 
-    Logger                      mLogger;      // Local logger
+    Logger                      mLogger;         // Local logger
 
-    boolean                     mReady;       // True if component is able to fulfil its mission
+    boolean                     mReady;          // True if component is able to fulfil its mission
     boolean                     mIsMoving;
 
     SmartTimer                  mTimer;       // Timer for timeout management
@@ -110,7 +110,7 @@ public class OuttakeWheels {
         return result;
     }
 
-    public void control(double velocity)   {
+    public void control(double velocity, boolean ShallSetTimeOut)   {
 
         if(mReady)
         {
@@ -119,14 +119,14 @@ public class OuttakeWheels {
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;
-            mTimer.arm(sTimeOut);
+            if(ShallSetTimeOut) { mTimer.arm(sTimeOut); }
         }
 
     }
 
     public void control(double velocity, int timeout) {
 
-        if(mReady && !this.isTransitioning())
+        if(mReady)
         {
 
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

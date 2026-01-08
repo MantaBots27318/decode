@@ -214,7 +214,7 @@ public class Robot {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,200); }
             mIntakeBelts.start(0.2);
-            mOuttakeWheels.control(mTargetVelocity);
+            mOuttakeWheels.control(mTargetVelocity, true);
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
                 mEngageMode = Engage.ARM_AND_PUSH;
             }
@@ -222,13 +222,13 @@ public class Robot {
         else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200); }
             mIntakeBelts.start(-1.0);
-            mOuttakeWheels.control(mTargetVelocity);
+            mOuttakeWheels.control(mTargetVelocity, false);
             if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
                 mEngageMode = Engage.ARM_AND_LET;
             }
         }
         else if(mEngageMode == Engage.ARM_AND_LET ) {
-            mOuttakeWheels.control(mTargetVelocity);
+            mOuttakeWheels.control(mTargetVelocity, false);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
             }
@@ -493,7 +493,6 @@ public class Robot {
         mLogger.info(Logger.Target.DRIVER_STATION,"==> CFG : SHOOTING 4");
         this.shoot();
         while (mShootMode != Shoot.NONE){
-            mLogger.info("CFG : SHOOTING");
             this.shoot();
         }
         this.engage(velocity);

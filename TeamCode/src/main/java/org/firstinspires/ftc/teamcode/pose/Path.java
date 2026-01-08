@@ -41,7 +41,7 @@ public class Path {
     private static final double Y_SHOOTING_VERY_FAR_INCHES_BLUE                 = 19;
     private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE            = 0.365424564;
     private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -19;
-    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = - 0.365424564;
+    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = -0.365424564;
 
 
     private static final double X_PARKING_GATE_ZONE_INCHES                       = 32;

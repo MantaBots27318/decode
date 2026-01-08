@@ -32,8 +32,8 @@ public class PathAutonomousMiddle extends Path {
     private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 30;
     private static final double X_DELTA_PGP_PATTERN_INCHES_RED               = 52;
     private static final double X_DELTA_PPG_PATTERN_INCHES_RED               = 75;
-    private static final double Y_DELTA_PATTERN_INCHES_BLUE                  = 0;
-    private static final double Y_DELTA_PATTERN_INCHES_RED                   = 0;
+    private static final double Y_DELTA_PATTERN_INCHES_BLUE                  = 17;
+    private static final double Y_DELTA_PATTERN_INCHES_RED                   = -17;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE             = Math.PI / 2;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_RED              = -Math.PI / 2;
 
