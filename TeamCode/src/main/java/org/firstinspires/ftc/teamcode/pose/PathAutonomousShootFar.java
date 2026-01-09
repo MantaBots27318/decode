@@ -19,6 +19,11 @@ public class PathAutonomousShootFar extends Path {
     private static final double Y_START_INCHES_RED = -19;
     private static final double ANGLE_START_RADIANS = 0;
 
+
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                     = 33;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED                      = -33;
+
+
     private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE = 25;
     private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE = 50;
     private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE = 72;

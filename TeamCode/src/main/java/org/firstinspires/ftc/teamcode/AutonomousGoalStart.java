@@ -166,6 +166,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
+                mDrive.localizer.update();
                 return mRobot.start_engage(155.0/180*3.1416);
             }
         };
@@ -175,14 +176,14 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
-                        //.afterDisp(0.1,engageAction)
+                        .afterDisp(0.1,engageAction)
                         .lineToXConstantHeading(mPath.xCalibrationFromGoal())
                         .build());
 
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        //mRobot.shoot3(155.0/180*3.1416) ;
+        mRobot.shoot3(170.0/180*3.1416) ;
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
@@ -227,12 +228,12 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .afterDisp(0.1 * distance_intake,stopIntakeAction)
                         .setTangent(-pattern.heading.toDouble())
                         .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
-                        //.afterDisp(0.1,engageAction)
+                        .afterDisp(0.1,engageAction)
                         .setTangent(mPath.tgtIntakeToCalibrationRadians())
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-20,20))
                         .build());
 
-        //mRobot.shoot3(155.0/180*3.1416) ;
+        mRobot.shoot3(170.0/180*3.1416) ;
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(

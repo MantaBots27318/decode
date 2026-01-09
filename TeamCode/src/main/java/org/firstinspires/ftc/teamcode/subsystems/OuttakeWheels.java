@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class OuttakeWheels {
 
-    private static final int    sTimeOut = 2000; // Timeout in ms
+    private static final int    sTimeOut = 3000; // Timeout in ms
 
     Logger                      mLogger;         // Local logger
 

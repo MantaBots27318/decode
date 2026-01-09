@@ -26,7 +26,12 @@ public class PathAutonomousMiddle extends Path {
     private static final double Y_START_INCHES_RED                           = -19;
     private static final double ANGLE_START_RADIANS                          = 0;
 
-    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 20;
+
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                 = 41;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED                  = -41;
+
+
+    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 26;
     private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 44;
     private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 65.5;
     private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 31;
@@ -65,6 +70,9 @@ public class PathAutonomousMiddle extends Path {
         super.initialize(alliance, ShallParkInLaunchZone);
 
         if (alliance == Alliance.RED) {
+
+            mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_RED;
+
 
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS);
 
@@ -109,6 +117,9 @@ public class PathAutonomousMiddle extends Path {
         if (alliance == Alliance.BLUE) {
 
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_BLUE,ANGLE_START_RADIANS);
+
+            mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_BLUE;
+
 
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(

@@ -212,8 +212,8 @@ public class Robot {
         if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
-            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,200); }
-            mIntakeBelts.start(0.2);
+            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400); }
+            mIntakeBelts.start(0.4);
             mOuttakeWheels.control(mTargetVelocity, true);
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
                 mEngageMode = Engage.ARM_AND_PUSH;
