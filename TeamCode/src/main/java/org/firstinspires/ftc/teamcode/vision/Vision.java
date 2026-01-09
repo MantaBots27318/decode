@@ -175,6 +175,12 @@ public class Vision {
             if (llresult != null) {
                 if (llresult.isValid()) {
                     result = llresult.getBotpose();
+                    if ((Math.abs(result.getPosition().x) < 0.00001) &&
+                            (Math.abs(result.getPosition().y) < 0.00001) &&
+                            (Math.abs(result.getOrientation().getYaw()) < 0.00001)) {
+                        // Sometimes, when the April tag is too far, can return something considered valid but completely null
+                        result = null;
+                    }
                 }
             }
             mLogger.trace(Logger.Target.FILE, "after result processing");

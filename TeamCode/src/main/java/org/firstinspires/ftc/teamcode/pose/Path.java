@@ -22,8 +22,8 @@ public class Path {
     public static final double FIELD_SIZE_INCHES                                 = 12 * 12;
     public static final double M_TO_INCHES                                       = 39.37;
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                     = 30;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED                      = -30;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                     = 33;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED                      = -33;
 
     private static final double X_SHOOTING_CLOSE_INCHES                          = 36;
     private static final double Y_SHOOTING_CLOSE_INCHES_BLUE                     = 36;
