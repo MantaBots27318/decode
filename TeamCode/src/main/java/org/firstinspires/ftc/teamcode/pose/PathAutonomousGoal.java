@@ -27,7 +27,7 @@ public class PathAutonomousGoal extends Path {
     public static final double ANGLE_START_RADIANS_RED =                - Math.PI / 180 * 51;
     public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 51;
 
-    public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 3;
+    public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 7;
     public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 3;
     public static final double X_PPG_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 3;
     public static final double X_GPP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 30 + 3;
@@ -47,8 +47,8 @@ public class PathAutonomousGoal extends Path {
     public static final double ANGLE_CALIBRATION_RADIANS_RED =          -Math.PI / 4;
     public static final double ANGLE_CALIBRATION_RADIANS_BLUE =         Math.PI / 4;
 
-    public static final double ANGLE_OBELISK_RADIANS_BLUE =             -Math.PI/180 * 60;
-    public static final double ANGLE_OBELISK_RADIANS_RED =              Math.PI/180 * 60;
+    public static final double ANGLE_OBELISK_RADIANS_BLUE =             -Math.PI/180 * 80;
+    public static final double ANGLE_OBELISK_RADIANS_RED =              Math.PI/180 * 80;
 
     public static final double X_CALIBRATION_FROM_GOAL_INCHES =         X_START_INCHES - 27;
 

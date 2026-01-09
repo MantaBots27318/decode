@@ -196,7 +196,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Pose2d leave = mPath.parking();
 
         double distance_pattern = pattern.minus(shootinit).line.norm();
-        double distance_intake = end_intake.minus(pattern).line.norm();
+        double distance_intake = end_intake.minus(back_intake).line.norm();
 
         Actions.runBlocking(
             mDrive.actionBuilder(start)
@@ -218,7 +218,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mDrive.actionBuilder(pattern)
                         .setTangent(pattern.heading.toDouble())
                         .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
-                        .afterDisp(0.1 * distance_intake,stopIntakeAction)
+                        .afterDisp(0.8 * distance_intake,stopIntakeAction)
                         .setTangent(-end_intake.heading.toDouble())
                         .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
