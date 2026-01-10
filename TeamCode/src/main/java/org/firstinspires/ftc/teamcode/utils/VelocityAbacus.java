@@ -7,7 +7,8 @@ public class VelocityAbacus {
     private static final double[][] sReferenceTable = {
             {49, 2.618},
             {82,  160.0/180*3.1416},
-            {127, 185.0/180*3.1416}
+            {127, 185.0/180*3.1416},
+            {500, 3.75}
     };
 
     /**

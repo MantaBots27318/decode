@@ -37,6 +37,17 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 @Autonomous
 public class AutonomousGoalStart extends LinearOpMode {
 
+    public enum Shoot3 {
+        NONE,
+        SHOOT_1,
+        ENGAGE_2,
+        SHOOT_2,
+        ENGAGE_3,
+        SHOOT_3,
+        FINALIZE
+    }
+
+
     Vision              mVision;
     MecanumDrive        mDrive;
     Robot               mRobot;
@@ -57,9 +68,13 @@ public class AutonomousGoalStart extends LinearOpMode {
     Logger              mLogger;
     boolean             mShallParkInLaunchZone;
 
+    Shoot3              mShoot3Mode;
+    double              mShootVelocity = 150.0/180*3.1416;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
+        mShoot3Mode     = Shoot3.NONE;
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
         mTimer          = new SmartTimer(mLogger);
@@ -150,7 +165,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                mDrive.localizer.update();
+                //mDrive.localizer.update();
                 return mRobot.start_intake();
             }
         };
@@ -159,7 +174,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                mDrive.localizer.update();
+                //mDrive.localizer.update();
                 return mRobot.stop_intake();
             }
         };
@@ -168,8 +183,9 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                mDrive.localizer.update();
-                return mRobot.start_engage(155.0/180*3.1416);
+                boolean shall_continue = mRobot.start_engage(mShootVelocity);
+                //if(!shall_continue) { mDrive.localizer.update(); }
+                return shall_continue;
             }
         };
 
@@ -178,15 +194,14 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
-                        .afterDisp(0.1,engageAction)
-                        .lineToXConstantHeading(mPath.xCalibrationFromGoal())
+                        .afterTime(0.1,engageAction)
+                        .lineToXConstantHeading(mPath.xCalibrationFromGoal(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
 
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        sleep(1000);
-        mRobot.shoot3(170.0/180*3.1416) ;
+        mRobot.shoot3(mShootVelocity, mDrive.localizer, 1000) ;
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
@@ -225,24 +240,26 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .turnTo(Math.PI)
                         .afterDisp(1,startIntakeAction)
                         .setTangent(Math.PI)
-                        .splineToLinearHeading(pattern,pattern.heading.toDouble())
+                        .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200,50))
                         .setTangent(pattern.heading.toDouble())
                         .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
                         .afterDisp(0.1 * distance_intake,stopIntakeAction)
                         .setTangent(-pattern.heading.toDouble())
-                        .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                         .afterDisp(0.1,engageAction)
                         .setTangent(mPath.tgtIntakeToCalibrationRadians())
-                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-20,20))
+                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200,50))
                         .build());
-        sleep(1000);
-        mRobot.shoot3(170.0/180*3.1416) ;
+
+        mRobot.shoot3(mShootVelocity, mDrive.localizer, 1000) ;
+
+        mDrive.localizer.update();
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)
                         .setTangent(shoot.heading.toDouble() + Math.PI)
-                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
+                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                         .build());
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());

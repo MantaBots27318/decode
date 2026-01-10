@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.pose.LockQRCode;
 import org.firstinspires.ftc.teamcode.pose.Path;
 
 /* Roadrunner includes */
+import org.firstinspires.ftc.teamcode.roadrunner.Localizer;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 /* Subsystem includes */
@@ -204,7 +205,7 @@ public class Robot {
         this.engage();
     }
 
-    void engage() {
+    boolean engage() {
 
         mLogger.trace("" + mEngageMode);
 
@@ -240,9 +241,11 @@ public class Robot {
             mEngagedDistance = mTargetDistance;
             mEngagedRealVelocity = mOuttakeWheels.getVelocity();
         }
+
+        return mEngageMode != Engage.NONE;
     }
 
-    public void shoot() {
+    public boolean shoot() {
 
         mLogger.trace("" + mShootMode);
 
@@ -265,6 +268,8 @@ public class Robot {
             mShootMode = Shoot.NONE;
             mIsEngaged = false;
         }
+
+        return mShootMode != Shoot.NONE;
     }
 
     void control_chassis() {
@@ -491,36 +496,53 @@ public class Robot {
         mIntakeBelts.stop();
         return false;
     }
+    public boolean stop_outtake() {
+        mLogger.info("==> STP OUTTAKE");
+        mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+        mOuttakeWheels.stop();
+        return false;
+    }
     public boolean start_engage(double velocity) {
         mIsEngagingFirst = true;
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }
-    public void shoot3(double velocity) {
+
+    public void shoot3(double velocity, Localizer localizer, int waitingTime) {
         mLogger.info(Logger.Target.DRIVER_STATION,"==> CFG : SHOOTING 4");
+        if(waitingTime > 0) {
+            mTimer.arm(waitingTime);
+            while (mTimer.isArmed()) {
+            }
+        }
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
+           // localizer.update();
         }
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             mLogger.info("CFG : ENGAGING");
             this.engage();
+            //localizer.update();
         }
         this.shoot();
         while (mShootMode != Shoot.NONE){
             mLogger.info("CFG : SHOOTING");
             this.shoot();
+            //localizer.update();
         }
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             mLogger.info("CFG : ENGAGING");
             this.engage();
+            localizer.update();
         }
         this.shoot();
         while (mShootMode != Shoot.NONE){
             mLogger.info("CFG : SHOOTING");
             this.shoot();
+            localizer.update();
         }
         mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();

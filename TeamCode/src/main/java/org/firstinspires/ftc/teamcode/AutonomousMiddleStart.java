@@ -210,8 +210,9 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .splineToLinearHeading(new Pose2d(shootinit.position.x,shootinit.position.y,start.heading.toDouble()),start.heading.toDouble())
                     .turnTo(shootinit.heading.toDouble())
                     .build());
-        sleep(1000);
-        mRobot.shoot3(200.0/180*3.1416);
+
+        mRobot.shoot3(200.0/180*3.1416,mDrive.localizer, 1000);
+
         Actions.runBlocking(
                 mDrive.actionBuilder(shootinit)
                         .afterDisp(0.1 * distance_pattern,startIntakeAction)
@@ -235,8 +236,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                         .build());
 
-        mRobot.shoot3(185.0/180*3.1416);
-        //updatePoseFromAprilTagIfVisible();
+        mRobot.shoot3(185.0/180*3.1416,mDrive.localizer,0);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)

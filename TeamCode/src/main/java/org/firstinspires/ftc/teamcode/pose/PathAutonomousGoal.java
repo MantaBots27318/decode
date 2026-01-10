@@ -28,17 +28,17 @@ public class PathAutonomousGoal extends Path {
     public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 51;
 
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE             = 31;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED             = -31;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE             = 34;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED             = -34;
 
-    public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 6;
+    public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 10;
     public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 4;
-    public static final double X_PPG_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 3;
-    public static final double X_GPP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 30 + 3;
-    public static final double X_PGP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
+    public static final double X_PPG_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 7;
+    public static final double X_GPP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 30 + 6;
+    public static final double X_PGP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 52 + 9;
     public static final double X_PPG_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 75 + 8;
-    public static final double Y_PATTERN_INCHES_BLUE =                  36;
-    public static final double Y_PATTERN_INCHES_RED =                   -36;
+    public static final double Y_PATTERN_INCHES_BLUE =                  33;
+    public static final double Y_PATTERN_INCHES_RED =                   -33;
     public static final double ANGLE_PATTERN_RADIANS_BLUE =             Math.PI / 2;
     public static final double ANGLE_PATTERN_RADIANS_RED =              -Math.PI / 2;
 
