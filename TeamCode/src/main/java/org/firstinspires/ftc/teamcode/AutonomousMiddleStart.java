@@ -159,6 +159,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
+                mDrive.localizer.update();
                 return mRobot.start_intake();
             }
         };
@@ -167,6 +168,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
+                mDrive.localizer.update();
                 return mRobot.stop_intake();
             }
         };

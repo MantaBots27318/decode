@@ -150,6 +150,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
+                mDrive.localizer.update();
                 return mRobot.start_intake();
             }
         };
@@ -158,6 +159,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
+                mDrive.localizer.update();
                 return mRobot.stop_intake();
             }
         };
@@ -183,6 +185,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.info("==> Shoot");
         mLogger.update();
 
+        sleep(1000);
         mRobot.shoot3(170.0/180*3.1416) ;
         updatePoseFromAprilTagIfVisible();
 
@@ -232,7 +235,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .setTangent(mPath.tgtIntakeToCalibrationRadians())
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-20,20))
                         .build());
-
+        sleep(1000);
         mRobot.shoot3(170.0/180*3.1416) ;
         updatePoseFromAprilTagIfVisible();
 

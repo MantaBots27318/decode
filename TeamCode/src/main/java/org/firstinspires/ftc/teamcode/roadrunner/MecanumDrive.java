@@ -303,8 +303,8 @@ public final class MecanumDrive {
             yPoints = new double[disps.size()];
             for (int i = 0; i < disps.size(); i++) {
                 Pose2d p = t.path.get(disps.get(i), 1).value();
-                xPoints[i] = p.position.x;
-                yPoints[i] = p.position.y;
+                xPoints[i] = -p.position.x;
+                yPoints[i] = -p.position.y;
             }
         }
 
@@ -357,8 +357,8 @@ public final class MecanumDrive {
             rightBack.setPower(rightBackPower);
             rightFront.setPower(rightFrontPower);
 
-            p.put("x", localizer.getPose().position.x);
-            p.put("y", localizer.getPose().position.y);
+            p.put("x", - localizer.getPose().position.x);
+            p.put("y", - localizer.getPose().position.y);
             p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
 
             Pose2d error = txWorldTarget.value().minusExp(localizer.getPose());
@@ -371,10 +371,10 @@ public final class MecanumDrive {
             drawPoseHistory(c);
 
             c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
+            Drawing.drawRobot(c, new Pose2d(-txWorldTarget.value().position.x,-txWorldTarget.value().position.y, txWorldTarget.value().heading.toDouble()));
 
             c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Drawing.drawRobot(c, new Pose2d(- localizer.getPose().position.x,- localizer.getPose().position.y, localizer.getPose().heading.toDouble()));
 
             c.setStroke("#4CAF50FF");
             c.setStrokeWidth(1);
@@ -452,13 +452,13 @@ public final class MecanumDrive {
             drawPoseHistory(c);
 
             c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
+            Drawing.drawRobot(c, new Pose2d(-txWorldTarget.value().position.x,-txWorldTarget.value().position.y, txWorldTarget.value().heading.toDouble()));
 
             c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Drawing.drawRobot(c, new Pose2d(-localizer.getPose().position.x,-localizer.getPose().position.y,localizer.getPose().heading.toDouble()));
 
             c.setStroke("#7C4DFFFF");
-            c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
+            c.fillCircle(-turn.beginPose.position.x, -turn.beginPose.position.y, 2);
 
             return true;
         }
@@ -466,7 +466,7 @@ public final class MecanumDrive {
         @Override
         public void preview(Canvas c) {
             c.setStroke("#7C4DFF7A");
-            c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
+            c.fillCircle(-turn.beginPose.position.x, -turn.beginPose.position.y, 2);
         }
     }
 
@@ -490,8 +490,8 @@ public final class MecanumDrive {
 
         int i = 0;
         for (Pose2d t : poseHistory) {
-            xPoints[i] = t.position.x;
-            yPoints[i] = t.position.y;
+            xPoints[i] = -t.position.x;
+            yPoints[i] = -t.position.y;
 
             i++;
         }

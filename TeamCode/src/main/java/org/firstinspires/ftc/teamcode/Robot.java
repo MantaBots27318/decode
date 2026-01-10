@@ -62,7 +62,8 @@ public class Robot {
     public enum Shoot {
         NONE,
         WAITING,
-        ARM
+        ARM,
+        NEXT
     }
 
     enum Mode {
@@ -213,7 +214,6 @@ public class Robot {
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400); }
-            mIntakeBelts.start(0.4);
             mOuttakeWheels.control(mTargetVelocity, true);
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
                 mEngageMode = Engage.ARM_AND_PUSH;
@@ -221,7 +221,6 @@ public class Robot {
         }
         else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200); }
-            mIntakeBelts.start(-1.0);
             mOuttakeWheels.control(mTargetVelocity, false);
             if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
                 mEngageMode = Engage.ARM_AND_LET;
@@ -249,12 +248,20 @@ public class Robot {
 
         if (mShootMode == Shoot.NONE && mIsEngaged ) { mShootMode = Shoot.WAITING; }
         else if (mShootMode == Shoot.WAITING) {
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT, 400);
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT, 200);
+            mIntakeBelts.start(0.4);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
                 mShootMode = Shoot.ARM;
             }
         }
         else if (mShootMode == Shoot.ARM && !mOuttakeLeverArm.isMoving()) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT, 200);
+            mIntakeBelts.start(-1);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
+                mShootMode = Shoot.NEXT;
+            }
+        }
+        else if (mShootMode == Shoot.NEXT && !mOuttakeLeverArm.isMoving()) {
             mShootMode = Shoot.NONE;
             mIsEngaged = false;
         }
