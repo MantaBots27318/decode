@@ -27,14 +27,16 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class OuttakeWheels {
 
-    private static final int    sTimeOut = 2500; // Timeout in ms
+    private static final int    sTimeOut = 10000; // Timeout in ms
 
     Logger                      mLogger;         // Local logger
 
     boolean                     mReady;          // True if component is able to fulfil its mission
     boolean                     mIsMoving;
+    boolean                     mIsWaiting;
 
     SmartTimer                  mTimer;       // Timer for timeout management
+    SmartTimer                  mTimerShoot;  // Timer for timeout management
 
     MotorComponent              mMotor;       // Motor rotating the wheels
     double                      mTargetVelocity;
@@ -44,18 +46,28 @@ public class OuttakeWheels {
     // Check if the component is currently moving on command
 
     public boolean isTransitioning() {
-        boolean result = false;
+        boolean result = true;
         if(mReady) {
             if (mMotor.getMode() == DcMotor.RunMode.RUN_WITHOUT_ENCODER) {
                 result = mTimer.isArmed();
             } else if (mMotor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
-                double velocity = mMotor.getVelocity();
-                mLogger.trace("Velocity : " + velocity);
-                double ratio = Math.abs(mTargetVelocity - mMotor.getVelocity());
-                mLogger.trace("Difference : " + ratio);
+                double velocity =  mMotor.getVelocity();
+                double ratio = Math.abs(mTargetVelocity - velocity);
                 ratio = ratio / Math.abs(mTargetVelocity);
-                mLogger.trace("Ratio : " + ratio);
-                result = mTimer.isArmed() && (ratio > 0.01);
+//                mLogger.metric("current vel" ,""+velocity);
+//                mLogger.metric("target vel" ,""+mTargetVelocity);
+//                mLogger.metric("ratio" ,""+ratio);
+//                mLogger.metric("timeout" ,""+ mTimer.isArmed());
+                if(!mIsWaiting && (ratio < 0.05)) {
+                    mTimerShoot.arm(200);
+                    mIsWaiting = true;
+                }
+//                mLogger.metric("timer" ,""+ mTimerShoot.isArmed());
+//                mLogger.metric("is waiting" ,""+mIsWaiting);
+                result = mTimer.isArmed() && (mTimerShoot.isArmed() || !mIsWaiting);
+                //mLogger.metric("result" ,""+result);
+                //mLogger.update();
+                if(!result) { mIsWaiting = false; }
             }
         }
 
@@ -70,8 +82,10 @@ public class OuttakeWheels {
         mLogger = logger;
         mReady = true;
         mIsMoving = false;
+        mIsWaiting = false;
 
         mTimer = new SmartTimer(mLogger);
+        mTimerShoot = new SmartTimer(mLogger);
 
         String status = "";
 
@@ -88,7 +102,7 @@ public class OuttakeWheels {
             else {
                 // Initialize motor
                 mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                mCoefficients = new PIDFCoefficients(200,3,0,0);
+                mCoefficients = new PIDFCoefficients(200,3,20,0);
                 mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }
 
@@ -115,7 +129,7 @@ public class OuttakeWheels {
         if(mReady)
         {
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
+            mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;
@@ -130,7 +144,7 @@ public class OuttakeWheels {
         {
 
             mMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            //mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
+            mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mMotor.setVelocity(velocity);
             mTargetVelocity = velocity;
             mIsMoving = true;

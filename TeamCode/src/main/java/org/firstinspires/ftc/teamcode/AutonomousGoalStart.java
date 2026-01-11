@@ -69,14 +69,14 @@ public class AutonomousGoalStart extends LinearOpMode {
     boolean             mShallParkInLaunchZone;
 
     Shoot3              mShoot3Mode;
-    double              mShootVelocity = 150.0/180*3.1416;
+    double              mShootVelocity = 160.0/180*3.1416;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         mShoot3Mode     = Shoot3.NONE;
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
         mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();
@@ -237,18 +237,18 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .turnTo(Math.PI)
                         .afterDisp(1,startIntakeAction)
-                        .setTangent(Math.PI)
-                        .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200,50))
+                        //.lineToXLinearHeading(pattern.position.x,pattern.heading.toDouble())
+                        .setTangent(mPath.hObeliskFTCRadians() - Math.PI)
+                        .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
                         .setTangent(pattern.heading.toDouble())
-                        .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
+                        .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
                         .afterDisp(0.1 * distance_intake,stopIntakeAction)
                         .setTangent(-pattern.heading.toDouble())
                         .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                         .afterDisp(0.1,engageAction)
                         .setTangent(mPath.tgtIntakeToCalibrationRadians())
-                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-200,50))
+                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25,50))
                         .build());
 
         mRobot.shoot3(mShootVelocity, mDrive.localizer, 1000) ;

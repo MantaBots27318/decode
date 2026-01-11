@@ -209,8 +209,6 @@ public class Robot {
 
         mLogger.trace("" + mEngageMode);
 
-        mOuttakeWheels.isTransitioning();
-
         if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
@@ -227,7 +225,7 @@ public class Robot {
                 mEngageMode = Engage.ARM_AND_LET;
             }
         }
-        else if(mEngageMode == Engage.ARM_AND_LET ) {
+        else if(mEngageMode == Engage.ARM_AND_LET && !mIntakeEntryArm.isMoving()) {
             mOuttakeWheels.control(mTargetVelocity, false);
             if (!mOuttakeWheels.isTransitioning()) {
                 mEngageMode = Engage.WHEELS;
@@ -293,6 +291,7 @@ public class Robot {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
                 mLogger.info("==> ROBOT CENTRIC MODE");
                 mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
+                mShallCorrectSmallResidue = false;
             }
             else if(mFallbackMode == Mode.ROBOT_CENTRIC)      {
                 mLogger.info("==> FIELD CENTRIC MODE");
@@ -318,6 +317,7 @@ public class Robot {
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce()) {
             mIntakeBelts.stop();
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
         }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();
@@ -546,6 +546,7 @@ public class Robot {
         }
         mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();
+        mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
 
     }
 

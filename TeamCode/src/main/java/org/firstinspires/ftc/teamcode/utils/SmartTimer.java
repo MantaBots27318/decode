@@ -13,6 +13,7 @@ public class SmartTimer {
     public SmartTimer(Logger logger){
         mIsRunning = false;
         mHasAlreadyBeenCalled = false;
+        mStartTime = -10000;
         mLogger = logger;
     }
 
