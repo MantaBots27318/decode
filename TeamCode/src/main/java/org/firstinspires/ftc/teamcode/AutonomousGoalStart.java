@@ -266,6 +266,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
+        mLogger.stop();
 
     }
 

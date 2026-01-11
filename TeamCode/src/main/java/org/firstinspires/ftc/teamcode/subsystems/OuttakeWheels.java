@@ -54,19 +54,19 @@ public class OuttakeWheels {
                 double velocity =  mMotor.getVelocity();
                 double ratio = Math.abs(mTargetVelocity - velocity);
                 ratio = ratio / Math.abs(mTargetVelocity);
-//                mLogger.metric("current vel" ,""+velocity);
-//                mLogger.metric("target vel" ,""+mTargetVelocity);
-//                mLogger.metric("ratio" ,""+ratio);
-//                mLogger.metric("timeout" ,""+ mTimer.isArmed());
+                mLogger.trace("current vel : " +velocity);
+                mLogger.trace("target vel : "+mTargetVelocity);
+                mLogger.trace("ratio : " + ratio);
+                mLogger.trace("timeout : " + mTimer.isArmed());
                 if(!mIsWaiting && (ratio < 0.05)) {
                     mTimerShoot.arm(200);
                     mIsWaiting = true;
                 }
-//                mLogger.metric("timer" ,""+ mTimerShoot.isArmed());
-//                mLogger.metric("is waiting" ,""+mIsWaiting);
+                mLogger.trace("timer : " + mTimerShoot.isArmed());
+                mLogger.trace("is waiting : " + mIsWaiting);
                 result = mTimer.isArmed() && (mTimerShoot.isArmed() || !mIsWaiting);
-                //mLogger.metric("result" ,""+result);
-                //mLogger.update();
+                mLogger.trace("result : " +result);
+                mLogger.update();
                 if(!result) { mIsWaiting = false; }
             }
         }

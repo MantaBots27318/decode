@@ -57,12 +57,15 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Camera                  mCamera;
 
     Logger                  mLogger;
+    double                  mVelocityFar = 200.0 / 180 * 3.1415927;
+    double                  mVelocityClose = 160.0 / 180*3.1416;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
+        mLogger.level(Logger.Severity.TRACE);
         mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();
@@ -177,7 +180,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
                 mDrive.localizer.update();
-                return mRobot.start_engage(185.0/180*3.1416);
+                return mRobot.start_engage(mVelocityFar);
             }
         };
 
@@ -186,7 +189,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket p) {
 
                 mDrive.localizer.update();
-                return mRobot.start_engage(155.0/180*3.1416);
+                return mRobot.start_engage(mVelocityClose);
             }
         };
 
@@ -211,7 +214,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .turnTo(shootinit.heading.toDouble())
                     .build());
 
-        mRobot.shoot3(200.0/180*3.1416,mDrive.localizer, 1000);
+        mRobot.shoot3(mVelocityFar,mDrive.localizer, 1000);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shootinit)
@@ -236,7 +239,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                         .build());
 
-        mRobot.shoot3(185.0/180*3.1416,mDrive.localizer,0);
+        mRobot.shoot3(mVelocityClose,mDrive.localizer,0);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)
@@ -249,6 +252,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
+        mLogger.stop();
 
     }
 

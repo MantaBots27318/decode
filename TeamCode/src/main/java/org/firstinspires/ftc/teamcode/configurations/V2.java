@@ -39,7 +39,7 @@ public class V2 extends Configuration {
                 "outtakeWheelsLeft",false, false,
                 "outtakeWheelsRight",true, false));
         mServos.put("outtake-lever-arm", new ConfServo("outtakeLeverArm", false));
-        mServos.get("outtake-lever-arm").addPosition("lock", 0.1);
+        mServos.get("outtake-lever-arm").addPosition("lock", 0.0);
         mServos.get("outtake-lever-arm").addPosition("shoot", 0.3);
 
         /* Camera servo configuration */

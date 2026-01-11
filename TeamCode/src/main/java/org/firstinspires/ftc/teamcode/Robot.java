@@ -73,6 +73,14 @@ public class Robot {
         QRCODE_CENTRIC
     }
 
+    enum Stop {
+        NONE,
+        WAITING,
+        MOVING,
+        OLAREADY,
+        IEAREADY
+    }
+
     Logger                  mLogger;
     boolean                 mReady;
     SmartTimer              mTimer;
@@ -108,6 +116,7 @@ public class Robot {
     boolean                 mIsPrecise = false;
     Engage                  mEngageMode;
     Shoot                   mShootMode;
+    Stop                    mStopMode;
     boolean                 mIsEngaged;
     double                  mEngagedTargetVelocity;
     double                  mEngagedRealVelocity;
@@ -146,6 +155,7 @@ public class Robot {
 
             mShootMode = Shoot.NONE;
             mEngageMode = Engage.NONE;
+            mStopMode = Stop.NONE;
             mIsEngaged = false;
             mIsEngagingFirst = false;
         }
@@ -197,6 +207,7 @@ public class Robot {
         move(mX,mY,mRotation);
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage(); }
+        if (mStopMode!= Stop.NONE){this.Stop();}
 
     }
 
@@ -269,7 +280,37 @@ public class Robot {
 
         return mShootMode != Shoot.NONE;
     }
+    void Stop() {
+        mLogger.trace("" + mStopMode);
+        if (mStopMode == Stop.NONE) {
+            mStopMode = Stop.WAITING;
+        }
+        if (mStopMode == Stop.WAITING) {
+            mIntakeBelts.stop();
+            mStopMode = Stop.MOVING;
+        }
 
+        mLogger.trace("out is moving " + mOuttakeLeverArm.isMoving());
+        if (mStopMode == Stop.MOVING && !mOuttakeLeverArm.isMoving()) {
+            mLogger.trace("Here2");
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
+            if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
+                mLogger.trace("Here3");
+                mStopMode = Stop.OLAREADY;
+            }
+        }
+        if (mStopMode == Stop.OLAREADY && !mIntakeEntryArm.isMoving()) {
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
+            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET) {
+                mStopMode = Stop.IEAREADY;
+            }
+        }
+        if (mStopMode == Stop.IEAREADY) {
+            mStopMode = Stop.NONE;
+        }
+
+
+    }
     void control_chassis() {
 
         if (mGamepadChassis.buttons.a.pressed()) {
@@ -287,7 +328,7 @@ public class Robot {
             mMode = mFallbackMode;
             mShallCorrectSmallResidue = false;
         }
-        if (mGamepadChassis.buttons.x.pressed()) {
+        if (mGamepadChassis.buttons.x.pressedOnce()) {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
                 mLogger.info("==> ROBOT CENTRIC MODE");
                 mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
@@ -314,10 +355,8 @@ public class Robot {
         if(mGamepadAttachments.buttons.dpad_up.pressedOnce()) {
             mIsEngagingFirst = true;
         }
-        if(mGamepadAttachments.buttons.dpad_up.releasedOnce()) {
-            mIntakeBelts.stop();
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
-            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
+        if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
+            Stop();
         }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();

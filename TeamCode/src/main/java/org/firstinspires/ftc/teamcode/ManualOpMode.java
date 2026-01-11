@@ -29,7 +29,7 @@ public class ManualOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
-        mLogger.level(Logger.Severity.INFO);
+        mLogger.level(Logger.Severity.TRACE);
 
         mAlliance = Alliance.NONE;
         Double alliance_value = Configuration.s_Current.retrieve("alliance");
