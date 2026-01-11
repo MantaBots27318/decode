@@ -13,6 +13,7 @@ import java.io.FileWriter;
 /* Qualcomm includes */
 import android.os.Environment;
 
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -34,13 +35,19 @@ import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
 
 /*  Configuration includes */
+import org.firstinspires.ftc.teamcode.configurations.Alliance;
+import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 
 /* Utils includes */
+import org.firstinspires.ftc.teamcode.pose.LockQRCode;
+import org.firstinspires.ftc.teamcode.pose.Path;
+import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
+import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @Config
 @TeleOp
@@ -63,6 +70,12 @@ public class ShootingTest extends OpMode {
     double          mCurrentSpeedOuttake = 0;
     double          mCurrentSpeedIntake = 0;
     double          mPositionOuttake = 0;
+
+    LockQRCode      mLocker;
+
+    Path            mPath;
+
+    Vision          mVision;
 
     PIDFController.PIDFProvider    mP;
     PIDFController.PIDFProvider    mI;
@@ -113,8 +126,27 @@ public class ShootingTest extends OpMode {
 
         }
 
+
         if(confmo == null) { mLogger.warning("Could not find motor named " + MOTOR_OUTTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
         if(mMotorOuttake== null) { mLogger.warning("Motor outtake not initialized"); }
+
+
+        ConfLimelight confli = Configuration.s_Current.getLimelight("limelight");
+        if(confli != null) {
+
+            mVision = new Vision(confli,hardwareMap,"vision",mLogger);
+            if(mVision != null) { mVision.initialize(); }
+            mPath = new PathAutonomousGoal(mLogger);
+            mPath.initialize(Alliance.RED,true);
+            mLocker = new LockQRCode();
+            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision);
+
+        }
+
+
+        if(confli == null) { mLogger.warning("Could not find limelight named limelight in configuration " + Configuration.s_Current.getVersion()); }
+        if(mVision == null) { mLogger.warning("Vision not initialized"); }
+        if(mLocker == null) { mLogger.warning("Locker not initialized"); }
 
 
         ConfMotor confmi = Configuration.s_Current.getMotor(MOTOR_INTAKE);
@@ -169,9 +201,19 @@ public class ShootingTest extends OpMode {
             }
 
             mCurrentSpeedOuttake = mMotorOuttake.getVelocity();
-
             mLogger.metric("COMMAND_OUTTAKE",""+mSpeedOuttake);
             mLogger.metric("VELOCITY_OUTTAKE", ""+mCurrentSpeedOuttake);
+
+        }
+
+        if (mLocker != null) {
+
+            mLogger.trace("here");
+            mLocker.loop();
+            Vector2d direction = mLocker.getDirection();
+            if(direction != null) {
+                mLogger.metric("DISTANCE", ""+ direction.norm());
+            }
 
         }
 

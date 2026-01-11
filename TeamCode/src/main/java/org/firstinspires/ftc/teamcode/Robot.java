@@ -285,6 +285,7 @@ public class Robot {
         mLogger.trace("" + mStopMode);
         if (mStopMode == Stop.NONE) {
             mStopMode = Stop.WAITING;
+            mOuttakeWheels.stopTransition();
         }
         if (mStopMode == Stop.WAITING) {
             mIntakeBelts.stop();

@@ -25,6 +25,11 @@ public class SmartTimer {
         mHasAlreadyBeenCalled = true;
     }
 
+    public void reset() {
+        mIsRunning = false;
+        mHasAlreadyBeenCalled = false;
+    }
+
     public boolean isArmed()
     {
         if(mHasAlreadyBeenCalled) {

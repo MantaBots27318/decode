@@ -74,6 +74,13 @@ public class OuttakeWheels {
         return result;
     }
 
+    public void stopTransition() {
+        mIsWaiting = false;
+
+        mTimer.reset();
+        mTimerShoot.reset();
+    }
+
     public boolean isMoving()        { return mIsMoving;}
     
     // Initialize component from configuration
@@ -102,7 +109,7 @@ public class OuttakeWheels {
             else {
                 // Initialize motor
                 mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                mCoefficients = new PIDFCoefficients(200,3,20,0);
+                mCoefficients = new PIDFCoefficients(300,3,100,0);
                 mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }
 
