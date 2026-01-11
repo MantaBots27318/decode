@@ -27,10 +27,11 @@ abstract public class Configuration {
     protected final  Map<String, ConfServo>     mServos         = new LinkedHashMap<>();
     protected final  Map<String, ConfLimelight> mLimelights     = new LinkedHashMap<>();
     protected final  Map<String, ConfLed>       mLeds           = new LinkedHashMap<>();
+    protected final  Map<String, ConfDistance>  mDistances      = new LinkedHashMap<>();
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V2();
+    public static Configuration s_Current = new V1();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
@@ -49,6 +50,9 @@ abstract public class Configuration {
 
     // Method to retrieve a led by its reference name
     public ConfLed          getLed(String name)         { return mLeds.getOrDefault(name, null);  }
+
+    // Method to retrieve a led by its reference name
+    public ConfDistance     getDistance(String name)    { return mDistances.getOrDefault(name, null);  }
 
     // Method to retrieve all servos uncoupled for tuning
     public Map<String, ConfServo>   getForTuning()      { return mServos; }

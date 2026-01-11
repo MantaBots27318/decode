@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class VelocityAbacus {
+
+    public static double multiplier = 0;
 
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
@@ -45,6 +50,6 @@ public class VelocityAbacus {
         }
 
         // Should never happen
-        return result;
+        return result * multiplier;
     }
 }

@@ -56,6 +56,9 @@ public class V2 extends Configuration {
         mLeds.put("tracking", new ConfLed("trackingLeft","trackingRight"));
         mLeds.put("engaged", new ConfLed("engagedLeft","engagedRight"));
 
+        /* Distance sensors configuration */
+        mDistances.put("intake", new ConfDistance("intakeDistance"));
+
     }
 
 }

@@ -194,6 +194,7 @@ public class Robot {
                 mLogger.info("==> ENGAGED CURRENT VELOCITY : " + mEngagedRealVelocity);
                 mLogger.info("==> ENGAGED DISTANCE : " + mEngagedDistance);
                 mLogger.info("==> ENGAGING FIRST : " + mIsEngagingFirst);
+                mLogger.info("==> INTAKE OVERFLOW : " + mIntakeBelts.getDistance());
             }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
             mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity());

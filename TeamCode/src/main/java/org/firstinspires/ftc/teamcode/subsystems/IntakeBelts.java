@@ -8,13 +8,16 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Configurations includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfDistance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 
 /* Component includes */
+import org.firstinspires.ftc.teamcode.components.Distance;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
@@ -33,6 +36,7 @@ public class IntakeBelts {
     boolean                 mIsReversed;
 
     MotorComponent          mMotor;       // Motor rotating the wheels
+    Distance                mDistance;
 
     // Check if the component is currently moving on command
     public boolean isMoving()   { return mIsMoving;   }
@@ -67,7 +71,17 @@ public class IntakeBelts {
 
         }
 
-        // Log status
+        ConfDistance distance = config.getDistance("intake");
+        if(distance == null)  { mReady = false; status += " CONF";}
+        else {
+
+            mDistance = new Distance(distance,hwm,"intake-distance", logger);
+            if (!mDistance.isReady()) { mReady = false; status += " HW";}
+
+        }
+
+
+            // Log status
         if (mReady) { logger.info("==>  IN BLT : OK"); }
         else        { logger.warning("==>  IN BLT : KO : " + status); }
 
@@ -108,6 +122,12 @@ public class IntakeBelts {
         return result;
     }
 
+    public double   getDistance() {
+
+        double result = -1;
+        if(mReady) { result = mDistance.getDistance(); }
+        return result;
+    }
 
     public void persist(Configuration config) {}
 
