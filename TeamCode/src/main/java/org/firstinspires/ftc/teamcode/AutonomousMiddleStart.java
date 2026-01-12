@@ -57,8 +57,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Camera                  mCamera;
 
     Logger                  mLogger;
-    double                  mVelocityFar = 200.0 / 180 * 3.1415927;
-    double                  mVelocityClose = 160.0 / 180*3.1416;
+    double                  mVelocityFar = 3.5;
+    double                  mVelocityClose = 2.8;
 
     @Override
     public void runOpMode() throws InterruptedException {

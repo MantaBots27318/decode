@@ -58,8 +58,8 @@ public class OuttakeWheels {
                 mLogger.trace("target vel : "+mTargetVelocity);
                 mLogger.trace("ratio : " + ratio);
                 mLogger.trace("timeout : " + mTimer.isArmed());
-                if(!mIsWaiting && (ratio < 0.05)) {
-                    mTimerShoot.arm(200);
+                if(!mIsWaiting && (ratio < 0.02)) {
+                    mTimerShoot.arm(10);
                     mIsWaiting = true;
                 }
                 mLogger.trace("timer : " + mTimerShoot.isArmed());

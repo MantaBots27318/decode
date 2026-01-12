@@ -5,14 +5,16 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class VelocityAbacus {
 
-    public static double multiplier = 0;
+    public static double MULTIPLIER = 1.0;
 
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {49, 2.618},
-            {82,  160.0/180*3.1416},
-            {127, 185.0/180*3.1416},
+            {45,2.6},
+            {59.8, 2.7},
+            {100,  3.15},
+            {122, 3.3},
+            {133, 3.4},
             {500, 3.75}
     };
 
@@ -50,6 +52,6 @@ public class VelocityAbacus {
         }
 
         // Should never happen
-        return result * multiplier;
+        return result * MULTIPLIER;
     }
 }

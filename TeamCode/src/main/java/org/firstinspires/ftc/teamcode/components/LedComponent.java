@@ -40,9 +40,9 @@ public abstract class LedComponent {
     public LedComponent() {}
     
     public abstract boolean isReady();
-    public abstract void on(Color color);
-    public abstract void off();
-    public void blink(){
+    public abstract void    on(Color color);
+    public abstract void    off();
+    public void             blink(){
         if(mBlinkingOn && !(mTimer.isArmed())){
             mBlinkingOn = false;
             mTimer.arm(300);
