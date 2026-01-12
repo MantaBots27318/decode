@@ -204,7 +204,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
         double distance_pattern = pattern.minus(shootinit).line.norm();
         double distance_intake = end_intake.minus(back_intake).line.norm();
 
-
         Actions.runBlocking(
             mDrive.actionBuilder(start)
                     .waitSeconds(mWaitingTime)
@@ -214,7 +213,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     .turnTo(shootinit.heading.toDouble())
                     .build());
 
-        mRobot.shoot3(mVelocityFar,mDrive.localizer, 1000);
+        mRobot.shoot3(mVelocityFar);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shootinit)
@@ -239,7 +238,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
                         .build());
 
-        mRobot.shoot3(mVelocityClose,mDrive.localizer,0);
+        mRobot.shoot3(mVelocityClose);
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shoot)

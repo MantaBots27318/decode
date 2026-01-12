@@ -129,6 +129,7 @@ public class Robot {
     double                  mEngagedRealVelocity;
     double                  mEngagedDistance;
     boolean                 mIsEngagingFirst;
+    boolean                 mIsEngagingReady;
 
     boolean                 mShallCorrectSmallResidue = false;
 
@@ -243,32 +244,43 @@ public class Robot {
 
     boolean engage() {
 
-        mLogger.trace("" + mEngageMode);
 
-        if (mEngageMode == Engage.NONE && !mIsEngaged ) { mEngageMode = Engage.WAITING; }
+        if (mEngageMode == Engage.NONE && !mIsEngaged ) {
+            mEngageMode = Engage.WAITING;
+            mIsEngagingReady = false;
+        }
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400); }
             mOuttakeWheels.control(mTargetVelocity, true);
+            // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
             if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
                 mEngageMode = Engage.ARM_AND_PUSH;
+                mLogger.trace("" + mEngageMode);
             }
         }
         else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
             if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200); }
             mOuttakeWheels.control(mTargetVelocity, false);
+            // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
             if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
                 mEngageMode = Engage.ARM_AND_LET;
+                mLogger.trace("" + mEngageMode);
             }
         }
         else if(mEngageMode == Engage.ARM_AND_LET && !mIntakeEntryArm.isMoving()) {
             mOuttakeWheels.control(mTargetVelocity, false);
-            if (!mOuttakeWheels.isTransitioning()) {
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
+            if (mIsEngagingReady) {
                 mEngageMode = Engage.WHEELS;
+                mLogger.trace("" + mEngageMode);
             }
         }
         else if (mEngageMode == Engage.WHEELS) {
             mEngageMode = Engage.NONE;
+            mLogger.trace("" + mEngageMode);
             mIsEngaged = true;
             mIsEngagingFirst = false;
             mEngagedTargetVelocity = mTargetVelocity;
@@ -281,14 +293,18 @@ public class Robot {
 
     public boolean shoot() {
 
-        mLogger.trace("" + mShootMode);
 
-        if (mShootMode == Shoot.NONE && mIsEngaged ) { mShootMode = Shoot.WAITING; }
+
+        if (mShootMode == Shoot.NONE && mIsEngaged ) {
+            mShootMode = Shoot.WAITING;
+            mLogger.trace("" + mShootMode);
+        }
         else if (mShootMode == Shoot.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.SHOOT, 200);
             mIntakeBelts.start(0.4);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
                 mShootMode = Shoot.ARM;
+                mLogger.trace("" + mShootMode);
             }
         }
         else if (mShootMode == Shoot.ARM && !mOuttakeLeverArm.isMoving()) {
@@ -296,43 +312,47 @@ public class Robot {
             mIntakeBelts.start(-1);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.SHOOT) {
                 mShootMode = Shoot.NEXT;
+                mLogger.trace("" + mShootMode);
             }
         }
         else if (mShootMode == Shoot.NEXT && !mOuttakeLeverArm.isMoving()) {
             mShootMode = Shoot.NONE;
+            mLogger.trace("" + mShootMode);
             mIsEngaged = false;
+            mIsEngagingFirst = false;
         }
 
         return mShootMode != Shoot.NONE;
     }
     void stop() {
-        mLogger.trace("" + mStopMode);
         if (mStopMode == Stop.NONE) {
             mStopMode = Stop.WAITING;
+            mLogger.trace("" + mStopMode);
             mOuttakeWheels.stopTransition();
         }
         if (mStopMode == Stop.WAITING) {
             mIntakeBelts.stop();
             mStopMode = Stop.MOVING;
+            mLogger.trace("" + mStopMode);
         }
 
-        mLogger.trace("out is moving " + mOuttakeLeverArm.isMoving());
         if (mStopMode == Stop.MOVING && !mOuttakeLeverArm.isMoving()) {
-            mLogger.trace("Here2");
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
             if (mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) {
-                mLogger.trace("Here3");
                 mStopMode = Stop.OLAREADY;
+                mLogger.trace("" + mStopMode);
             }
         }
         if (mStopMode == Stop.OLAREADY && !mIntakeEntryArm.isMoving()) {
             mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
             if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET) {
                 mStopMode = Stop.IEAREADY;
+                mLogger.trace("" + mStopMode);
             }
         }
         if (mStopMode == Stop.IEAREADY) {
             mStopMode = Stop.NONE;
+            mLogger.trace("" + mStopMode);
         }
 
 
@@ -573,45 +593,38 @@ public class Robot {
         return mEngageMode != Engage.NONE;
     }
 
-    public void shoot3(double velocity, Localizer localizer, int waitingTime) {
-        mLogger.info(Logger.Target.DRIVER_STATION,"==> CFG : SHOOTING 4");
-        if(waitingTime > 0) {
-            mTimer.arm(waitingTime);
-            while (mTimer.isArmed()) {
-            }
-        }
+    public void shoot3(double velocity) {
+        mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
-           // localizer.update();
         }
+        mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
-            mLogger.info("CFG : ENGAGING");
             this.engage();
-            //localizer.update();
         }
+        mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             mLogger.info("CFG : SHOOTING");
             this.shoot();
-            //localizer.update();
         }
+        mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
-            mLogger.info("CFG : ENGAGING");
             this.engage();
-            localizer.update();
         }
+        mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
-            mLogger.info("CFG : SHOOTING");
             this.shoot();
-            localizer.update();
         }
+        mLogger.info("CFG : STOPPING");
         mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();
         mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET);
+        mIntakeBelts.stop();
 
     }
 

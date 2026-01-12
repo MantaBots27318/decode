@@ -37,23 +37,13 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 @Autonomous
 public class AutonomousGoalStart extends LinearOpMode {
 
-    public enum Shoot3 {
-        NONE,
-        SHOOT_1,
-        ENGAGE_2,
-        SHOOT_2,
-        ENGAGE_3,
-        SHOOT_3,
-        FINALIZE
-    }
-
-
     Vision              mVision;
     MecanumDrive        mDrive;
     Robot               mRobot;
 
     Pattern             mPattern;
     Pattern             mTargetPattern;
+    Pattern             mThirdPattern = Pattern.PPG;
     int                 mPatternShift = 0;
     Alliance            mAlliance = Alliance.NONE;
     PathAutonomousGoal  mPath;
@@ -66,15 +56,13 @@ public class AutonomousGoalStart extends LinearOpMode {
     Camera              mCamera;
 
     Logger              mLogger;
-    boolean             mShallParkInLaunchZone;
+    boolean             mShallGrabAnotherPattern;
 
-    Shoot3              mShoot3Mode;
     double              mShootVelocity = 2.7;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mShoot3Mode     = Shoot3.NONE;
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
         mTimer          = new SmartTimer(mLogger);
@@ -98,17 +86,17 @@ public class AutonomousGoalStart extends LinearOpMode {
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
 
         mCamera.setPosition(Camera.Position.TAG);
-        mShallParkInLaunchZone = false;
+        mShallGrabAnotherPattern = true;
 
         while (opModeInInit()) {
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPath.initialize(mAlliance,mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance,mTargetPattern);
             }
             if (mGamepad1.buttons.dpad_left.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPath.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
 
             if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
@@ -117,18 +105,18 @@ public class AutonomousGoalStart extends LinearOpMode {
             if (mGamepad1.buttons.x.pressedOnce())  {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
-                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
             if (mGamepad1.buttons.b.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
-                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
             if(mGamepad1.buttons.y.pressedOnce()){
-                mShallParkInLaunchZone = true;
+                mShallGrabAnotherPattern = true;
             }
             if(mGamepad1.buttons.a.pressedOnce()){
-                mShallParkInLaunchZone = false;
+                mShallGrabAnotherPattern = false;
             }
 
 
@@ -143,11 +131,11 @@ public class AutonomousGoalStart extends LinearOpMode {
             mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
             mLogger.metric("==> PATTERN SHIFT : ", ""+mPatternShift);
 
-            if (!mShallParkInLaunchZone) {
-                mLogger.metric("==> PARKING POSITION","Gate Zone");
+            if (mShallGrabAnotherPattern) {
+                mLogger.metric("==> THIRD GRAB","YES");
             }
-            if (mShallParkInLaunchZone) {
-                mLogger.metric("==> PARKING POSITION","Launch Zone");
+            else {
+                mLogger.metric("==> THIRD GRAB","NO");
             }
             mPath.log();
 
@@ -165,7 +153,6 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                //mDrive.localizer.update();
                 return mRobot.start_intake();
             }
         };
@@ -174,7 +161,6 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                //mDrive.localizer.update();
                 return mRobot.stop_intake();
             }
         };
@@ -182,10 +168,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         Action engageAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
-
-                boolean shall_continue = mRobot.start_engage(mShootVelocity);
-                //if(!shall_continue) { mDrive.localizer.update(); }
-                return shall_continue;
+                return mRobot.start_engage(mShootVelocity);
             }
         };
 
@@ -195,13 +178,13 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
                         .afterTime(0.1,engageAction)
-                        .lineToXConstantHeading(mPath.xCalibrationFromGoal(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .lineToXConstantHeading(mPath.xShootFromGoal(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
 
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        mRobot.shoot3(mShootVelocity, mDrive.localizer, 1000) ;
+        mRobot.shoot3(mShootVelocity) ;
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
@@ -220,7 +203,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mPattern = pat;
         mTargetPattern = this.computePattern(mPattern,mPatternShift);
-        mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+        mPath.initialize(mAlliance, mTargetPattern);
+        if(mTargetPattern == Pattern.PPG) { mThirdPattern = Pattern.PGP; }
 
         mLogger.metric("==> PATTERN : " , mPattern.text());
         mLogger.metric("==> PATTERN SHIFT : " , "" + mPatternShift);
@@ -228,8 +212,11 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.update();
 
         Pose2d pattern = mPath.pattern();
+        Pose2d next_pattern = mPath.nextPattern();
         Pose2d end_intake = mPath.endIntake();
         Pose2d back_intake = mPath.backIntake();
+        Pose2d end_next_intake = mPath.endNextIntake();
+        Pose2d back_next_intake = mPath.backNextIntake();
         Pose2d shoot = mPath.shootingFar();
         Pose2d leave = mPath.parking();
 
@@ -237,30 +224,45 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .afterDisp(1,startIntakeAction)
-                        //.lineToXLinearHeading(pattern.position.x,pattern.heading.toDouble())
+                        .afterTime(0.01,startIntakeAction)
                         .setTangent(mPath.hObeliskFTCRadians() - Math.PI)
                         .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
                         .setTangent(pattern.heading.toDouble())
                         .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
-                        .afterDisp(0.1 * distance_intake,stopIntakeAction)
+                        .afterTime(2,stopIntakeAction)
                         .setTangent(-pattern.heading.toDouble())
                         .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
-                        .afterDisp(0.1,engageAction)
-                        .setTangent(mPath.tgtIntakeToCalibrationRadians())
+                        .afterTime(0.01,engageAction)
+                        .setTangent(mPath.tgtIntakeToShootRadians())
                         .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25,50))
                         .build());
 
-        mRobot.shoot3(mShootVelocity, mDrive.localizer, 1000) ;
+        mRobot.shoot3(mShootVelocity) ;
 
         mDrive.localizer.update();
         updatePoseFromAprilTagIfVisible();
 
-        Actions.runBlocking(
-                mDrive.actionBuilder(shoot)
-                        .setTangent(shoot.heading.toDouble() + Math.PI)
-                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
-                        .build());
+        if(mShallGrabAnotherPattern) {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(mDrive.getPose())
+                            .afterTime(0.01,startIntakeAction)
+                            .setTangent(mPath.hObeliskFTCRadians() - Math.PI)
+                            .splineToLinearHeading(next_pattern,next_pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
+                            .setTangent(next_pattern.heading.toDouble())
+                            .splineToLinearHeading(end_next_intake,next_pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
+                            .afterTime(2,stopIntakeAction)
+                            .setTangent(-next_pattern.heading.toDouble())
+                            .splineToLinearHeading(back_next_intake,-next_pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
+        }
+        else {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(shoot)
+                            .setTangent(shoot.heading.toDouble() + Math.PI)
+                            .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
+        }
+
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());

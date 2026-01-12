@@ -42,39 +42,36 @@ public class PathAutonomousGoal extends Path {
     public static final double ANGLE_PATTERN_RADIANS_BLUE =             Math.PI / 2;
     public static final double ANGLE_PATTERN_RADIANS_RED =              -Math.PI / 2;
 
-    public static final double TGT_INTAKE_TO_CALIBRATION_RADIANS_BLUE = -Math.PI/2;
-    public static final double TGT_INTAKE_TO_CALIBRATION_RADIANS_RED =  Math.PI/2;
+    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_BLUE        = -Math.PI/2;
+    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_RED         =  Math.PI/2;
 
-    public static final double X_CALIBRATION_INCHES =                   11;
-    public static final double Y_CALIBRATION_INCHES_BLUE =              20;
-    public static final double Y_CALIBRATION_INCHES_RED =               -20;
-    public static final double ANGLE_CALIBRATION_RADIANS_RED =          -Math.PI / 4;
-    public static final double ANGLE_CALIBRATION_RADIANS_BLUE =         Math.PI / 4;
 
     public static final double ANGLE_OBELISK_RADIANS_BLUE =             -Math.PI/180 * 80;
     public static final double ANGLE_OBELISK_RADIANS_RED =              Math.PI/180 * 80;
 
-    public static final double X_CALIBRATION_FROM_GOAL_INCHES =         X_START_INCHES - 27;
+    public static final double X_SHOOT_FROM_GOAL_INCHES =         X_START_INCHES - 27;
 
 
 
     Pose2d          mStart                          = new Pose2d(0,0,0);
     Pose2d          mPattern                        = new Pose2d(0,0,0);
+    Pose2d          mNextPattern                    = new Pose2d(0,0,0);
     Pose2d          mEndIntake                      = new Pose2d(0,0,0);
     Pose2d          mBackIntake                     = new Pose2d(0,0,0);
-    Pose2d          mCalibration                    = new Pose2d(0,0,0);
+    Pose2d          mEndNextIntake                  = new Pose2d(0,0,0);
+    Pose2d          mBackNextIntake                 = new Pose2d(0,0,0);
 
-    double          mTgtIntakeToCalibrationRadians  = 0;
-    double          mCalibrationFromGoalInches      = 0;
-    double          mAngleObeliskRadians            = 0;
+    double          mTgtIntakeToShootRadians  = 0;
+    double          mShootFromGoalInches      = 0;
+    double          mAngleObeliskRadians      = 0;
 
     public PathAutonomousGoal(Logger logger) {
         super(logger);
     }
 
-    public void initialize(Alliance alliance, Pattern pattern, boolean ShallParkInLaunchZone) {
+    public void initialize(Alliance alliance, Pattern pattern) {
 
-        super.initialize(alliance,ShallParkInLaunchZone);
+        super.initialize(alliance,true);
 
         if (alliance == Alliance.RED) {
 
@@ -82,12 +79,15 @@ public class PathAutonomousGoal extends Path {
 
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
 
             mEndIntake = new Pose2d(
@@ -99,11 +99,20 @@ public class PathAutonomousGoal extends Path {
                     mPattern.position.x,
                     mPattern.position.y + 0.4 * Y_DELTA_INTAKE_INCHES_RED,
                     mPattern.heading.toDouble());
-            mCalibration = new Pose2d(X_CALIBRATION_INCHES,Y_CALIBRATION_INCHES_RED,ANGLE_CALIBRATION_RADIANS_RED);
 
-            mTgtIntakeToCalibrationRadians  = TGT_INTAKE_TO_CALIBRATION_RADIANS_RED;
+            mEndNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_RED,
+                    mNextPattern.heading.toDouble());
+
+            mBackNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_RED,
+                    mNextPattern.heading.toDouble());
+
+            mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_RED;
             mAngleObeliskRadians            = ANGLE_OBELISK_RADIANS_RED ;
-            mCalibrationFromGoalInches      = X_CALIBRATION_FROM_GOAL_INCHES ;
+            mShootFromGoalInches      = X_SHOOT_FROM_GOAL_INCHES ;
 
         }
 
@@ -113,12 +122,15 @@ public class PathAutonomousGoal extends Path {
 
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(X_GPP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
             if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(X_PGP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
 
             mEndIntake = new Pose2d(
@@ -131,34 +143,43 @@ public class PathAutonomousGoal extends Path {
                     mPattern.position.y + 0.4 * Y_DELTA_INTAKE_INCHES_BLUE,
                     mPattern.heading.toDouble());
 
-            mCalibration = new Pose2d(X_CALIBRATION_INCHES,Y_CALIBRATION_INCHES_BLUE,ANGLE_CALIBRATION_RADIANS_BLUE);
+            mEndNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_BLUE,
+                    mNextPattern.heading.toDouble());
 
-            mTgtIntakeToCalibrationRadians  = TGT_INTAKE_TO_CALIBRATION_RADIANS_BLUE;
+            mBackNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_BLUE,
+                    mNextPattern.heading.toDouble());
+
+            mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_BLUE;
             mAngleObeliskRadians            = ANGLE_OBELISK_RADIANS_BLUE ;
-            mCalibrationFromGoalInches      = X_CALIBRATION_FROM_GOAL_INCHES ;
+            mShootFromGoalInches      = X_SHOOT_FROM_GOAL_INCHES ;
 
         }
     }
 
     public Pose2d   start()                         { return mStart; }
     public Pose2d   pattern()                       { return mPattern; }
+    public Pose2d   nextPattern()                   { return mNextPattern; }
     public Pose2d   endIntake()                     { return mEndIntake; }
     public Pose2d   backIntake()                    { return mBackIntake; }
-    public Pose2d   calibration()                   { return mCalibration; }
+    public Pose2d   endNextIntake()                 { return mEndNextIntake; }
+    public Pose2d   backNextIntake()                { return mBackNextIntake; }
 
-    public double   tgtIntakeToCalibrationRadians() { return mTgtIntakeToCalibrationRadians;}
-    public double   xCalibrationFromGoal ()         { return mCalibrationFromGoalInches ;}
+    public double   tgtIntakeToShootRadians() { return mTgtIntakeToShootRadians;}
+    public double   xShootFromGoal ()         { return mShootFromGoalInches ;}
     public double   hObeliskFTCRadians ()           { return mAngleObeliskRadians ;}
 
     public void log() {
 
         mLogger.info("START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
-        mLogger.info("BACKWARDS Y: " + mCalibrationFromGoalInches);
+        mLogger.info("BACKWARDS Y: " + mShootFromGoalInches);
         mLogger.info("PATTERN X : " + mPattern.position.x + " Y: " + mPattern.position.y + " H: " + mPattern.heading.toDouble());
         mLogger.info("END INTAKE X : " + mEndIntake.position.x + " Y: " + mEndIntake.position.y + " H: " + mEndIntake.heading.toDouble());
         mLogger.info("BACK INTAKE X : " + mBackIntake.position.x + " Y: " + mBackIntake.position.y + " H: " + mBackIntake.heading.toDouble());
-        mLogger.info("TGT INTAKE TO CALIBRATION INIT : " + mTgtIntakeToCalibrationRadians);
-        mLogger.info("CALIBRATION INIT X: " + mCalibration.position.x + " Y: " + mCalibration.position.y + " H: " + mCalibration.heading.toDouble());
+        mLogger.info("TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
         mLogger.info("OBELISK H: " + mAngleObeliskRadians);
         super.log();
 

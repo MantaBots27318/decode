@@ -58,13 +58,13 @@ public class OuttakeWheels {
                 mLogger.trace("ratio : " + ratio);
                 mLogger.trace("timeout : " + mTimer.isArmed());
                 if(!mIsWaiting && (ratio < 0.05)) {
-                    mTimerShoot.arm(500);
+                    mTimerShoot.arm(800);
                     mIsWaiting = true;
                 }
                 mLogger.trace("timer : " + mTimerShoot.isArmed());
                 mLogger.trace("is waiting : " + mIsWaiting);
                 result = mTimer.isArmed() && (mTimerShoot.isArmed() || !mIsWaiting);
-                mLogger.trace("result : " +result);
+                mLogger.trace("result : " + result);
                 mLogger.update();
                 if(!result) { mIsWaiting = false; }
             }
