@@ -232,7 +232,7 @@ public class Robot {
         move(mX,mY,mRotation);
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage(); }
-        if (mStopMode!= Stop.NONE){this.Stop();}
+        if (mStopMode!= Stop.NONE){this.stop();}
 
     }
 
@@ -305,7 +305,7 @@ public class Robot {
 
         return mShootMode != Shoot.NONE;
     }
-    void Stop() {
+    void stop() {
         mLogger.trace("" + mStopMode);
         if (mStopMode == Stop.NONE) {
             mStopMode = Stop.WAITING;
@@ -382,7 +382,7 @@ public class Robot {
             mIsEngagingFirst = true;
         }
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
-            Stop();
+            stop();
         }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
             Vector2d direction = mLocker.getDirection();

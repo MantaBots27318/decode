@@ -12,7 +12,11 @@ public class VelocityAbacus {
     private static final double[][] sReferenceTable = {
             {45,2.6},
             {59.8, 2.7},
-            {100,  3.15},
+            {70, 2.72},
+            {80,2.75},
+            {90, 2.9},
+            {100,  3.1},
+            {111,  3.2},
             {122, 3.3},
             {133, 3.4},
             {500, 3.75}

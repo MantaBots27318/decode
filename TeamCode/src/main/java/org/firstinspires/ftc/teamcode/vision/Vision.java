@@ -165,12 +165,10 @@ public class Vision {
 
         if(mReady) {
 
-            mLogger.trace(Logger.Target.FILE, "before pipeline switch");
             if(mCurrentPipeline != mAprilTagPipeline) {
                 mLimelight.pipelineSwitch(mAprilTagPipeline);
                 mCurrentPipeline = mAprilTagPipeline;
             }
-            mLogger.trace(Logger.Target.FILE, "after pipeline switch");
             LLResult llresult = mLimelight.getLatestResult();
             if (llresult != null) {
                 if (llresult.isValid()) {
@@ -183,7 +181,6 @@ public class Vision {
                     }
                 }
             }
-            mLogger.trace(Logger.Target.FILE, "after result processing");
 
         }
         return result;

@@ -87,6 +87,7 @@ public class ShootingTest extends OpMode {
     PIDFController.PIDFProvider    mI;
     PIDFController.PIDFProvider    mD;
     PIDFController.PIDFProvider    mF;
+    PIDFCoefficients               mCoef;
 
     double          mPCurrent;
     double          mICurrent;
@@ -107,19 +108,17 @@ public class ShootingTest extends OpMode {
             else if (confmo.getHw().size() == 2) { mMotorOuttake = new MotorCoupled(confmo, hardwareMap, MOTOR_OUTTAKE, mLogger); }
 
             if(mMotorOuttake != null) {
-                PIDFCoefficients initial = mMotorOuttake.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-                if(initial == null) initial = new PIDFCoefficients(200,3,0,0);
-                mMotorOuttake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,initial);
+                mCoef = new PIDFCoefficients(300,3,0,0);
 
-                mPCurrent = initial.p;
-                mICurrent = initial.i;
-                mDCurrent = initial.d;
-                mFCurrent = initial.f;
+                mPCurrent = mCoef.p;
+                mICurrent = mCoef.i;
+                mDCurrent = mCoef.d;
+                mFCurrent = mCoef.f;
 
-                mP = new PIDFController.PIDFProvider(initial.p);
-                mI = new PIDFController.PIDFProvider(initial.i);
-                mD = new PIDFController.PIDFProvider(initial.d);
-                mF = new PIDFController.PIDFProvider(initial.f);
+                mP = new PIDFController.PIDFProvider(mCoef.p);
+                mI = new PIDFController.PIDFProvider(mCoef.i);
+                mD = new PIDFController.PIDFProvider(mCoef.d);
+                mF = new PIDFController.PIDFProvider(mCoef.f);
 
                 FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"P",mP);
                 FtcDashboard.getInstance().addConfigVariable(this.getClass().getSimpleName(),"I",mI);
@@ -212,6 +211,8 @@ public class ShootingTest extends OpMode {
         if(mMotorOuttake != null) {
 
             if(Math.abs(mSpeedOuttake - VELOCITY_OUTTAKE) > 0.01) {
+                mMotorOuttake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                mMotorOuttake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoef);
                 mMotorOuttake.setVelocity(VELOCITY_OUTTAKE);
                 mSpeedOuttake = VELOCITY_OUTTAKE;
 
@@ -257,8 +258,7 @@ public class ShootingTest extends OpMode {
 
             if((Math.abs(mP.get() - mPCurrent) > 0.01) || (Math.abs(mI.get() - mICurrent) > 0.01) || (Math.abs(mD.get() - mDCurrent) > 0.01)|| (Math.abs(mF.get() - mFCurrent) > 0.01)) {
 
-                PIDFCoefficients coef = new PIDFCoefficients(mP.get(),mI.get(),mD.get(),mF.get());
-                mMotorOuttake.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, coef);
+                mCoef = new PIDFCoefficients(mP.get(),mI.get(),mD.get(),mF.get());
 
                 mPCurrent = mP.get();
                 mICurrent = mI.get();

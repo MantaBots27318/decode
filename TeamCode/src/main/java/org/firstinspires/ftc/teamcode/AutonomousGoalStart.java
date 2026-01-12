@@ -69,7 +69,7 @@ public class AutonomousGoalStart extends LinearOpMode {
     boolean             mShallParkInLaunchZone;
 
     Shoot3              mShoot3Mode;
-    double              mShootVelocity = 2.8;
+    double              mShootVelocity = 2.7;
 
     @Override
     public void runOpMode() throws InterruptedException {

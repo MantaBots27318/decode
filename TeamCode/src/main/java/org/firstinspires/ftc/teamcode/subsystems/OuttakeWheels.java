@@ -53,13 +53,12 @@ public class OuttakeWheels {
             } else if (mMotor.getMode() == DcMotor.RunMode.RUN_USING_ENCODER) {
                 double velocity =  mMotor.getVelocity();
                 double ratio = Math.abs(mTargetVelocity - velocity);
-                ratio = ratio / Math.abs(mTargetVelocity);
                 mLogger.trace("current vel : " +velocity);
                 mLogger.trace("target vel : "+mTargetVelocity);
                 mLogger.trace("ratio : " + ratio);
                 mLogger.trace("timeout : " + mTimer.isArmed());
-                if(!mIsWaiting && (ratio < 0.02)) {
-                    mTimerShoot.arm(10);
+                if(!mIsWaiting && (ratio < 0.05)) {
+                    mTimerShoot.arm(500);
                     mIsWaiting = true;
                 }
                 mLogger.trace("timer : " + mTimerShoot.isArmed());
@@ -109,7 +108,7 @@ public class OuttakeWheels {
             else {
                 // Initialize motor
                 mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                mCoefficients = new PIDFCoefficients(300,3,100,0);
+                mCoefficients = new PIDFCoefficients(300,50,100,0);
                 mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }
 

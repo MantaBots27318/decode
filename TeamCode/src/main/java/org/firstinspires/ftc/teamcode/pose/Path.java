@@ -9,7 +9,6 @@ package org.firstinspires.ftc.teamcode.pose;
 
 /* ACME ROBOTICS include */
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
@@ -41,16 +40,17 @@ public class Path {
     private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = -0.365424564;
 
 
-    private static final double X_PARKING_GATE_ZONE_INCHES                       = 32;
-    private static final double Y_PARKING_GATE_ZONE_INCHES_BLUE                  = 53;
-    private static final double Y_PARKING_GATE_ZONE_INCHES_RED                   = -53;
-    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_RED              = Math.PI/2;
-    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_BLUE             = -Math.PI/2;
+    private static final double X_PARKING_GATE_ZONE_INCHES                       = 12;
+    private static final double Y_PARKING_GATE_ZONE_INCHES_BLUE                  = 36;
+    private static final double Y_PARKING_GATE_ZONE_INCHES_RED                   = -36;
+    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_RED              = - Math.PI / 4;
+    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_BLUE             = Math.PI / 4;
 
-    private static final double X_PARKING_LAUNCH_ZONE_INCHES                     = 60;
-    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_BLUE                = 30;
-    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_RED                 = -30;
-    private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS                = -Math.PI;
+    private static final double X_PARKING_LAUNCH_ZONE_INCHES                     = 48;
+    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_BLUE                = 0;
+    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_RED                 = 0;
+    private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED            = - Math.PI / 4;
+    private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE           = Math.PI / 4;
 
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED     = - Math.PI/2;
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE    = Math.PI/2;
@@ -92,7 +92,7 @@ public class Path {
 
             if(ShallParkInLaunchZone) {
 
-                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_RED,ANGLE_PARKING_LAUNCH_ZONE_RADIANS);
+                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_RED,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED);
                 mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED;
 
             }
@@ -117,7 +117,7 @@ public class Path {
 
             if(ShallParkInLaunchZone) {
 
-                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_BLUE,ANGLE_PARKING_LAUNCH_ZONE_RADIANS);
+                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_BLUE,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE);
                 mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE;
 
             }
