@@ -10,8 +10,10 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
 
 /* Configurations includes */
+import org.firstinspires.ftc.teamcode.components.LedComponent;
 import org.firstinspires.ftc.teamcode.configurations.ConfDistance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
@@ -37,15 +39,15 @@ public class IntakeBelts {
 
     MotorComponent          mMotor;       // Motor rotating the wheels
     Distance                mDistance;
-
+    LedComponent            mLed = null;
     // Check if the component is currently moving on command
     public boolean isMoving()   { return mIsMoving;   }
 
     public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
-
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger, LedComponent led) {
+        mLed = led;
         mLogger = logger;
         mReady = true;
         mIsMoving = false;
@@ -80,8 +82,7 @@ public class IntakeBelts {
 
         }
 
-
-            // Log status
+        // Log status
         if (mReady) { logger.info("==>  IN BLT : OK"); }
         else        { logger.warning("==>  IN BLT : KO : " + status); }
 
@@ -125,7 +126,10 @@ public class IntakeBelts {
     public double   getDistance() {
 
         double result = -1;
-        if(mReady) { result = mDistance.getDistance(); }
+        if(mReady) {
+            result = mDistance.getDistance();
+            if(result <= 4) { mLed.blink();}
+        }
         return result;
     }
 

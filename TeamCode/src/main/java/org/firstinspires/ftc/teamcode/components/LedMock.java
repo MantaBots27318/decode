@@ -25,6 +25,7 @@ public class LedMock extends LedComponent {
     /* -------------- Constructors --------------- */
     public LedMock(String name)
     {
+        super();
         mName   = name;
         mColor  = Color.NONE;
     }
@@ -33,6 +34,7 @@ public class LedMock extends LedComponent {
 
     public void on(Color color) {
         mColor = color;
+        mCurrentColor = color;
     }
 
     public void off() {

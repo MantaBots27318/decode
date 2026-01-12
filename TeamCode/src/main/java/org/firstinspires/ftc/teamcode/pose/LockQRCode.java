@@ -15,6 +15,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.hardware.LED;
 
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -84,7 +85,7 @@ public class LockQRCode {
     double              m2Current;
 
 
-    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision, LedComponent led) {
 
         mLogger = logger;
         mLogger.info(Logger.Target.DRIVER_STATION, "======== LOCK QR CODE =========");
@@ -92,6 +93,7 @@ public class LockQRCode {
         mReady = true;
         mIsInFTC = false;
         String status = "";
+        mLed = led;
 
         if (mReady) {
             mVision = vision;
@@ -129,18 +131,6 @@ public class LockQRCode {
         }
 
         if (mReady) {
-
-            mLed = null;
-            ConfLed led = config.getLed("tracking");
-            if (led == null) { status += " LED"; }
-            else {
-
-                if (led.shallMock()) { mLed = new LedMock("tracking"); }
-                else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hwm, "tracking", mLogger); }
-                else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hwm, "tracking", mLogger); }
-
-                if (!mLed.isReady()) { status += " HW";}
-            }
 
             mLocalizer = null;
             ConfImu pinpoint = config.getImu("pinpoint");

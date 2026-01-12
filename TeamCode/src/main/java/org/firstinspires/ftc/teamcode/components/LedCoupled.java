@@ -35,6 +35,8 @@ public class LedCoupled extends LedComponent{
     /* -------------- Constructors --------------- */
     public LedCoupled(ConfLed conf, HardwareMap hwMap, String name, Logger logger)
     {
+        super(logger);
+
         mReady  = true;
         mLogger = logger;
         mName   = name;
@@ -61,6 +63,7 @@ public class LedCoupled extends LedComponent{
     public void on(Color color) {
 
         if(mReady) {
+            mCurrentColor = color;
             if (color == Color.RED) {
                 mFirstGreen.off();
                 mSecondGreen.off();

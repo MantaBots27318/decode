@@ -33,6 +33,8 @@ public class LedSingle extends LedComponent {
     /* -------------- Constructors --------------- */
     public LedSingle(ConfLed conf, HardwareMap hwMap, String name, Logger logger)
     {
+        super(logger);
+
         mReady  = true;
         mLogger = logger;
         mName   = name;
@@ -54,6 +56,7 @@ public class LedSingle extends LedComponent {
     public void on(Color color) {
 
         if(mReady) {
+            mCurrentColor = color;
             if (color == Color.RED) {
                 mGreen.off();
                 mRed.on();

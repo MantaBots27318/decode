@@ -22,7 +22,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.components.Controller;
 
 /* Configuration includes */
+import org.firstinspires.ftc.teamcode.components.LedComponent;
+import org.firstinspires.ftc.teamcode.components.LedCoupled;
+import org.firstinspires.ftc.teamcode.components.LedMock;
+import org.firstinspires.ftc.teamcode.components.LedSingle;
 import org.firstinspires.ftc.teamcode.configurations.ConfImu;
+import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
@@ -89,6 +94,8 @@ public class Robot {
     OuttakeWheels           mOuttakeWheels;
     OuttakeLeverArm         mOuttakeLeverArm;
     IntakeEntryArm          mIntakeEntryArm;
+
+    LedComponent            mLed;
     double                  mTargetVelocity;
     double                  mTargetDistance;
 
@@ -139,14 +146,31 @@ public class Robot {
             mPath               = path;
             mFallbackMode       = mMode;
         }
+        if(mReady) {
+            String status = "";
+            mLed = null;
+            ConfLed led = config.getLed("tracking");
+            if (led == null) { status += " LED"; }
+            else {
 
+                if (led.shallMock()) { mLed = new LedMock("tracking"); }
+                else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hwm, "tracking", mLogger); }
+                else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hwm, "tracking", mLogger); }
+
+                if (!mLed.isReady()) { status += " HW";}
+            }
+
+            if (mReady) { mLogger.info("==>  LED : OK"); }
+            else { mLogger.warning("==>  LED : KO : " + status); }
+        }
         if(mReady) { mReady = this.initialize_collecting(config, hwm); }
         if(mReady) { mReady = this.initialize_vision(config, hwm);     }
         if(mReady) { mReady = this.initialize_drive(config, hwm);      }
         if(mReady) {
             mLocker = new LockQRCode();
-            mLocker.setHW(config,hwm,mLogger,path,mVision);
+            mLocker.setHW(config,hwm,mLogger,path,mVision, mLed);
         }
+
 
         if(mReady) {
             mGamepadChassis.axes.left_stick_x.deadzone(0.1);
@@ -194,10 +218,10 @@ public class Robot {
                 mLogger.info("==> ENGAGED CURRENT VELOCITY : " + mEngagedRealVelocity);
                 mLogger.info("==> ENGAGED DISTANCE : " + mEngagedDistance);
                 mLogger.info("==> ENGAGING FIRST : " + mIsEngagingFirst);
-                mLogger.info("==> INTAKE OVERFLOW : " + mIntakeBelts.getDistance());
             }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
             mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity());
+            mLogger.info("==> INTAKE OVERFLOW : " + mIntakeBelts.getDistance());
         }
 
     }
@@ -431,7 +455,7 @@ public class Robot {
         mOuttakeLeverArm    = new OuttakeLeverArm();
         mIntakeEntryArm     = new IntakeEntryArm();
 
-        mIntakeBelts.setHW(config, hwm, mLogger);
+        mIntakeBelts.setHW(config, hwm, mLogger,mLed);
         mOuttakeWheels.setHW(config, hwm, mLogger);
         mOuttakeLeverArm.setHW(config, hwm, mLogger);
         mIntakeEntryArm.setHW(config,hwm,mLogger);

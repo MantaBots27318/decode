@@ -25,6 +25,10 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* Components includes */
+import org.firstinspires.ftc.teamcode.components.LedComponent;
+import org.firstinspires.ftc.teamcode.components.LedCoupled;
+import org.firstinspires.ftc.teamcode.components.LedMock;
+import org.firstinspires.ftc.teamcode.components.LedSingle;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
 import org.firstinspires.ftc.teamcode.components.MotorMock;
@@ -36,6 +40,7 @@ import org.firstinspires.ftc.teamcode.components.ServoSingle;
 
 /*  Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
+import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
@@ -61,6 +66,7 @@ public class ShootingTest extends OpMode {
     public static double POSITION_OUTTAKE;
 
     MotorComponent  mMotorOuttake = null;
+    LedComponent mLed;
     MotorComponent  mMotorIntake = null;
     ServoComponent  mServoOuttake = null;
     Logger          mLogger;
@@ -130,6 +136,19 @@ public class ShootingTest extends OpMode {
         if(confmo == null) { mLogger.warning("Could not find motor named " + MOTOR_OUTTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
         if(mMotorOuttake== null) { mLogger.warning("Motor outtake not initialized"); }
 
+        mLed = null;
+        ConfLed led = Configuration.s_Current.getLed("tracking");
+        if (led != null) {
+
+            if (led.shallMock()) { mLed = new LedMock("tracking"); }
+            else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hardwareMap, "tracking", mLogger); }
+            else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hardwareMap, "tracking", mLogger); }
+
+        }
+        if(led == null) { mLogger.warning("Could not find led named intake in configuration " + Configuration.s_Current.getVersion()); }
+        if(mLed == null) { mLogger.warning("Led not initialized"); }
+
+
 
         ConfLimelight confli = Configuration.s_Current.getLimelight("limelight");
         if(confli != null) {
@@ -139,7 +158,7 @@ public class ShootingTest extends OpMode {
             mPath = new PathAutonomousGoal(mLogger);
             mPath.initialize(Alliance.RED,true);
             mLocker = new LockQRCode();
-            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision);
+            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision,mLed);
 
         }
 
