@@ -8,8 +8,6 @@
 
 package org.firstinspires.ftc.teamcode.components;
 
-import static java.lang.Thread.sleep;
-
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
@@ -31,7 +29,7 @@ public abstract class LedComponent {
 
         Color(String text) {
             mText = text;
-        };
+        }
 
         public String text()       { return mText;       }
     }
@@ -41,14 +39,37 @@ public abstract class LedComponent {
     }
     public LedComponent() {}
     
-    public abstract boolean isReady();
-    public abstract void    on(Color color);
-    public void             on() { on(mCurrentColor); }
-    public abstract void    off();
+    public    abstract boolean  isReady();
+    protected abstract void     on(Color color);
+    public    abstract void     off();
+
+    public void                 loop() {
+        if(mIsBlinking) {
+            if(mBlinkingOn && !(mTimer.isArmed())){
+                mBlinkingOn = false;
+                mTimer.arm(300);
+                off();
+            }
+            else if(!mBlinkingOn && !(mTimer.isArmed())) {
+                mBlinkingOn = true;
+                mTimer.arm(300);
+                on(mCurrentColor);
+            }
+        }
+        else {
+            mTimer.reset();
+            mBlinkingOn = false;
+            on(mCurrentColor);
+        }
+    }
+
     public void             blink(){
        mIsBlinking = true;
     }
-    public void             unblink(){
+    public void             steady(){
         mIsBlinking = false;
+
     }
+
+    public void             setColor(Color color) { mCurrentColor = color; }
 }

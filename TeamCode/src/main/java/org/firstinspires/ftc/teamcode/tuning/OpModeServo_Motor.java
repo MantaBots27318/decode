@@ -8,7 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-@TeleOp
+
+@TeleOp(name="OpModeServo_Motor", group="Tuning")
 public class OpModeServo_Motor extends OpMode {
 
     Servo  mServo;

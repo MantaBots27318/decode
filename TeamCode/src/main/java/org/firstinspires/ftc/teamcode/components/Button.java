@@ -93,7 +93,7 @@ public class Button {
 
         }
 
-       // if(result) { mLogger.addLine("Button " + mName + " is pressed"); }
+       if(result) { mLogger.trace("Button " + mName + " is pressed"); }
 
         return result;
     }
@@ -106,7 +106,7 @@ public class Button {
     public boolean notPressed() {
 
         boolean result = !(this.pressed());
-       // if(result) { mLogger.addLine("Button " + mName + " is not pressed"); }
+        if(result) { mLogger.trace("Button " + mName + " is not pressed"); }
         return result;
     }
 
@@ -121,7 +121,7 @@ public class Button {
         boolean result = is_pressed && mWasReleased;
         mWasReleased = !is_pressed;
 
-        //if(result) { mLogger.addLine("Button " + mName + " is first pressed"); }
+        if(result) { mLogger.trace("Button " + mName + " is first pressed"); }
 
         return result;
     }
@@ -137,7 +137,7 @@ public class Button {
         boolean result = !is_pressed && mWasPressed;
         mWasPressed = is_pressed;
 
-        if(result) { mLogger.trace("Button " + mName + " is released"); }
+        if(result) { mLogger.trace("Button " + mName + " is first released"); }
 
         return result;
     }

@@ -55,7 +55,7 @@ import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 @Config
-@TeleOp
+@TeleOp(name="ShootingTest", group="Test")
 public class ShootingTest extends OpMode {
 
     public static String MOTOR_OUTTAKE="outtake-wheels";

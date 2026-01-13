@@ -79,8 +79,6 @@ public class OuttakeWheels {
         mTimer.reset();
         mTimerShoot.reset();
     }
-
-    public boolean isMoving()        { return mIsMoving;}
     
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
@@ -168,6 +166,5 @@ public class OuttakeWheels {
         }
     }
 
-    public void persist(Configuration config) {}
 
 }

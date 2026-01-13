@@ -30,7 +30,8 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 @Config
-@TeleOp(name = "ServoTuning")
+
+@TeleOp(name="ServoTuning", group="Tuning")
 public class ServoTuning extends LinearOpMode {
 
 

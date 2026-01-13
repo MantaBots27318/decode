@@ -55,7 +55,6 @@ public class VelocityAbacus {
             }
         }
 
-        // Should never happen
         return result * MULTIPLIER;
     }
 }

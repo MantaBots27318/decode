@@ -15,7 +15,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.hardware.LED;
 
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -23,14 +22,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfImu;
-import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Components includes */
 import org.firstinspires.ftc.teamcode.components.LedComponent;
-import org.firstinspires.ftc.teamcode.components.LedCoupled;
-import org.firstinspires.ftc.teamcode.components.LedMock;
-import org.firstinspires.ftc.teamcode.components.LedSingle;
 
 /* Roadrunner includes */
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
@@ -93,7 +88,6 @@ public class LockQRCode {
         mReady = true;
         mIsInFTC = false;
         String status = "";
-        mLed = led;
 
         if (mReady) {
             mVision = vision;
@@ -144,6 +138,9 @@ public class LockQRCode {
             }
         }
 
+        mLed = led;
+        if(mLed != null) { mLed.setColor(LedComponent.Color.RED); }
+
         if (mReady) { mLogger.info("==>  LCK : OK"); }
         else { mLogger.warning("==>  LCK : KO : " + status); }
     }
@@ -180,7 +177,7 @@ public class LockQRCode {
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
-                if ((mLed != null) && mLed.isReady()) { mLed.on(LedComponent.Color.GREEN); }
+                if (mLed != null) { mLed.setColor(LedComponent.Color.GREEN); }
             }
 
             if(mIsInFTC) {
@@ -197,7 +194,6 @@ public class LockQRCode {
 
                 mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
                 double yaw = -Math.atan2(mDirection.x, mDirection.y);
-                mLogger.trace("" + yaw);
                 mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
                 mHeading = robot.heading.toDouble() - theta1;
 

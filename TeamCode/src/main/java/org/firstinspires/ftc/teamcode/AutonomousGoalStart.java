@@ -186,7 +186,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        mRobot.shoot3(mShootVelocity) ;
+        mRobot.shoot3(mShootVelocity);
         updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(

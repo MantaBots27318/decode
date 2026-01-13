@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.configurations.ConfLed;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 @Config
-@TeleOp
+@TeleOp(name="LedTest", group="Test")
 public class LedTest extends OpMode {
 
     public static String    NAME="";
@@ -69,12 +69,12 @@ public class LedTest extends OpMode {
             if(!COLOR.equals(mColor.text())) {
                 if(COLOR.compareTo(LedComponent.Color.GREEN.text()) == 0) {
                     mLogger.info("vert");
-                    mLed.on(LedComponent.Color.GREEN);
+                    mLed.setColor(LedComponent.Color.GREEN);
                     mColor = LedComponent.Color.GREEN;
                 }
                 if(COLOR.compareTo(LedComponent.Color.RED.text()) == 0) {
                     mLogger.info("rouge");
-                    mLed.on(LedComponent.Color.RED);
+                    mLed.setColor(LedComponent.Color.RED);
                     mColor = LedComponent.Color.RED;
                 }
                 if(COLOR.compareTo(LedComponent.Color.NONE.text()) == 0) {

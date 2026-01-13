@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-@TeleOp(name="Manual OpMode", group="ManualOpMode")
-public class ManualOpMode extends LinearOpMode {
+@TeleOp(name="\uD83D\uDD35 Manual OpMode", group="ManualOpMode")
+public class ManualOpModeBlue extends LinearOpMode {
 
     Logger      mLogger;
 
@@ -31,11 +31,7 @@ public class ManualOpMode extends LinearOpMode {
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
         mLogger.level(Logger.Severity.TRACE);
 
-        mAlliance = Alliance.NONE;
-        Double alliance_value = Configuration.s_Current.retrieve("alliance");
-        if(alliance_value == null) { alliance_value = Alliance.RED.getValue(); }
-        if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01)  { mAlliance = Alliance.RED;}
-        if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01) { mAlliance = Alliance.BLUE;}
+        mAlliance = Alliance.BLUE;
 
         mGamepad1 = new Controller(gamepad1,mLogger);
         mGamepad2 = new Controller(gamepad2,mLogger);

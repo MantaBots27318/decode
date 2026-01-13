@@ -129,6 +129,9 @@ public class Robot {
     double                  mEngagedRealVelocity;
     double                  mEngagedDistance;
     boolean                 mIsEngagingReady;
+    boolean                 mIsOuttaking;
+
+    boolean                 mIsMoving;
 
     boolean                 mShallCorrectSmallResidue = false;
 
@@ -181,6 +184,8 @@ public class Robot {
             mEngageMode = Engage.NONE;
             mStopMode = Stop.NONE;
             mIsEngaged = false;
+            mIsOuttaking = false;
+            mIsMoving = false;
         }
 
         if(mReady) { mLogger.info("==>  READY"); }
@@ -226,11 +231,26 @@ public class Robot {
 
     public void loop() {
 
+        mIsMoving = (Math.sqrt(mX * mX + mY * mY) >= 0.01);
+
         mLocker.loop();
+        if(mIsOuttaking) {
+            Vector2d direction = mLocker.getDirection();
+            if (direction != null) {
+                mTargetDistance = direction.norm();
+                mLogger.trace("Distance : " + mTargetDistance);
+                mTargetVelocity = VelocityAbacus.getVelocity(mTargetDistance);
+                mOuttakeWheels.control(mTargetVelocity,mIsMoving);
+            }
+        }
+
         move(mX,mY,mRotation);
+
+        mLed.loop();
+
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
-        if ( mEngageMode != Engage.NONE ) { this.engage(); }
-        if (mStopMode!= Stop.NONE){this.stop();}
+        if ( mEngageMode != Engage.NONE ) { this.engage_without_velocity(); }
+        if ( mStopMode != Stop.NONE)      { this.stop();  }
 
     }
 
@@ -287,6 +307,51 @@ public class Robot {
         return mEngageMode != Engage.NONE;
     }
 
+
+    boolean engage_without_velocity() {
+
+        if (mEngageMode == Engage.NONE && !mIsEngaged && mStopMode == Stop.NONE) {
+            mEngageMode = Engage.WAITING;
+            mIsEngagingReady = false;
+        }
+        else if (mEngageMode == Engage.WAITING) {
+            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400);
+            // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH))  {
+                mEngageMode = Engage.ARM_AND_PUSH;
+                mLogger.trace("" + mEngageMode);
+            }
+        }
+        else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200);
+            // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
+            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET)  {
+                mEngageMode = Engage.ARM_AND_LET;
+                mLogger.trace("" + mEngageMode);
+            }
+        }
+        else if(mEngageMode == Engage.ARM_AND_LET && !mIntakeEntryArm.isMoving()) {
+            if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
+            if (mIsEngagingReady) {
+                mEngageMode = Engage.WHEELS;
+                mLogger.trace("" + mEngageMode);
+            }
+        }
+        else if (mEngageMode == Engage.WHEELS) {
+            mEngageMode = Engage.NONE;
+            mLogger.trace("" + mEngageMode);
+            mIsEngaged = true;
+            mEngagedTargetVelocity = mTargetVelocity;
+            mEngagedDistance = mTargetDistance;
+            mEngagedRealVelocity = mOuttakeWheels.getVelocity();
+        }
+
+        return mEngageMode != Engage.NONE;
+    }
+
     public boolean shoot() {
 
 
@@ -323,6 +388,8 @@ public class Robot {
         if (mStopMode == Stop.NONE) {
             mStopMode = Stop.WAITING;
             mIsEngaged = false;
+            mEngageMode = Engage.NONE;
+            mShootMode = Shoot.NONE;
             mLogger.trace("" + mStopMode);
             mOuttakeWheels.stopTransition();
         }
@@ -397,25 +464,23 @@ public class Robot {
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
             stop();
         }
+        if(mGamepadAttachments.buttons.dpad_up.pressedOnce() ) {
+            // We stop updating the timeout if the robot is stopped, so that he can reach the end of its time
+            // But if we start the outtake while stopped, it means it will never get a timeout set and might shoot right away
+            // This line is to make sure that when we resume shooting, we set a timeout, which might have been deactivated by stop()
+           mOuttakeWheels.control(VelocityAbacus.getVelocity(500),true);
+        }
         if (mGamepadAttachments.buttons.dpad_up.pressed()) {
-            Vector2d direction = mLocker.getDirection();
-            if(direction != null) {
-                mTargetDistance = direction.norm();
-                mLogger.trace("Distance : " + mTargetDistance);
-                double velocity = VelocityAbacus.getVelocity(mTargetDistance);
-                if (!mIsEngaged) { this.engage(velocity); }
-                else             { this.shoot();          }
-            }
+            mIsOuttaking = true;
+            if (!mIsEngaged) { this.engage_without_velocity(); }
+            else             { this.shoot();                   }
         }
         if (mGamepadAttachments.buttons.dpad_left.pressedOnce()) {
             mOuttakeWheels.stop();
-            mIntakeBelts.stop();
-            mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
-            mEngageMode = Engage.NONE;
-            mShootMode = Shoot.NONE;
-            mIsEngaged = false;
+            mIsOuttaking = false;
+            stop();
         }
-        if (mGamepadAttachments.buttons.a.pressed()) {
+        if (mGamepadAttachments.buttons.a.pressedOnce()) {
             mIsEngaged = true;
             mEngageMode = Engage.NONE;
             this.shoot();
@@ -444,7 +509,7 @@ public class Robot {
         else if(mMode == Mode.QRCODE_CENTRIC) {
             if(mLocker.isSet()) {
 
-                if((Math.sqrt(x * x + y * y) < 0.01) && !mShallCorrectSmallResidue) {
+                if(!mIsMoving && !mShallCorrectSmallResidue) {
                     mChassis.drive(x, y, 0, mLocker.getHeading(), multiplier);
                 }
                 else if (!mShallCorrectSmallResidue){
@@ -584,38 +649,33 @@ public class Robot {
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }
-    public void shoot3(double velocity) { shoot3(velocity, null);}
-    public void shoot3(double velocity, Localizer localizer) {
+
+    public void shoot3(double velocity) {
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
         }
-        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             this.engage();
         }
-        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
         }
-        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             this.engage();
         }
-        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
         }
-        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : STOPPING");
         mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();

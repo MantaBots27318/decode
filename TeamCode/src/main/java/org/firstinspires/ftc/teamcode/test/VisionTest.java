@@ -32,7 +32,8 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 
 
 @Config
-@TeleOp
+
+@TeleOp(name="VisionTest", group="Test")
 public class VisionTest extends LinearOpMode {
 
 

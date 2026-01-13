@@ -128,8 +128,8 @@ public class IntakeBelts {
         double result = -1;
         if(mReady) {
             result = mDistance.getDistance();
-            if(result <= 8) { mLed.blink();}
-            else { mLed.on(); }
+            if(result <= 8) { mLed.blink();  }
+            else {            mLed.steady(); }
         }
         return result;
     }

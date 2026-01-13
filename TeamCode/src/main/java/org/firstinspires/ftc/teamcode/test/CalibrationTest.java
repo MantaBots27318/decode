@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.vision.Calibration;
 
 @Config
-@TeleOp
+@TeleOp(name="CalibrationTest", group="Test")
 public class CalibrationTest extends LinearOpMode {
 
     // Inputs (editable from FTC Dashboard)
