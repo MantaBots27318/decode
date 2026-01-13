@@ -263,7 +263,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         }
 
 
-        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());
+        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

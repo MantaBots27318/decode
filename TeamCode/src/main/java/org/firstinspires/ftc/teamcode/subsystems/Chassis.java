@@ -10,7 +10,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 /* Components includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;

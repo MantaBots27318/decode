@@ -79,6 +79,8 @@ public class LockQRCode {
     double              m1Current;
     double              m2Current;
 
+    Pose2d              mRobotPosition;
+
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision, LedComponent led) {
 
@@ -133,8 +135,14 @@ public class LockQRCode {
                 PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
                 PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
 
-                Pose2d pose = new Pose2d(0, 0, 0);
-                mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
+                double initial_yaw = 0;
+                Double initialHeading = config.retrieve("heading");
+                if (initialHeading != null) {
+                    // From FTC field reference to initial robot position;
+                    initial_yaw = initialHeading;
+                }
+                mRobotPosition = new Pose2d(initial_yaw, 0, 0);
+                mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), mRobotPosition);
             }
         }
 
@@ -184,18 +192,18 @@ public class LockQRCode {
 
                 Pose2d qrcode = mPath.qrcode();
 
-                Pose2d robot = mLocalizer.getPose();
-                mLogger.info(String.format("==> PPT : X: %2.2f Y: %2.2f HD : %2.2f" , robot.position.x,robot.position.y,robot.heading.toDouble() / Math.PI * 180));
+                mRobotPosition = mLocalizer.getPose();
+                mLogger.info(String.format("==> PPT : X: %2.2f Y: %2.2f HD : %2.2f" , mRobotPosition.position.x,mRobotPosition.position.y,mRobotPosition.heading.toDouble() / Math.PI * 180));
 
-                Vector2d pos_ftc = new Vector2d(qrcode.position.x - robot.position.x, qrcode.position.y - robot.position.y);
+                Vector2d pos_ftc = new Vector2d(qrcode.position.x - mRobotPosition.position.x, qrcode.position.y - mRobotPosition.position.y);
                 double length = pos_ftc.norm();
                 double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
                 double theta2 = qrcode.heading.toDouble() - theta1;
 
                 mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
                 double yaw = -Math.atan2(mDirection.x, mDirection.y);
-                mRotation = robot.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
-                mHeading = robot.heading.toDouble() - theta1;
+                mRotation = mRobotPosition.heading.toDouble() - yaw - qrcode.heading.toDouble() ;
+                mHeading = mRobotPosition.heading.toDouble() - theta1;
 
                 mLogger.info(String.format("==> LCK RT: %2.2f HD: %2.2f",mRotation / Math.PI * 180, mHeading / Math.PI * 180));
 
@@ -221,4 +229,6 @@ public class LockQRCode {
     public double              getRotation1()  { return mRotation1;  }
     public double              getRotation2()  { return mRotation2;  }
     public double              getHeading()   { return mHeading;   }
+
+    public Pose2d              getPosition() { return mRobotPosition; }
 }

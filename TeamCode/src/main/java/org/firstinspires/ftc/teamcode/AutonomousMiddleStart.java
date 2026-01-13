@@ -202,6 +202,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Pose2d shoot = mPath.shootingFar();
         Pose2d shootinit = mPath.shootingVeryFar();
         Pose2d leave = mPath.parking();
+        Pose2d ready = mPath.ready();
 
         Actions.runBlocking(
             mDrive.actionBuilder(start)
@@ -242,8 +243,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
                             .setTangent(next_pattern.heading.toDouble())
                             .splineToLinearHeading(end_next_intake,next_pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
                             .afterTime(2,stopIntakeAction)
-                            .setTangent(-end_next_intake.heading.toDouble())
-                            .splineToLinearHeading(back_next_intake, -end_next_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .setTangent(-next_pattern.heading.toDouble())
+                            .splineToLinearHeading(ready,ready.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                             .build());
 
         }
@@ -257,7 +258,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
 
 
-        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());
+        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();

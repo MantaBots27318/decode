@@ -422,22 +422,22 @@ public class Robot {
     }
     void control_chassis() {
 
-        if (mGamepadChassis.buttons.a.pressed()) {
-            mLogger.info("==> QRCODE MODE A");
+        if (mGamepadChassis.buttons.right_trigger.pressed()) {
+            mLogger.info("==> QRCODE MODE RIGHT TRIGGER");
             mMode = Mode.QRCODE_CENTRIC;
             mShallCorrectSmallResidue = false;
         }
-        else if (mGamepadChassis.buttons.b.pressed()) {
-            mLogger.info("==> QRCODE MODE B");
+        else if (mGamepadChassis.buttons.right_bumper.pressed()) {
+            mLogger.info("==> QRCODE MODE RIGHT BUMPER");
             mMode = Mode.QRCODE_CENTRIC;
             mShallCorrectSmallResidue = true;
         }
-        else if (mGamepadChassis.buttons.a.notPressed() && mGamepadChassis.buttons.b.notPressed()) {
+        else if (mGamepadChassis.buttons.right_trigger.notPressed() && mGamepadChassis.buttons.right_bumper.notPressed()) {
             mLogger.info("==> FALLBACK MODE");
             mMode = mFallbackMode;
             mShallCorrectSmallResidue = false;
         }
-        if (mGamepadChassis.buttons.x.pressedOnce()) {
+        if (mGamepadChassis.buttons.a.pressedOnce()) {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
                 mLogger.info("==> ROBOT CENTRIC MODE");
                 mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
@@ -501,9 +501,9 @@ public class Robot {
         }
         else if (mMode == Mode.FIELD_CENTRIC)
         {
-            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+            double heading = mLocker.getPosition().heading.toDouble() - mHeadingOffset;
             mLogger.trace("yaw : " + heading / Math.PI * 180);
-            heading += mHeadingOffset;
             mChassis.drive(x,y,rotation, heading, multiplier);
         }
         else if(mMode == Mode.QRCODE_CENTRIC) {
@@ -603,14 +603,7 @@ public class Robot {
             double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             mLogger.trace("yaw : " + heading / Math.PI * 180);
 
-
-            mHeadingOffset = 0;
-            Double initialHeading = config.retrieve("heading");
-            if (initialHeading != null) {
-                // From FTC field reference to initial robot position;
-                mHeadingOffset = initialHeading;
-            }
-            mLogger.debug("==>  Heading Offset : " + mHeadingOffset);
+            mHeadingOffset = mPath.fieldCentric2FTC();
 
             mDrive = new MecanumDrive(hwm, new Pose2d(0, 0, 0));
 
