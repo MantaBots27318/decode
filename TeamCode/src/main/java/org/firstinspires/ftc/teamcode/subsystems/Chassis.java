@@ -6,8 +6,6 @@
    ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.subsystems;
 
-/* System includes */
-import android.annotation.SuppressLint;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -31,7 +29,6 @@ public class Chassis {
     Logger          mLogger;
     boolean         mReady;
 
-    IMU             mImu;
 
     MotorComponent  mFrontLeftMotor;
     MotorComponent  mBackLeftMotor;
@@ -107,7 +104,7 @@ public class Chassis {
             mLogger.info(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation /Math.PI * 180,heading /Math.PI * 180,rotX,rotY));
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rotation), 1);
-            double frontLeftPower ad= (rotX + rotY + rotation) / denominator * multiplier;
+            double frontLeftPower = (rotX + rotY + rotation) / denominator * multiplier;
             double backLeftPower = (rotX - rotY + rotation) / denominator * multiplier;
             double frontRightPower = (rotX - rotY - rotation) / denominator * multiplier;
             double backRightPower = (rotX + rotY - rotation) / denominator * multiplier;
