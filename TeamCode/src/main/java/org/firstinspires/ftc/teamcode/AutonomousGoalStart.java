@@ -15,6 +15,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -65,6 +66,7 @@ public class AutonomousGoalStart extends LinearOpMode {
 
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
+        mLogger.level(Logger.Severity.INFO);
         mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();
@@ -178,7 +180,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
                         .afterTime(0.1,engageAction)
-                        .lineToXConstantHeading(mPath.shootingFar().position.x + 2, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .lineToXConstantHeading(mPath.shootingFar().position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
 
         mLogger.info("==> Shoot");
@@ -219,6 +221,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         Pose2d back_next_intake = mPath.backNextIntake();
         Pose2d shoot = mPath.shootingFar();
         Pose2d leave = mPath.parking();
+        Pose2d ready = mPath.ready();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
@@ -237,9 +240,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mRobot.shoot3(mShootVelocity) ;
 
-        mDrive.localizer.update();
-        //updatePoseFromAprilTagIfVisible();
-
         if(mShallGrabAnotherPattern) {
             Actions.runBlocking(
                     mDrive.actionBuilder(mDrive.getPose())
@@ -250,7 +250,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                             .splineToLinearHeading(end_next_intake,next_pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
                             .afterTime(2,stopIntakeAction)
                             .setTangent(-next_pattern.heading.toDouble())
-                            .splineToLinearHeading(back_next_intake,-next_pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .splineToLinearHeading(ready,ready.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                             .build());
 
         }

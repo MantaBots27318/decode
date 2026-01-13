@@ -65,7 +65,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
-        mLogger.level(Logger.Severity.TRACE);
+        mLogger.level(Logger.Severity.INFO);
         mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();

@@ -128,7 +128,6 @@ public class Robot {
     double                  mEngagedTargetVelocity;
     double                  mEngagedRealVelocity;
     double                  mEngagedDistance;
-    boolean                 mIsEngagingFirst;
     boolean                 mIsEngagingReady;
 
     boolean                 mShallCorrectSmallResidue = false;
@@ -182,7 +181,6 @@ public class Robot {
             mEngageMode = Engage.NONE;
             mStopMode = Stop.NONE;
             mIsEngaged = false;
-            mIsEngagingFirst = false;
         }
 
         if(mReady) { mLogger.info("==>  READY"); }
@@ -218,7 +216,6 @@ public class Robot {
                 mLogger.info("==> ENGAGED TARGET VELOCITY : " + mEngagedTargetVelocity);
                 mLogger.info("==> ENGAGED CURRENT VELOCITY : " + mEngagedRealVelocity);
                 mLogger.info("==> ENGAGED DISTANCE : " + mEngagedDistance);
-                mLogger.info("==> ENGAGING FIRST : " + mIsEngagingFirst);
             }
             else           { mLogger.info("==> SHOOTING NOT ENGAGED"); }
             mLogger.metric("==> OUT VEL : ","" + mOuttakeWheels.getVelocity());
@@ -251,21 +248,21 @@ public class Robot {
         }
         else if (mEngageMode == Engage.WAITING) {
             mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK,200);
-            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400); }
+            mIntakeEntryArm.setPosition(IntakeEntryArm.Position.PUSH,400);
             mOuttakeWheels.control(mTargetVelocity, true);
             // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
             if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
-            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH)))  {
+            if ((mOuttakeLeverArm.getPosition() == OuttakeLeverArm.Position.LOCK) && (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.PUSH))  {
                 mEngageMode = Engage.ARM_AND_PUSH;
                 mLogger.trace("" + mEngageMode);
             }
         }
         else if(mEngageMode == Engage.ARM_AND_PUSH && !mOuttakeLeverArm.isMoving() && !mIntakeEntryArm.isMoving()) {
-            if(!mIsEngagingFirst) { mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200); }
+           mIntakeEntryArm.setPosition(IntakeEntryArm.Position.LET,200);
             mOuttakeWheels.control(mTargetVelocity, false);
             // Called just to follow the curve and launch engagement ending timer once we cross the threshold for the first time
             if(!mIsEngagingReady) { mIsEngagingReady = !(mOuttakeWheels.isTransitioning()); }
-            if (mIsEngagingFirst || (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET))  {
+            if (mIntakeEntryArm.getPosition() == IntakeEntryArm.Position.LET)  {
                 mEngageMode = Engage.ARM_AND_LET;
                 mLogger.trace("" + mEngageMode);
             }
@@ -282,7 +279,6 @@ public class Robot {
             mEngageMode = Engage.NONE;
             mLogger.trace("" + mEngageMode);
             mIsEngaged = true;
-            mIsEngagingFirst = false;
             mEngagedTargetVelocity = mTargetVelocity;
             mEngagedDistance = mTargetDistance;
             mEngagedRealVelocity = mOuttakeWheels.getVelocity();
@@ -319,7 +315,6 @@ public class Robot {
             mShootMode = Shoot.NONE;
             mLogger.trace("" + mShootMode);
             mIsEngaged = false;
-            mIsEngagingFirst = false;
         }
 
         return mShootMode != Shoot.NONE;
@@ -327,6 +322,7 @@ public class Robot {
     void stop() {
         if (mStopMode == Stop.NONE) {
             mStopMode = Stop.WAITING;
+            mIsEngaged = false;
             mLogger.trace("" + mStopMode);
             mOuttakeWheels.stopTransition();
         }
@@ -398,9 +394,6 @@ public class Robot {
         if (mGamepadAttachments.buttons.right_bumper.pressedOnce())  { reverse_intake(); }
         if (mGamepadAttachments.buttons.right_bumper.releasedOnce()) { stop_intake();    }
 
-        if(mGamepadAttachments.buttons.dpad_up.pressedOnce()) {
-            mIsEngagingFirst = true;
-        }
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
             stop();
         }
@@ -588,7 +581,6 @@ public class Robot {
         return false;
     }
     public boolean start_engage(double velocity) {
-        mIsEngagingFirst = true;
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }

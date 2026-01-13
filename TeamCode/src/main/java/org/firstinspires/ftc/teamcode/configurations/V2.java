@@ -31,7 +31,7 @@ public class V2 extends Configuration {
 
         mMotors.put("intake-belts",new ConfMotor("intakeBeltsFront",false, "intakeBeltsBack", true));
         mServos.put("intake-entry-arm", new ConfServo("intakeEntryArm", false));
-        mServos.get("intake-entry-arm").addPosition("let", 0.23);
+        mServos.get("intake-entry-arm").addPosition("let", 0.22);
         mServos.get("intake-entry-arm").addPosition("push", 0.35);//0.45);
 
         /* Outtake configuration */

@@ -122,8 +122,8 @@ public class PathAutonomousMiddle extends Path {
 
             mBackNextIntake = new Pose2d(
                     mNextPattern.position.x,
-                    mNextPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
-                    mNextPattern.heading.toDouble());
+                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_RED,
+                    0);
 
             mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED + ANGLE_START_RADIANS;
 
@@ -184,7 +184,7 @@ public class PathAutonomousMiddle extends Path {
             mBackNextIntake = new Pose2d(
                     mNextPattern.position.x,
                     mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_BLUE,
-                    mNextPattern.heading.toDouble());
+                    0);
 
            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE + ANGLE_START_RADIANS;
 

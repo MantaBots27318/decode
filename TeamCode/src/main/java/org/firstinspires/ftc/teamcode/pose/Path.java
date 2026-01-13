@@ -47,6 +47,15 @@ public class Path {
     private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED            = - Math.PI / 4;
     private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE           = Math.PI / 4;
 
+
+    private static final double X_READY_INCHES                     = -FIELD_SIZE_INCHES / 2 + 9 + 72 + 7;
+    private static final double Y_READY_INCHES_BLUE                = 40;
+    private static final double Y_READY_INCHES_RED                 = -40;
+    private static final double ANGLE_READY_RADIANS_RED            = - Math.PI / 6;
+    private static final double ANGLE_READY_RADIANS_BLUE           = Math.PI / 6;
+    
+    
+
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED     = - Math.PI/2;
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE    = Math.PI/2;
 
@@ -66,6 +75,7 @@ public class Path {
     Pose2d          mShootingVeryFar            = new Pose2d(0,0,0);
     Pose2d          mParking                    = new Pose2d(0,0,0);
     Pose2d          mQRCode                     = new Pose2d(0,0,0);
+    Pose2d          mReady                      = new Pose2d(0,0,0);
 
     double          mAngleAutoToTeleopRadians   = 0;
     double          mFieldCentric2FTC = 0;
@@ -88,6 +98,8 @@ public class Path {
 
             mFieldCentric2FTC = - Math.PI /2;
             mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_RED,ANGLE_QRCODE_RADIANS_RED);
+            
+            mReady = new Pose2d(X_READY_INCHES,Y_READY_INCHES_RED,ANGLE_READY_RADIANS_RED);
 
         }
 
@@ -104,6 +116,8 @@ public class Path {
             mFieldCentric2FTC = Math.PI /2;
             mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE,ANGLE_QRCODE_RADIANS_BLUE);
 
+            mReady = new Pose2d(X_READY_INCHES,Y_READY_INCHES_BLUE,ANGLE_READY_RADIANS_BLUE);
+
         }
     }
 
@@ -112,6 +126,7 @@ public class Path {
     public Pose2d   shootingVeryFar()       { return mShootingVeryFar; }
     public Pose2d   parking()               { return mParking;}
     public Pose2d   qrcode()                { return mQRCode; }
+    public Pose2d   ready()                 { return mReady; }
 
     public double   fieldCentric2FTC()      { return mFieldCentric2FTC; }
     public double   hAutoToTeleopRadians()  { return mAngleAutoToTeleopRadians; }

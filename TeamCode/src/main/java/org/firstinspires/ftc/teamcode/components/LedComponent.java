@@ -20,6 +20,8 @@ public abstract class LedComponent {
 
     protected boolean       mBlinkingOn = false;
 
+    protected boolean       mIsBlinking = false;
+
     public enum Color {
         RED("RED"),
         GREEN("GREEN"),
@@ -41,17 +43,12 @@ public abstract class LedComponent {
     
     public abstract boolean isReady();
     public abstract void    on(Color color);
+    public void             on() { on(mCurrentColor); }
     public abstract void    off();
     public void             blink(){
-        if(mBlinkingOn && !(mTimer.isArmed())){
-            mBlinkingOn = false;
-            mTimer.arm(300);
-            off();
-        }
-        else if(!mBlinkingOn && !(mTimer.isArmed())) {
-            mBlinkingOn = true;
-            mTimer.arm(300);
-            on(mCurrentColor);
-        }
+       mIsBlinking = true;
+    }
+    public void             unblink(){
+        mIsBlinking = false;
     }
 }
