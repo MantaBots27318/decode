@@ -41,7 +41,7 @@ public class ManualOpMode extends LinearOpMode {
         mGamepad2 = new Controller(gamepad2,mLogger);
 
         mPath = new Path(mLogger);
-        mPath.initialize(mAlliance, true);
+        mPath.initialize(mAlliance);
 
         mRobot = new Robot();
         mRobot.setHW(Configuration.s_Current,hardwareMap,mLogger, mGamepad1, mGamepad2, mPath);

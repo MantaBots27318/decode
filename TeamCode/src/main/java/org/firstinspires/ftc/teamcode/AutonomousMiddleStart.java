@@ -47,7 +47,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Alliance                mAlliance = Alliance.NONE;
     PathAutonomousMiddle    mPath;
     double                  mWaitingTime = 0.0;
-    boolean                 mShallParkInLaunchZone = false;
+    boolean                 mShallGrabAnotherPattern = true;
 
     SmartTimer              mTimer;
 
@@ -57,8 +57,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Camera                  mCamera;
 
     Logger                  mLogger;
-    double                  mVelocityFar = 3.5;
-    double                  mVelocityClose = 2.8;
+    double                  mVelocityFar = 3.3;
+    double                  mVelocityClose = 2.7;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -91,11 +91,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPath.initialize(mAlliance,mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance,mTargetPattern);
             }
             if (mGamepad1.buttons.dpad_left.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPath.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
 
             if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
@@ -105,26 +105,26 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
                 if(mPattern == Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
             if (mGamepad1.buttons.b.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
                 if(mPattern == Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
-            }
-            if(mGamepad1.buttons.y.pressedOnce()){
-                mShallParkInLaunchZone = true;
+                mPath.initialize(mAlliance, mTargetPattern);
             }
             if(mGamepad1.buttons.a.pressedOnce()){
-                mShallParkInLaunchZone = false;
+                mShallGrabAnotherPattern = true;
+            }
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mShallGrabAnotherPattern = false;
             }
 
             Pattern pattern = mVision.readPattern();
             if (pattern != Pattern.NONE) {
                 mPattern = pattern;
                 mTargetPattern = this.computePattern(mPattern,mPatternShift);
-                mPath.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
 
             mLogger.info("=========== MENU ============");
@@ -139,11 +139,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
             mLogger.metric("==> ALLIANCE : ", mAlliance.name());
             mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
-            if (!mShallParkInLaunchZone) {
-                mLogger.metric("==> PARKING POSITION","Gate Zone");
+            if (mShallGrabAnotherPattern) {
+                mLogger.metric("==> THIRD GRAB","YES");
             }
-            if (mShallParkInLaunchZone) {
-                mLogger.metric("==> PARKING POSITION","Launch Zone");
+            else {
+                mLogger.metric("==> THIRD GRAB","NO");
             }
             mPath.log();
 
@@ -193,58 +193,68 @@ public class AutonomousMiddleStart extends LinearOpMode {
             }
         };
 
-        Pose2d start = mPath.start();
-        Pose2d pattern = mPath.pattern();
+        Pose2d start = mPath.start();Pose2d pattern = mPath.pattern();
+        Pose2d next_pattern = mPath.nextPattern();
         Pose2d end_intake = mPath.endIntake();
         Pose2d back_intake = mPath.backIntake();
+        Pose2d end_next_intake = mPath.endNextIntake();
+        Pose2d back_next_intake = mPath.backNextIntake();
         Pose2d shoot = mPath.shootingFar();
         Pose2d shootinit = mPath.shootingVeryFar();
         Pose2d leave = mPath.parking();
 
-        double distance_pattern = pattern.minus(shootinit).line.norm();
-        double distance_intake = end_intake.minus(back_intake).line.norm();
-
         Actions.runBlocking(
             mDrive.actionBuilder(start)
                     .waitSeconds(mWaitingTime)
-                    .afterDisp(0.01, engageFarAction)
+                    .afterTime(0.01, engageFarAction)
                     .setTangent(start.heading.toDouble())
                     .splineToLinearHeading(new Pose2d(shootinit.position.x,shootinit.position.y,start.heading.toDouble()),start.heading.toDouble())
                     .turnTo(shootinit.heading.toDouble())
                     .build());
 
         mRobot.shoot3(mVelocityFar);
+        updatePoseFromAprilTagIfVisible();
 
         Actions.runBlocking(
                 mDrive.actionBuilder(shootinit)
-                        .afterDisp(0.1 * distance_pattern,startIntakeAction)
+                        .afterTime(0.01,startIntakeAction)
                         .setTangent(shootinit.heading.toDouble())
-                        .splineToLinearHeading(pattern,pattern.heading.toDouble())
-                        .build());
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(pattern)
+                        .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
                         .setTangent(pattern.heading.toDouble())
-                        .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-20,20))
-                        .afterDisp(0 * distance_intake,stopIntakeAction)
+                        .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
+                        .afterTime(2,stopIntakeAction)
                         .setTangent(-end_intake.heading.toDouble())
-                        .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
-                        .build());
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(back_intake)
-                         .afterDisp(0,engageCloseAction)
-                        .setTangent(mPath.tgtIntakeToCalibrationRadians())
-                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
+                        .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                        .afterTime(0,engageCloseAction)
+                        .setTangent(mPath.tgtIntakeToShootRadians())
+                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25,50))
                         .build());
 
         mRobot.shoot3(mVelocityClose);
+        updatePoseFromAprilTagIfVisible();
 
-        Actions.runBlocking(
-                mDrive.actionBuilder(shoot)
-                        .setTangent(shoot.heading.toDouble() + Math.PI)
-                        .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI)
-                        .build());
+        if(mShallGrabAnotherPattern) {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(shoot)
+                            .afterTime(0.01,startIntakeAction)
+                            .setTangent(Math.PI)
+                            .splineToLinearHeading(next_pattern,next_pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
+                            .setTangent(next_pattern.heading.toDouble())
+                            .splineToLinearHeading(end_next_intake,next_pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
+                            .afterTime(2,stopIntakeAction)
+                            .setTangent(-end_next_intake.heading.toDouble())
+                            .splineToLinearHeading(back_next_intake, -end_next_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
+
+        }
+        else {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(shoot)
+                            .setTangent(shoot.heading.toDouble() + Math.PI)
+                            .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
+        }
+
 
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble() - mPath.fieldCentric2FTC());

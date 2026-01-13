@@ -592,34 +592,38 @@ public class Robot {
         this.engage(velocity);
         return mEngageMode != Engage.NONE;
     }
-
-    public void shoot3(double velocity) {
+    public void shoot3(double velocity) { shoot3(velocity, null);}
+    public void shoot3(double velocity, Localizer localizer) {
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
         }
+        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             this.engage();
         }
+        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
-            mLogger.info("CFG : SHOOTING");
             this.shoot();
         }
+        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : ENGAGING");
         this.engage(velocity);
         while (mEngageMode != Engage.NONE){
             this.engage();
         }
+        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : SHOOTING");
         this.shoot();
         while (mShootMode != Shoot.NONE){
             this.shoot();
         }
+        if(localizer != null) { localizer.update(); }
         mLogger.info("CFG : STOPPING");
         mOuttakeLeverArm.setPosition(OuttakeLeverArm.Position.LOCK);
         mOuttakeWheels.stop();

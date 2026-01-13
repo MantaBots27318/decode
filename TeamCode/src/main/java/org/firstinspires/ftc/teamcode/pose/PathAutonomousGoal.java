@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.vision.Pattern;
 
 public class PathAutonomousGoal extends Path {
 
-    public static final double X_START_INCHES =                         51.6;
-    public static final double Y_START_INCHES_BLUE =                    59;
-    public static final double Y_START_INCHES_RED =                     - 59;
+    public static final double X_START_INCHES =                         53.5;
+    public static final double Y_START_INCHES_BLUE =                    61;
+    public static final double Y_START_INCHES_RED =                     - 61;
     public static final double ANGLE_START_RADIANS_RED =                - Math.PI / 180 * 51;
     public static final double ANGLE_START_RADIANS_BLUE =               Math.PI / 180 * 51;
 
@@ -32,11 +32,16 @@ public class PathAutonomousGoal extends Path {
     protected static final double Y_DELTA_INTAKE_INCHES_RED             = -34;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 25 + 7;
-    public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 4;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 2;
     public static final double X_PPG_PATTERN_INCHES_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 7;
     public static final double X_GPP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 30 + 3;
     public static final double X_PGP_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
     public static final double X_PPG_PATTERN_INCHES_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 75 + 8;
+
+    public static final double X_PGP_PATTERN_INCHES_NEXT_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 50 + 2;
+    public static final double X_PPG_PATTERN_INCHES_NEXT_BLUE =              -FIELD_SIZE_INCHES / 2 + 9 + 72 + 7;
+    public static final double X_PGP_PATTERN_INCHES_NEXT_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
+    public static final double X_PPG_PATTERN_INCHES_NEXT_RED =               -FIELD_SIZE_INCHES / 2 + 9 + 75 + 8;
     public static final double Y_PATTERN_INCHES_BLUE =                  35;
     public static final double Y_PATTERN_INCHES_RED =                   -35;
     public static final double ANGLE_PATTERN_RADIANS_BLUE =             Math.PI / 2;
@@ -71,7 +76,7 @@ public class PathAutonomousGoal extends Path {
 
     public void initialize(Alliance alliance, Pattern pattern) {
 
-        super.initialize(alliance,true);
+        super.initialize(alliance);
 
         if (alliance == Alliance.RED) {
 
@@ -79,15 +84,15 @@ public class PathAutonomousGoal extends Path {
 
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_NEXT_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_NEXT_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_NEXT_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED);
             }
 
             mEndIntake = new Pose2d(
@@ -111,7 +116,7 @@ public class PathAutonomousGoal extends Path {
                     mNextPattern.heading.toDouble());
 
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_RED;
-            mAngleObeliskRadians            = ANGLE_OBELISK_RADIANS_RED ;
+            mAngleObeliskRadians      = ANGLE_OBELISK_RADIANS_RED ;
             mShootFromGoalInches      = X_SHOOT_FROM_GOAL_INCHES ;
 
         }
@@ -122,15 +127,15 @@ public class PathAutonomousGoal extends Path {
 
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(X_GPP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_NEXT_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
             if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(X_PGP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PPG_PATTERN_INCHES_NEXT_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(X_PPG_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(X_PGP_PATTERN_INCHES_NEXT_BLUE, Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE);
             }
 
             mEndIntake = new Pose2d(

@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Path {
 
+
+
     public static final double FIELD_SIZE_INCHES                                 = 12 * 12;
     public static final double M_TO_INCHES                                       = 39.37;
 
@@ -39,23 +41,14 @@ public class Path {
     private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -19;
     private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = -0.365424564;
 
-
-    private static final double X_PARKING_GATE_ZONE_INCHES                       = 12;
-    private static final double Y_PARKING_GATE_ZONE_INCHES_BLUE                  = 36;
-    private static final double Y_PARKING_GATE_ZONE_INCHES_RED                   = -36;
-    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_RED              = - Math.PI / 4;
-    private static final double ANGLE_PARKING_GATE_ZONE_RADIANS_BLUE             = Math.PI / 4;
-
     private static final double X_PARKING_LAUNCH_ZONE_INCHES                     = 48;
-    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_BLUE                = 0;
-    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_RED                 = 0;
+    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_BLUE                = 24;
+    private static final double Y_PARKING_LAUNCH_ZONE_INCHES_RED                 = -24;
     private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED            = - Math.PI / 4;
     private static final double ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE           = Math.PI / 4;
 
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED     = - Math.PI/2;
     private static final double ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE    = Math.PI/2;
-    private static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_RED       = Math.PI;
-    private static final double ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE      = Math.PI;
 
     private static final double X_QRCODE_INCHES                                  = FIELD_SIZE_INCHES / 2 - 9;
     private static final double Y_QRCODE_INCHES_BLUE                             = FIELD_SIZE_INCHES / 2 - 9;
@@ -81,7 +74,7 @@ public class Path {
         mLogger = logger;
     }
 
-    public void initialize(Alliance alliance, boolean ShallParkInLaunchZone) {
+    public void initialize(Alliance alliance) {
 
         if (alliance == Alliance.RED) {
 
@@ -90,18 +83,8 @@ public class Path {
             mShootingVeryFar = new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_RED,ANGLE_SHOOTING_VERY_FAR_RADIANS_RED);
             mShootingClose = new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_RED,ANGLE_SHOOTING_CLOSE_RADIANS_RED);
 
-            if(ShallParkInLaunchZone) {
-
-                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_RED,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED);
-                mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED;
-
-            }
-            else {
-
-                mParking = new Pose2d(X_PARKING_GATE_ZONE_INCHES, Y_PARKING_GATE_ZONE_INCHES_RED,ANGLE_PARKING_GATE_ZONE_RADIANS_RED);
-                mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_RED;
-
-            }
+            mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_RED,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED);
+            mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_RED;
 
             mFieldCentric2FTC = - Math.PI /2;
             mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_RED,ANGLE_QRCODE_RADIANS_RED);
@@ -115,18 +98,8 @@ public class Path {
             mShootingFar = new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_BLUE,ANGLE_SHOOTING_FAR_RADIANS_BLUE);
             mShootingVeryFar = new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_BLUE,ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE);
 
-            if(ShallParkInLaunchZone) {
-
-                mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_BLUE,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE);
-                mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE;
-
-            }
-            else {
-
-                mParking = new Pose2d(X_PARKING_GATE_ZONE_INCHES, Y_PARKING_GATE_ZONE_INCHES_BLUE,ANGLE_PARKING_GATE_ZONE_RADIANS_BLUE);
-                mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_GATE_ZONE_RADIANS_BLUE;
-
-            }
+            mParking = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_BLUE,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE);
+            mAngleAutoToTeleopRadians = ANGLE_AUTO_TO_TELEOP_LAUNCH_ZONE_RADIANS_BLUE;
 
             mFieldCentric2FTC = Math.PI /2;
             mQRCode = new Pose2d(X_QRCODE_INCHES,Y_QRCODE_INCHES_BLUE,ANGLE_QRCODE_RADIANS_BLUE);

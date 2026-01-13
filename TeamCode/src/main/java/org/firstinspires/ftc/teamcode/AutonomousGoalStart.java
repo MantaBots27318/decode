@@ -112,10 +112,10 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mPatternShift = Math.min(mPatternShift,3);
                 mPath.initialize(mAlliance, mTargetPattern);
             }
-            if(mGamepad1.buttons.y.pressedOnce()){
+            if(mGamepad1.buttons.a.pressedOnce()){
                 mShallGrabAnotherPattern = true;
             }
-            if(mGamepad1.buttons.a.pressedOnce()){
+            if(mGamepad1.buttons.y.pressedOnce()){
                 mShallGrabAnotherPattern = false;
             }
 
@@ -178,7 +178,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
                         .afterTime(0.1,engageAction)
-                        .lineToXConstantHeading(mPath.xShootFromGoal(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .lineToXConstantHeading(mPath.shootingFar().position.x + 2, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
 
         mLogger.info("==> Shoot");
@@ -220,8 +220,6 @@ public class AutonomousGoalStart extends LinearOpMode {
         Pose2d shoot = mPath.shootingFar();
         Pose2d leave = mPath.parking();
 
-        double distance_intake = end_intake.minus(pattern).line.norm();
-
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
                         .afterTime(0.01,startIntakeAction)
@@ -240,7 +238,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mRobot.shoot3(mShootVelocity) ;
 
         mDrive.localizer.update();
-        updatePoseFromAprilTagIfVisible();
+        //updatePoseFromAprilTagIfVisible();
 
         if(mShallGrabAnotherPattern) {
             Actions.runBlocking(
@@ -254,6 +252,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                             .setTangent(-next_pattern.heading.toDouble())
                             .splineToLinearHeading(back_next_intake,-next_pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                             .build());
+
         }
         else {
             Actions.runBlocking(

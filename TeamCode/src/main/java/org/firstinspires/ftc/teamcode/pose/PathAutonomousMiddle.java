@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class PathAutonomousMiddle extends Path {
 
-    private static final double X_START_INCHES                               = -57;
-    private static final double Y_START_INCHES_BLUE                          = 19;
-    private static final double Y_START_INCHES_RED                           = -19;
+    private static final double X_START_INCHES                               = -53.5;
+    private static final double Y_START_INCHES_BLUE                          = 18;
+    private static final double Y_START_INCHES_RED                           = -18;
     private static final double ANGLE_START_RADIANS                          = 0;
 
 
@@ -32,42 +32,40 @@ public class PathAutonomousMiddle extends Path {
 
 
     private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 22;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 44;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 73;
-    private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 31;
+    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 45;
+    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 71;
+    private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 24;
     private static final double X_DELTA_PGP_PATTERN_INCHES_RED               = 45;
     private static final double X_DELTA_PPG_PATTERN_INCHES_RED               = 71;
+
+    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE         = 45;
+    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE         = 70;
+    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_RED          = 46;
+    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_RED          = 71;
     private static final double Y_DELTA_PATTERN_INCHES_BLUE                  = 10;
     private static final double Y_DELTA_PATTERN_INCHES_RED                   = -10;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE             = Math.PI / 2;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_RED              = -Math.PI / 2;
 
-    private static final double TGT_DELTA_INTAKE_TO_CALIBRATION_RADIANS_BLUE = -Math.PI/2;
-    private static final double TGT_DELTA_INTAKE_TO_CALIBRATION_RADIANS_RED  = Math.PI/2;
-
-    private static final double X_DELTA_CALIBRATION_INCHES                   = 74;
-    private static final double Y_DELTA_CALIBRATION_INCHES_BLUE              = 10;
-    private static final double Y_DELTA_CALIBRATION_INCHES_RED               = -10;
-    private static final double ANGLE_DELTA_CALIBRATION_RADIANS_RED          = -Math.PI / 4;
-    private static final double ANGLE_DELTA_CALIBRATION_RADIANS_BLUE         = Math.PI / 4;
-
-
+    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE = -Math.PI/2;
+    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED  = Math.PI/2;
 
     Pose2d  mStart                          = new Pose2d(0,0,0);
     Pose2d  mPattern                        = new Pose2d(0,0,0);
     Pose2d  mEndIntake                      = new Pose2d(0,0,0);
     Pose2d  mBackIntake                     = new Pose2d(0,0,0);
-    Pose2d  mCalibration                    = new Pose2d(0,0,0);
-
-    double  mTgtIntakeToCalibrationRadians  = 0;
+    Pose2d  mNextPattern                    = new Pose2d(0,0,0);
+    Pose2d  mEndNextIntake                  = new Pose2d(0,0,0);
+    Pose2d  mBackNextIntake                 = new Pose2d(0,0,0);
+    double  mTgtIntakeToShootRadians  = 0;
 
     public PathAutonomousMiddle(Logger logger) {
         super(logger);
     }
 
-    public void initialize(Alliance alliance, Pattern pattern, boolean ShallParkInLaunchZone) {
+    public void initialize(Alliance alliance, Pattern pattern) {
 
-        super.initialize(alliance, ShallParkInLaunchZone);
+        super.initialize(alliance);
 
         if (alliance == Alliance.RED) {
 
@@ -81,16 +79,28 @@ public class PathAutonomousMiddle extends Path {
                         X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_RED,
+                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PGP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_RED,
+                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_RED,
+                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
@@ -105,12 +115,17 @@ public class PathAutonomousMiddle extends Path {
                     mPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
                     mPattern.heading.toDouble());
 
-            mCalibration = new Pose2d(
-                    X_START_INCHES + X_DELTA_CALIBRATION_INCHES,
-                    Y_START_INCHES_RED + Y_DELTA_CALIBRATION_INCHES_RED,
-                    ANGLE_START_RADIANS + ANGLE_DELTA_CALIBRATION_RADIANS_RED);
+            mEndNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_RED,
+                    mNextPattern.heading.toDouble());
 
-            mTgtIntakeToCalibrationRadians = TGT_DELTA_INTAKE_TO_CALIBRATION_RADIANS_RED + ANGLE_START_RADIANS;
+            mBackNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
+                    mNextPattern.heading.toDouble());
+
+            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED + ANGLE_START_RADIANS;
 
 
         }
@@ -120,10 +135,13 @@ public class PathAutonomousMiddle extends Path {
 
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_BLUE;
 
-
             if (pattern == Pattern.GPP) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_BLUE,
+                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
@@ -132,10 +150,18 @@ public class PathAutonomousMiddle extends Path {
                         X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
+                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
             if (pattern == Pattern.PPG) {
                 mPattern = new Pose2d(
                         X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
+                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
+                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
+                mNextPattern = new Pose2d(
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
@@ -149,13 +175,18 @@ public class PathAutonomousMiddle extends Path {
                     mPattern.position.x,
                     mPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_BLUE,
                     mPattern.heading.toDouble());
+            
+            mEndNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_BLUE,
+                    mNextPattern.heading.toDouble());
 
-            mCalibration = new Pose2d(
-                    X_START_INCHES + X_DELTA_CALIBRATION_INCHES,
-                    Y_START_INCHES_BLUE + Y_DELTA_CALIBRATION_INCHES_BLUE,
-                    ANGLE_START_RADIANS + ANGLE_DELTA_CALIBRATION_RADIANS_BLUE);
+            mBackNextIntake = new Pose2d(
+                    mNextPattern.position.x,
+                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_BLUE,
+                    mNextPattern.heading.toDouble());
 
-            mTgtIntakeToCalibrationRadians = TGT_DELTA_INTAKE_TO_CALIBRATION_RADIANS_BLUE + ANGLE_START_RADIANS;
+           mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE + ANGLE_START_RADIANS;
 
         }
     }
@@ -164,9 +195,11 @@ public class PathAutonomousMiddle extends Path {
     public Pose2d   pattern()                       { return mPattern; }
     public Pose2d   endIntake()                     { return mEndIntake; }
     public Pose2d   backIntake()                    { return mBackIntake; }
-    public Pose2d   calibration()                   { return mCalibration; }
+    public Pose2d   nextPattern()                   { return mNextPattern; }
+    public Pose2d   endNextIntake()                 { return mEndNextIntake; }
+    public Pose2d   backNextIntake()                { return mBackNextIntake; }
 
-    public double   tgtIntakeToCalibrationRadians() { return mTgtIntakeToCalibrationRadians;}
+    public double   tgtIntakeToShootRadians() { return mTgtIntakeToShootRadians;}
 
     public void log() {
 
@@ -174,8 +207,7 @@ public class PathAutonomousMiddle extends Path {
         mLogger.info("PATTERN X : " + mPattern.position.x + " Y: " + mPattern.position.y + " H: " + mPattern.heading.toDouble());
         mLogger.info("END INTAKE X : " + mEndIntake.position.x + " Y: " + mEndIntake.position.y + " H: " + mEndIntake.heading.toDouble());
         mLogger.info("BACK INTAKE X : " + mBackIntake.position.x + " Y: " + mBackIntake.position.y + " H: " + mBackIntake.heading.toDouble());
-        mLogger.info("TGT INTAKE TO CALIBRATION INIT : " + mTgtIntakeToCalibrationRadians);
-        mLogger.info("CALIBRATION INIT X: " + mCalibration.position.x + " Y: " + mCalibration.position.y + " H: " + mCalibration.heading.toDouble());
+        mLogger.info("TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
         super.log();
     }
 
