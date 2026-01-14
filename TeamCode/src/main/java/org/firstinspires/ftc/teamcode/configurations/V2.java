@@ -53,8 +53,8 @@ public class V2 extends Configuration {
         mLimelights.get("limelight").addPipeline("localizer",0);
 
         /* Leds configuration */
-        mLeds.put("tracking", new ConfLed("trackingLeft","trackingRight"));
-        mLeds.put("engaged", new ConfLed("engagedLeft","engagedRight"));
+        mLeds.put("tracking1", new ConfLed("trackingLeft1","trackingRight1"));
+        mLeds.put("tracking2", new ConfLed("trackingLeft2","trackingRight2"));
 
         /* Distance sensors configuration */
         mDistances.put("intake", new ConfDistance("intakeDistance"));

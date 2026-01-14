@@ -95,7 +95,8 @@ public class Robot {
     OuttakeLeverArm         mOuttakeLeverArm;
     IntakeEntryArm          mIntakeEntryArm;
 
-    LedComponent            mLed;
+    LedComponent            mLed1;
+    LedComponent            mLed2;
     double                  mTargetVelocity;
     double                  mTargetDistance;
 
@@ -151,27 +152,42 @@ public class Robot {
         }
         if(mReady) {
             String status = "";
-            mLed = null;
-            ConfLed led = config.getLed("tracking");
-            if (led == null) { status += " LED"; }
+            mLed1 = null;
+            mLed2 = null;
+
+            ConfLed led1 = config.getLed("tracking1");
+            if (led1 == null) { status += " LED1"; }
             else {
 
-                if (led.shallMock()) { mLed = new LedMock("tracking"); }
-                else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hwm, "tracking", mLogger); }
-                else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hwm, "tracking", mLogger); }
+                if (led1.shallMock()) { mLed1 = new LedMock("tracking1"); }
+                else if (led1.getHw().size() == 1) { mLed1 = new LedSingle(led1, hwm, "tracking1", mLogger); }
+                else if (led1.getHw().size() == 2) { mLed1 = new LedCoupled(led1, hwm, "tracking1", mLogger); }
 
-                if (!mLed.isReady()) { status += " HW";}
+                if (!mLed1.isReady()) { status += " HW";}
+
             }
 
-            if (mReady) { mLogger.info("==>  LED : OK"); }
+            ConfLed led2 = config.getLed("tracking2");
+            if (led2 == null) { status += " LED2"; }
+            else {
+
+                if (led2.shallMock()) { mLed2 = new LedMock("tracking2"); }
+                else if (led2.getHw().size() == 1) { mLed2 = new LedSingle(led2, hwm, "tracking2", mLogger); }
+                else if (led2.getHw().size() == 2) { mLed2 = new LedCoupled(led2, hwm, "tracking2", mLogger); }
+
+                if (!mLed2.isReady()) { status += " HW";}
+            }
+
+            if (mReady) { mLogger.info("==>  LED : OK " + status); }
             else { mLogger.warning("==>  LED : KO : " + status); }
         }
+
         if(mReady) { mReady = this.initialize_collecting(config, hwm); }
         if(mReady) { mReady = this.initialize_vision(config, hwm);     }
         if(mReady) { mReady = this.initialize_drive(config, hwm);      }
         if(mReady) {
             mLocker = new LockQRCode();
-            mLocker.setHW(config,hwm,mLogger,path,mVision, mLed);
+            mLocker.setHW(config,hwm,mLogger,path,mVision, mLed1, mLed2);
         }
 
 
@@ -246,7 +262,8 @@ public class Robot {
 
         move(mX,mY,mRotation);
 
-        mLed.loop();
+        mLed1.loop();
+        mLed2.loop();
 
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage_without_velocity(); }
@@ -456,10 +473,10 @@ public class Robot {
 
     void control_attachments() {
 
-        if (mGamepadAttachments.buttons.left_bumper.pressedOnce())   { start_intake();   }
-        if (mGamepadAttachments.buttons.left_bumper.releasedOnce())  { stop_intake();    }
-        if (mGamepadAttachments.buttons.right_bumper.pressedOnce())  { reverse_intake(); }
-        if (mGamepadAttachments.buttons.right_bumper.releasedOnce()) { stop_intake();    }
+        if (mGamepadAttachments.buttons.left_trigger.pressedOnce())   { start_intake();   }
+        if (mGamepadAttachments.buttons.left_trigger.releasedOnce())  { stop_intake();    }
+        if (mGamepadAttachments.buttons.right_trigger.pressedOnce())  { reverse_intake(); }
+        if (mGamepadAttachments.buttons.right_trigger.releasedOnce()) { stop_intake();    }
 
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
             stop();
@@ -533,7 +550,7 @@ public class Robot {
         mOuttakeLeverArm    = new OuttakeLeverArm();
         mIntakeEntryArm     = new IntakeEntryArm();
 
-        mIntakeBelts.setHW(config, hwm, mLogger,mLed);
+        mIntakeBelts.setHW(config, hwm, mLogger,mLed1, mLed2);
         mOuttakeWheels.setHW(config, hwm, mLogger);
         mOuttakeLeverArm.setHW(config, hwm, mLogger);
         mIntakeEntryArm.setHW(config,hwm,mLogger);

@@ -157,7 +157,7 @@ public class ShootingTest extends OpMode {
             mPath = new PathAutonomousGoal(mLogger);
             mPath.initialize(Alliance.RED);
             mLocker = new LockQRCode();
-            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision,mLed);
+            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision,mLed, null);
 
         }
 

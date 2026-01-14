@@ -68,7 +68,8 @@ public class LockQRCode {
     double              mRotation2; // The rotation to give to the robot to reach QRCOde
     double              mHeading; // The direction along which the robot moves towards the QRCode
 
-    LedComponent        mLed;
+    LedComponent        mLed1;
+    LedComponent        mLed2;
 
     List<PIDFController> mPIDs;
 
@@ -82,7 +83,7 @@ public class LockQRCode {
     Pose2d              mRobotPosition;
 
 
-    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision, LedComponent led) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Vision vision, LedComponent led1, LedComponent led2) {
 
         mLogger = logger;
         mLogger.info(Logger.Target.DRIVER_STATION, "======== LOCK QR CODE =========");
@@ -146,8 +147,10 @@ public class LockQRCode {
             }
         }
 
-        mLed = led;
-        if(mLed != null) { mLed.setColor(LedComponent.Color.RED); }
+        mLed1 = led1;
+        if(mLed1 != null) { mLed1.setColor(LedComponent.Color.RED); }
+        mLed2 = led2;
+        if(mLed2 != null) { mLed2.setColor(LedComponent.Color.RED); }
 
         if (mReady) { mLogger.info("==>  LCK : OK"); }
         else { mLogger.warning("==>  LCK : KO : " + status); }
@@ -185,7 +188,8 @@ public class LockQRCode {
 
                 mLocalizer.setPose(pose);
                 mIsInFTC = true;
-                if (mLed != null) { mLed.setColor(LedComponent.Color.GREEN); }
+                if (mLed1 != null) { mLed1.setColor(LedComponent.Color.GREEN); }
+                if (mLed2 != null) { mLed2.setColor(LedComponent.Color.GREEN); }
             }
 
             if(mIsInFTC) {

@@ -37,6 +37,7 @@ public class Distance {
         String hw = conf.getHw();
         mSensor = (Rev2mDistanceSensor)hwMap.tryGet(DistanceSensor.class, hw);
         if(mSensor  == null) { mReady = false; }
+        else { mSensor.initialize(); }
 
     }
 

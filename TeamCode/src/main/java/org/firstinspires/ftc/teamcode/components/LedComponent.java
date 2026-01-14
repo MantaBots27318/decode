@@ -47,12 +47,12 @@ public abstract class LedComponent {
         if(mIsBlinking) {
             if(mBlinkingOn && !(mTimer.isArmed())){
                 mBlinkingOn = false;
-                mTimer.arm(300);
+                mTimer.arm(100);
                 off();
             }
             else if(!mBlinkingOn && !(mTimer.isArmed())) {
                 mBlinkingOn = true;
-                mTimer.arm(300);
+                mTimer.arm(100);
                 on(mCurrentColor);
             }
         }

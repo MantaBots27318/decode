@@ -39,15 +39,17 @@ public class IntakeBelts {
 
     MotorComponent          mMotor;       // Motor rotating the wheels
     Distance                mDistance;
-    LedComponent            mLed = null;
+    LedComponent            mLed1 = null;
+    LedComponent            mLed2 = null;
     // Check if the component is currently moving on command
     public boolean isMoving()   { return mIsMoving;   }
 
     public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Logger logger, LedComponent led) {
-        mLed = led;
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger, LedComponent led1, LedComponent led2) {
+        mLed1 = led1;
+        mLed2 = led2;
         mLogger = logger;
         mReady = true;
         mIsMoving = false;
@@ -128,8 +130,10 @@ public class IntakeBelts {
         double result = -1;
         if(mReady) {
             result = mDistance.getDistance();
-            if(result <= 8) { mLed.blink();  }
-            else {            mLed.steady(); }
+            if((result <= 8) && (mLed1 != null)) { mLed1.blink();  }
+            else if (mLed1 != null)              { mLed1.steady(); }
+            if((result <= 8) && (mLed2 != null)) { mLed2.blink();  }
+            else if (mLed2 != null)              { mLed2.steady(); }
         }
         return result;
     }
