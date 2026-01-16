@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-@TeleOp(name="\uD83D\uDD35 Manual OpMode", group="ManualOpMode")
+@TeleOp(name="\uD83D\uDD35 Manual OpMode")
 public class ManualOpModeBlue extends LinearOpMode {
 
     Logger      mLogger;

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 
-@TeleOp(name="\uD83D\uDD34 ManualOpMode", group="ManualOpMode")
+@TeleOp(name="\uD83D\uDD34 ManualOpMode")
 public class ManualOpModeRed extends LinearOpMode {
 
     Logger      mLogger;
@@ -30,7 +30,7 @@ public class ManualOpModeRed extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
-        mLogger.level(Logger.Severity.TRACE);
+        mLogger.level(Logger.Severity.INFO);
 
         mAlliance = Alliance.RED;
 

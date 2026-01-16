@@ -13,12 +13,14 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 public abstract class LedComponent {
     protected Color         mCurrentColor = Color.RED;
+    protected Color         mSetColor     = Color.NONE;
 
     protected SmartTimer    mTimer = null;
 
     protected boolean       mBlinkingOn = false;
 
     protected boolean       mIsBlinking = false;
+
 
     public enum Color {
         RED("RED"),
@@ -47,19 +49,24 @@ public abstract class LedComponent {
         if(mIsBlinking) {
             if(mBlinkingOn && !(mTimer.isArmed())){
                 mBlinkingOn = false;
+                mSetColor = Color.NONE;
                 mTimer.arm(100);
                 off();
             }
             else if(!mBlinkingOn && !(mTimer.isArmed())) {
                 mBlinkingOn = true;
+                mSetColor = mCurrentColor;
                 mTimer.arm(100);
                 on(mCurrentColor);
             }
         }
         else {
             mTimer.reset();
-            mBlinkingOn = false;
-            on(mCurrentColor);
+            mBlinkingOn = true;
+            if(mCurrentColor != mSetColor) {
+                on(mCurrentColor);
+                mSetColor = mCurrentColor;
+            }
         }
     }
 

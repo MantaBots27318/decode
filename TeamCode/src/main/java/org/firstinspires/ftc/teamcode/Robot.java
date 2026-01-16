@@ -7,6 +7,10 @@
 package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -134,6 +138,9 @@ public class Robot {
 
     boolean                 mIsMoving;
 
+    Pose2d                  mPark;
+    Action                  mAction;
+
     boolean                 mShallCorrectSmallResidue = false;
 
 
@@ -186,6 +193,7 @@ public class Robot {
         if(mReady) { mReady = this.initialize_vision(config, hwm);     }
         if(mReady) { mReady = this.initialize_drive(config, hwm);      }
         if(mReady) {
+            mPark = path.park();
             mLocker = new LockQRCode();
             mLocker.setHW(config,hwm,mLogger,path,mVision, mLed1, mLed2);
         }
@@ -260,10 +268,20 @@ public class Robot {
             }
         }
 
-        move(mX,mY,mRotation);
+        if(mIsMoving) { mAction = null; }
+        if(mAction != null) {
+           boolean isNotFinished = mAction.run(new TelemetryPacket());
+           if(!isNotFinished) { mAction = null; }
+        }
+        else {
+            move(mX, mY, mRotation);
+        }
 
+
+        mLogger.trace("Avant les leds : ");
         mLed1.loop();
         mLed2.loop();
+        mLogger.trace("Apress les leds : ");
 
         if ( mShootMode != Shoot.NONE )   { this.shoot(); }
         if ( mEngageMode != Engage.NONE ) { this.engage_without_velocity(); }
@@ -466,6 +484,24 @@ public class Robot {
                 mShallCorrectSmallResidue = false;
             }
         }
+        if(mGamepadChassis.buttons.x.pressedOnce()) {
+            if(mLocker.isSet()) {
+                Pose2d robot_position = mLocker.getPosition();
+                double direction = Math.atan2(mPark.position.y - robot_position.position.y, mPark.position.x - robot_position.position.x);
+                mDrive.localizer.update();
+                mDrive.localizer.setPose(robot_position);
+
+                mLogger.metric("==> TGT" , ""+ direction / Math.PI * 180);
+                mLogger.metric("==> POS", ""+ mDrive.getPose());
+                mLogger.metric("==> RBT", ""+ robot_position);
+
+                mAction = mDrive.actionBuilder(new Pose2d(mDrive.getPose().position.x,mDrive.getPose().position.y,mPark.heading.toDouble()))
+                        .setTangent(direction)
+                        .splineToLinearHeading(mPark, direction, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
+                        .build();
+                mAction.run(new TelemetryPacket());
+            }
+        }
 
         mIsPrecise = mGamepadChassis.buttons.left_bumper.pressed();
 
@@ -473,10 +509,10 @@ public class Robot {
 
     void control_attachments() {
 
-        if (mGamepadAttachments.buttons.left_trigger.pressedOnce())   { start_intake();   }
-        if (mGamepadAttachments.buttons.left_trigger.releasedOnce())  { stop_intake();    }
-        if (mGamepadAttachments.buttons.right_trigger.pressedOnce())  { reverse_intake(); }
-        if (mGamepadAttachments.buttons.right_trigger.releasedOnce()) { stop_intake();    }
+        if (mGamepadAttachments.buttons.left_bumper.pressedOnce())   { start_intake();   }
+        if (mGamepadAttachments.buttons.left_bumper.releasedOnce())  { stop_intake();    }
+        if (mGamepadAttachments.buttons.right_bumper.pressedOnce())  { reverse_intake(); }
+        if (mGamepadAttachments.buttons.right_bumper.releasedOnce()) { stop_intake();    }
 
         if(mGamepadAttachments.buttons.dpad_up.releasedOnce() ) {
             stop();
