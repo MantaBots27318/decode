@@ -50,6 +50,19 @@ public class PathAutonomousMiddle extends Path {
     private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE = -Math.PI/2;
     private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED  = Math.PI/2;
 
+    private static final double X_LEAVE_VERY_FAR_INCHES                      = -52;
+    private static final double Y_LEAVE_VERY_FAR_INCHES_BLUE                 = 39;
+    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE            = 0;
+    private static final double Y_LEAVE_VERY_FAR_INCHES_RED                  = -39;
+    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_RED             = -0;
+
+    private static final double X_ZELIE_INCHES                      = -52;
+    private static final double Y_ZELIE_INCHES_BLUE                 = 19;
+    private static final double ANGLE_ZELIE_RADIANS_BLUE            = 0.365424564;
+    private static final double Y_ZELIE_INCHES_RED                  = -19;
+    private static final double ANGLE_ZELIE_RADIANS_RED             = -0.365424564;
+
+
     Pose2d  mStart                          = new Pose2d(0,0,0);
     Pose2d  mPattern                        = new Pose2d(0,0,0);
     Pose2d  mEndIntake                      = new Pose2d(0,0,0);
@@ -57,6 +70,8 @@ public class PathAutonomousMiddle extends Path {
     Pose2d  mNextPattern                    = new Pose2d(0,0,0);
     Pose2d  mEndNextIntake                  = new Pose2d(0,0,0);
     Pose2d  mBackNextIntake                 = new Pose2d(0,0,0);
+    Pose2d  mLeaveVeryFar                 = new Pose2d(0,0,0);
+    Pose2d  mZelie                 = new Pose2d(0,0,0);
     double  mTgtIntakeToShootRadians  = 0;
 
     public PathAutonomousMiddle(Logger logger) {
@@ -90,7 +105,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_RED,
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
@@ -126,6 +141,8 @@ public class PathAutonomousMiddle extends Path {
                     0);
 
             mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED + ANGLE_START_RADIANS;
+            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_RED,ANGLE_LEAVE_VERY_FAR_RADIANS_RED);
+            mZelie = new Pose2d(X_ZELIE_INCHES,Y_ZELIE_INCHES_RED,ANGLE_ZELIE_RADIANS_RED);
 
 
         }
@@ -187,6 +204,8 @@ public class PathAutonomousMiddle extends Path {
                     0);
 
            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE + ANGLE_START_RADIANS;
+            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_BLUE,ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE);
+            mZelie = new Pose2d(X_ZELIE_INCHES,Y_ZELIE_INCHES_BLUE,ANGLE_ZELIE_RADIANS_BLUE);
 
         }
     }
@@ -198,6 +217,8 @@ public class PathAutonomousMiddle extends Path {
     public Pose2d   nextPattern()                   { return mNextPattern; }
     public Pose2d   endNextIntake()                 { return mEndNextIntake; }
     public Pose2d   backNextIntake()                { return mBackNextIntake; }
+    public Pose2d   leaveVeryFar()                 { return mLeaveVeryFar; }
+    public Pose2d   zelie()                { return mZelie; }
 
     public double   tgtIntakeToShootRadians() { return mTgtIntakeToShootRadians;}
 
