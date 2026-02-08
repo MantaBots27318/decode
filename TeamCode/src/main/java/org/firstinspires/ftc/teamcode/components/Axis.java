@@ -1,24 +1,28 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Axis class overloads the gamepad axes to provide advanced
+   functions
+   ------------------------------------------------------- */
+
 package org.firstinspires.ftc.teamcode.components;
 
 /* System includes */
 import java.lang.reflect.Field;
 
-/* JSON includes */
-import org.json.JSONObject;
-import org.json.JSONException;
-
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-/* FTC controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+/* Project includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Axis {
 
     public  static  final   double      sDefaultMaximum = 1.0;
     public  static  final   double      sDefaultDeadzone = 0.0;
 
-    final   Telemetry   mLogger;
+    final   Logger      mLogger;
 
     final   Gamepad     mGamepad;
     final   String      mName;
@@ -34,7 +38,7 @@ public class Axis {
      * @param name qualcomm button member name for reflected access
      * @param logger logger
      */
-    public Axis(Gamepad gamepad, String name, Telemetry logger) {
+    public Axis(Gamepad gamepad, String name, Logger logger) {
         mLogger     = logger;
         mGamepad    = gamepad;
         mName       = name;
@@ -51,7 +55,7 @@ public class Axis {
      * @param multiplier value multiplier
      * @param logger logger
      */
-    public Axis(Gamepad gamepad, String name, double multiplier, Telemetry logger) {
+    public Axis(Gamepad gamepad, String name, double multiplier, Logger logger) {
         mLogger     = logger;
         mGamepad    = gamepad;
         mName       = name;
@@ -104,7 +108,7 @@ public class Axis {
                 result = Axis.applyDeadzone(result, mDeadZone, mMaximum);
             }
             catch(NoSuchFieldException | NullPointerException | IllegalAccessException e ) {
-                mLogger.addLine("Axis Error : " + e.getMessage());
+                mLogger.error("Axis Error : " + e.getMessage());
             }
 
         }

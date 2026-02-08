@@ -1,4 +1,10 @@
-package org.firstinspires.ftc.teamcode.outtake;
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Class managing Camera servo
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
 
 /* System includes */
 import java.util.LinkedHashMap;
@@ -7,43 +13,36 @@ import java.util.Map;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-/* Configuration includes */
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.ConfServo;
-
 /* Component includes */
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
-import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoCoupled;
+import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
+
+/* Configuration includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfServo;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class OuttakeLeverArm {
+
+public class Camera {
 
     public enum Position {
-        OPEN,
-        SHOOT,
-        INTAKE,
-        NEXT,
-        LOCK
+        TAG,
+        BALL
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
-            "open", Position.OPEN,
-            "shoot",Position.SHOOT,
-            "intake",Position.INTAKE,
-            "next",Position.NEXT,
-            "lock",Position.LOCK
+            "tag", Position.TAG,
+            "ball", Position.BALL
     );
 
     private static final int    sTimeOut = 1000; // Timeout in ms
 
-    Telemetry                   mLogger;      // Local logger
+    Logger                      mLogger;      // Local logger
 
     boolean                     mReady;       // True if component is able to fulfil its mission
     SmartTimer                  mTimer;       // Timer for timeout management
@@ -59,7 +58,7 @@ public class OuttakeLeverArm {
     public Position getPosition() { return mPosition; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger = logger;
         mReady = true;
@@ -70,14 +69,14 @@ public class OuttakeLeverArm {
         String status = "";
 
         // Get configuration
-        ConfServo pitch  = config.getServo("outtake-lever-arm");
+        ConfServo pitch  = config.getServo("camera");
         if(pitch == null)  { mReady = false; status += " CONF";}
         else {
 
             // Configure servo
-            if (pitch.shallMock()) { mServo = new ServoMock("outtake-lever-arm"); }
-            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "outtake-lever-arm", logger); }
-            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "outtake-lever-arm", logger); }
+            if (pitch.shallMock()) { mServo = new ServoMock("camera"); }
+            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "camera", logger); }
+            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "camera", logger); }
 
             mPositions.clear();
             Map<String, Double> confPosition = pitch.getPositions();
@@ -85,7 +84,7 @@ public class OuttakeLeverArm {
                 if(sConfToPosition.containsKey(pos.getKey())) {
                     mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
                 }  else {
-                    mLogger.addLine("Found unmanaged outtake lever arm position : " + pos.getKey());
+                    mLogger.info("Found unmanaged camera position : " + pos.getKey());
                 }
             }
 
@@ -93,11 +92,11 @@ public class OuttakeLeverArm {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  OUT LVR : OK"); }
-        else        { logger.addLine("==>  OUT LVR : KO : " + status); }
+        if (mReady) { logger.info("==>  OUT CAM : OK"); }
+        else        { logger.warning("==>  OUT CAM : KO : " + status); }
 
         // Initialize position
-        this.setPosition(Position.LOCK);
+        this.setPosition(Position.TAG);
 
     }
 
@@ -118,7 +117,6 @@ public class OuttakeLeverArm {
             mPosition = position;
             mTimer.arm(timeout);
         }
-
     }
 
 }

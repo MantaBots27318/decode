@@ -2,7 +2,7 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   CoupledServo class overloads the FTC servo class to manage
+   ServoCoupled class overloads the FTC servo class to manage
    A couple of servos both turning the same hardware.
 
    Note that this is a dangerous situation which can result in
@@ -28,15 +28,15 @@ import java.util.List;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
+
 public class ServoCoupled extends ServoComponent {
 
-    Telemetry               mLogger;
+    Logger                  mLogger;
 
     Servo.Direction         mDirection;
     
@@ -44,7 +44,7 @@ public class ServoCoupled extends ServoComponent {
     Servo                   mSecond;
 
     /* -------------- Constructors --------------- */
-    public ServoCoupled(ConfServo conf, HardwareMap hwMap, String name, Telemetry logger)
+    public ServoCoupled(ConfServo conf, HardwareMap hwMap, String name, Logger logger)
     {
         mReady = true;
         mLogger = logger;

@@ -1,15 +1,20 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Controller class overloads the gamepad to provide advanced
+   functions
+   ------------------------------------------------------- */
+
 package org.firstinspires.ftc.teamcode.components;
 
-
-/* JSON includes */
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-/* FTC controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+/* Project includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
+
 
 
 public class Controller {
@@ -59,10 +64,10 @@ public class Controller {
 
     }
 
-    public  final Buttons buttons;
-    public  final Axes axes;
+    public  final Buttons   buttons;
+    public  final Axes      axes;
 
-            final Telemetry mLogger;
+            final Logger    mLogger;
 
     /**
      * Controller constructor
@@ -70,7 +75,7 @@ public class Controller {
      * @param gamepad qualcomm controller to extend
      * @param logger  logger
      */
-    public Controller(Gamepad gamepad, Telemetry logger) {
+    public Controller(Gamepad gamepad, Logger logger) {
 
         mLogger = logger;
 

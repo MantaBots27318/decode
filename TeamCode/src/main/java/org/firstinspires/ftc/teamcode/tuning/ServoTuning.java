@@ -1,27 +1,37 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Servo tuning tools
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.tuning;
 
-/* System includes */
-
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.config.ValueProvider;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.configurations.ConfServo;
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-
+/* Java includes */
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/* Qualcomm includes */
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
+
+/* acme robotics includes */
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.config.ValueProvider;
+
+/* Configuration includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfServo;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 @Config
-@TeleOp(name = "ServoTuning")
+
+@TeleOp(name="ServoTuning", group="Tuning")
 public class ServoTuning extends LinearOpMode {
 
 
@@ -42,12 +52,14 @@ public class ServoTuning extends LinearOpMode {
     private ReverseProvider             mSecondReverse;
     private ModeProvider                mMode;
 
+    private Logger                      mLogger;
+
     @Override
     public void runOpMode() {
 
         try {
 
-            telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry());
+            mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"servo-tuning");
 
             /* Load all servos name into list */
             mAllServos.clear();
@@ -65,7 +77,7 @@ public class ServoTuning extends LinearOpMode {
             if(CURRENT_SERVO.isEmpty() && !(mAllServos.isEmpty())) { CURRENT_SERVO = mAllServos.get(0); }
             FtcDashboard.getInstance().updateConfig();
 
-            telemetry.update();
+            mLogger.update();
 
             mMode = new ModeProvider();
 
@@ -73,7 +85,6 @@ public class ServoTuning extends LinearOpMode {
 
             while(opModeIsActive() && !mAllServos.isEmpty()) {
 
-                telemetry.clear();
 
                 /* -------------- Update Servo if needed --------------- */
                 if(!(mCurrentServo.equals(CURRENT_SERVO)) || this.wasReverseChanged()) {
@@ -150,16 +161,15 @@ public class ServoTuning extends LinearOpMode {
                 this.setServosPosition(TARGET_POS);
 
                 // Display telemetry
-                this.logServosState(telemetry);
-                telemetry.update();
+                this.logServosState(mLogger);
+                mLogger.update();
 
                 sleep(SLEEP_MS);
 
             }
         }
         catch(Exception e) {
-            telemetry.addLine(e.getMessage());
-            telemetry.update();
+            mLogger.error(e.getMessage());
         }
 
 
@@ -286,15 +296,15 @@ public class ServoTuning extends LinearOpMode {
         }
     }
 
-    private void logServosState(Telemetry logger) {
-        logger.addLine("CURRENT SERVOS");
+    private void logServosState(Logger logger) {
+        logger.info("CURRENT SERVOS");
         int index = 0;
         for (Map.Entry<String, Servo> servo : mServos.entrySet()) {
-            logger.addLine("--> Servo " + index);
-            logger.addLine("-----> HwMap : " + servo.getKey());
-            logger.addLine("-----> Direction : " + servo.getValue().getDirection());
-            logger.addLine("-----> Position : " + servo.getValue().getPosition());
-            logger.addLine("-----> Power : " + servo.getValue().getController().getPwmStatus());
+            logger.info("--> Servo " + index);
+            logger.info("-----> HwMap : " + servo.getKey());
+            logger.info("-----> Direction : " + servo.getValue().getDirection());
+            logger.info("-----> Position : " + servo.getValue().getPosition());
+            logger.info("-----> Power : " + servo.getValue().getController().getPwmStatus());
             index ++;
         }
     }

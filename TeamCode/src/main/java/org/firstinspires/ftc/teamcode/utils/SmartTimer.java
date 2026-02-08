@@ -1,20 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class SmartTimer {
 
-    Telemetry       mLogger;
+    Logger       mLogger;
 
     private long    mStartTime;
     private boolean mIsRunning;
     private boolean mHasAlreadyBeenCalled;
     private int     mTarget;
 
-    public SmartTimer(Telemetry logger){
+    public SmartTimer(Logger logger){
         mIsRunning = false;
         mHasAlreadyBeenCalled = false;
+        mStartTime = -10000;
         mLogger = logger;
     }
 
@@ -24,6 +23,11 @@ public class SmartTimer {
         mIsRunning = true;
         mTarget = milliseconds;
         mHasAlreadyBeenCalled = true;
+    }
+
+    public void reset() {
+        mIsRunning = false;
+        mHasAlreadyBeenCalled = false;
     }
 
     public boolean isArmed()

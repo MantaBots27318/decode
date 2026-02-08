@@ -1,3 +1,10 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Button class overloads the gamepad buttons to provide advanced
+   functions
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.components;
 
 /* System includes */
@@ -6,14 +13,14 @@ import java.lang.reflect.Field;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-/* FTC controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+/* Project includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Button {
 
     static  final   double      sTriggerThreshold = 0;
 
-    final   Telemetry   mLogger;
+    final   Logger      mLogger;
 
     final   Gamepad     mGamepad;
     final   String      mName;
@@ -29,7 +36,7 @@ public class Button {
      * @param name qualcomm button member name for reflected access
      * @param logger logger
      */
-    public Button(Gamepad gamepad, String name, Telemetry logger) {
+    public Button(Gamepad gamepad, String name, Logger logger) {
         mLogger         = logger;
         mGamepad        = gamepad;
         mName           = name;
@@ -46,7 +53,7 @@ public class Button {
      * @param multiplier trigger value multiplier to be considered as a button (positive value)
      * @param logger logger
      */
-    public Button(Gamepad gamepad, String name, double multiplier, Telemetry logger) {
+    public Button(Gamepad gamepad, String name, double multiplier, Logger logger) {
         mLogger         = logger;
         mGamepad        = gamepad;
         mName           = name;
@@ -81,12 +88,12 @@ public class Button {
                 }
             }
             catch(NoSuchFieldException | NullPointerException | IllegalAccessException e ) {
-                mLogger.addLine("Button Error : " + e.getMessage());
+                mLogger.error("Button Error : " + e.getMessage());
             }
 
         }
 
-       // if(result) { mLogger.addLine("Button " + mName + " is pressed"); }
+       if(result) { mLogger.trace("Button " + mName + " is pressed"); }
 
         return result;
     }
@@ -99,7 +106,7 @@ public class Button {
     public boolean notPressed() {
 
         boolean result = !(this.pressed());
-       // if(result) { mLogger.addLine("Button " + mName + " is not pressed"); }
+        if(result) { mLogger.trace("Button " + mName + " is not pressed"); }
         return result;
     }
 
@@ -114,7 +121,7 @@ public class Button {
         boolean result = is_pressed && mWasReleased;
         mWasReleased = !is_pressed;
 
-        //if(result) { mLogger.addLine("Button " + mName + " is first pressed"); }
+        if(result) { mLogger.trace("Button " + mName + " is first pressed"); }
 
         return result;
     }
@@ -130,7 +137,7 @@ public class Button {
         boolean result = !is_pressed && mWasPressed;
         mWasPressed = is_pressed;
 
-        if(result) { mLogger.addLine("Button " + mName + " is released"); }
+        if(result) { mLogger.trace("Button " + mName + " is first released"); }
 
         return result;
     }

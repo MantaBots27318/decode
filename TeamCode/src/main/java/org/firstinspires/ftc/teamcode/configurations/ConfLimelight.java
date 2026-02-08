@@ -2,7 +2,7 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   Servos configuration data
+   Limelight configuration data
    ------------------------------------------------------- */
 
 package org.firstinspires.ftc.teamcode.configurations;
@@ -13,18 +13,19 @@ import java.util.Map;
 
 public class ConfLimelight {
 
-    // To select if the servo shall be mocked --- not yet activated
-    private       boolean                mShallMock   = false;
+    // To select if the limelight shall be mocked --- not yet activated
+    private       boolean                mShallMock;
 
     // Mapping between limelight name on the hub and the motor direction
     private       String                 mName;
-    // Reference servo positions for the given servo (or servo couple)
+
+    // Reference pipeline identifier for the given limelight
     private final Map<String, Integer>   mPipelines   = new LinkedHashMap<>();
 
     public ConfLimelight(String Name)
     {
-        mName = Name;
-        mShallMock    = false;
+        mName      = Name;
+        mShallMock = false;
     }
 
     public ConfLimelight(ConfLimelight Configuration)

@@ -1,134 +1,104 @@
-/*
-Copyright (c) 2024 Limelight Vision
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted (subject to the limitations in the disclaimer below) provided that
-the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-Neither the name of FIRST nor the names of its contributors may be used to
-endorse or promote products derived from this software without specific prior
-written permission.
-
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Autonomous starting at goal
+   ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode;
 
-// QUALCOMM includes
+/* Android includes */
+
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-// FTCController includes
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-
-// Acmerobotics include
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TurnConstraints;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-// Local includes
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.Poses;
+import org.firstinspires.ftc.teamcode.pose.Path;
+import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.Camera;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
-import org.firstinspires.ftc.teamcode.components.Controller;
-import org.firstinspires.ftc.teamcode.camera.Camera;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Autonomous
 public class AutonomousGoalStart extends LinearOpMode {
 
-    Vision          mVision;
-    MecanumDrive    mDrive;
-    Collecting      mCollecting;
+    Vision              mVision;
+    MecanumDrive        mDrive;
+    Robot               mRobot;
 
-    Vision.Pattern  mPattern;
-    Vision.Pattern  mTargetPattern;
-    int             mPatternShift = 0;
-    Alliance        mAlliance = Alliance.NONE;
-    Poses           mPoses;
-    double          mWaitingTime = 0.0;
+    Pattern             mPattern;
+    Pattern             mTargetPattern;
+    Pattern             mThirdPattern = Pattern.PPG;
+    int                 mPatternShift = 0;
+    Alliance            mAlliance = Alliance.NONE;
+    PathAutonomousGoal  mPath;
+    double              mWaitingTime = 0.0;
 
-    Pose2d          mReferencePose;
+    SmartTimer          mTimer;
 
-    SmartTimer      mTimer;
-    double          mXOffset        = 0;
-    double          mYOffset        = 0;
-    double          mAngleOffset    = 0;
+    Controller          mGamepad1;
+    Controller          mGamepad2;
+    Camera              mCamera;
 
-    Controller      mGamepad1;
-    Controller      mGamepad2;
-    Camera          mCamera;
+    Logger              mLogger;
+    boolean             mShallGrabAnotherPattern;
 
-    List mLogs = new ArrayList<String>();
+    double              mShootVelocity = 2.7;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mCollecting     = new Collecting();
 
-        mTimer          = new SmartTimer(telemetry);
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
+        mLogger.level(Logger.Severity.INFO);
+        mTimer          = new SmartTimer(mLogger);
 
         mCamera         = new Camera();
-        mCamera.setHW(Configuration.s_Current,hardwareMap,telemetry);
+        mCamera.setHW(Configuration.s_Current,hardwareMap,mLogger);
 
-        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", telemetry);
+        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
-        mPattern        = Vision.Pattern.NONE;
-        mTargetPattern  = Vision.Pattern.NONE;
+        mPattern        = Pattern.PGP;
+        mTargetPattern  = Pattern.PGP;
 
-        mPoses          = new Poses(FtcDashboard.getInstance().getTelemetry());
-        mReferencePose  = new Pose2d(0, 0, 0);
+        mPath           = new PathAutonomousGoal(mLogger);
 
-        mDrive          = new MecanumDrive(hardwareMap, mReferencePose);
+        mDrive          = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
-        mGamepad1       = new Controller(gamepad1, telemetry);
-        mGamepad2       = new Controller(gamepad2, telemetry);
-        boolean mShallParkInLaunchZone = false;
+        mGamepad1       = new Controller(gamepad1, mLogger);
+        mGamepad2       = new Controller(gamepad2, mLogger);
 
-        mCollecting     = new Collecting();
-        mCollecting.setHW(Configuration.s_Current, hardwareMap, telemetry, mGamepad2);
+        mRobot = new Robot();
+        mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
 
         mCamera.setPosition(Camera.Position.TAG);
+        mShallGrabAnotherPattern = true;
 
         while (opModeInInit()) {
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPoses.initialize(mAlliance,mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance,mTargetPattern);
             }
             if (mGamepad1.buttons.dpad_left.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPoses.initialize(mAlliance, mTargetPattern, mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
 
             if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
@@ -137,62 +107,55 @@ public class AutonomousGoalStart extends LinearOpMode {
             if (mGamepad1.buttons.x.pressedOnce())  {
                 mPatternShift -= 1;
                 mPatternShift = Math.max(mPatternShift,0);
-                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
             if (mGamepad1.buttons.b.pressedOnce()) {
                 mPatternShift += 1;
                 mPatternShift = Math.min(mPatternShift,3);
-                mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+                mPath.initialize(mAlliance, mTargetPattern);
             }
-            mShallParkInLaunchZone = false;
+            if(mGamepad1.buttons.a.pressedOnce()){
+                mShallGrabAnotherPattern = true;
+            }
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mShallGrabAnotherPattern = false;
+            }
 
 
+            mLogger.info("=========== MENU ============");
+            mLogger.info("Choose Alliance: DPAD LEFT/RIGHT");
+            mLogger.info("Choose Pattern Shift: X/B ");
+            mLogger.info("Choose Waiting Time: DPAD UP/DOWN");
+            mLogger.info("Choose Park Position: Y/A");
 
-            // Display menu
-            telemetry.addLine("=========== MENU ============");
-            telemetry.addLine("Choose Alliance: DPAD LEFT/RIGHT");
-            telemetry.addLine("Choose Pattern Shift: X/B ");
-            telemetry.addLine("Choose Waiting Time: DPAD UP/DOWN");
-            telemetry.addLine("Choose Park Position: Y/A");
+            mLogger.info("======= CONFIGURATION =======");
+            mLogger.metric("==> ALLIANCE : ", mAlliance.name());
+            mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
+            mLogger.metric("==> PATTERN SHIFT : ", ""+mPatternShift);
 
-            telemetry.addLine("======= CONFIGURATION =======");
-            telemetry.addData("==> PATTERN : " , mPattern.text());
-            telemetry.addData("==> PATTERN SHIFT : " , mPatternShift);
-            telemetry.addData("==> PATTERN TARGET : " , mTargetPattern.text());
-            telemetry.addData("==> ALLIANCE : ", mAlliance.name());
-            telemetry.addData("==> WAITING TIME : ", mWaitingTime + " s");
-            if (!mShallParkInLaunchZone) {
-                telemetry.addLine("==> PARKING POSITION : Gate Zone");
+            if (mShallGrabAnotherPattern) {
+                mLogger.metric("==> THIRD GRAB","YES");
             }
-            if (mShallParkInLaunchZone) {
-                telemetry.addLine("==> PARKING POSITION : Launch Zone");
+            else {
+                mLogger.metric("==> THIRD GRAB","NO");
             }
-            telemetry.update();
+            mPath.log();
 
-            FtcDashboard.getInstance().getTelemetry().addLine("======= CONFIGURATION =======");
-            FtcDashboard.getInstance().getTelemetry().addData("PATTERN SHIFT" , mPatternShift);
-            FtcDashboard.getInstance().getTelemetry().addData("ALLIANCE" , mAlliance.name());
-            FtcDashboard.getInstance().getTelemetry().addData("WAITING TIME" , mWaitingTime + " s");
-            if (!mShallParkInLaunchZone) {
-                FtcDashboard.getInstance().getTelemetry().addLine("==> PARKING POSITION : Gate Zone");
-            }
-            if (mShallParkInLaunchZone) {
-                FtcDashboard.getInstance().getTelemetry().addLine("==> PARKING POSITION : Launch Zone");
-            }
-            mPoses.log();
-            FtcDashboard.getInstance().getTelemetry().update();
+            mLogger.update();
 
         }
 
-        mXOffset = - mPoses.posGoalInitFTCInches().x;
-        mYOffset = - mPoses.posGoalInitFTCInches().y;
-        mAngleOffset = - mPoses.hGoalInitFTCRadians();
+        mLogger.info("======= ACTIONS =======");
+        mLogger.info("==> GO TO SHOOTING POSITION");
+        mLogger.update();
+
+        mDrive = new MecanumDrive(hardwareMap,mPath.start());
 
         Action startIntakeAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mCollecting.start_intake();
+                return mRobot.start_intake();
             }
         };
 
@@ -200,160 +163,111 @@ public class AutonomousGoalStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mCollecting.stop_intake();
-            }
-        };
-
-        Action shakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                return mCollecting.shake();
+                return mRobot.stop_intake();
             }
         };
 
         Action engageAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
-
-                return mCollecting.engage(0.87);
+                return mRobot.start_engage(mShootVelocity);
             }
         };
 
-        mLogs.add("======= ACTIONS =======");
-        mLogs.add("==> GO TO SHOOTING POSITION");
-
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
+        Pose2d start = mPath.start();
 
         Actions.runBlocking(
-                mDrive.actionBuilder(mReferencePose)
+                mDrive.actionBuilder(start)
                         .waitSeconds(mWaitingTime)
-                        .afterDisp(0.1,engageAction)
-                        .lineToXConstantHeading(mPoses.xCalibrationFromGoal())
+                        .afterTime(0.1,engageAction)
+                        .lineToXConstantHeading(mPath.shootingFar().position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
 
+        mLogger.info("==> Shoot");
+        mLogger.update();
+
+        mRobot.shoot3(mShootVelocity);
         updatePoseFromAprilTagIfVisible();
 
-        mLogs.add("==> CALIBRATION");
-        mLogs.add("REF POSE :" + mDrive.getPose());
-        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-
-        mLogs.add("==> GO TO SHOOTING");
-
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
-
         Actions.runBlocking(
                 mDrive.actionBuilder(mDrive.getPose())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
-                        .build());
-
-        mLogs.add("==> Shoot");
-        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-        telemetry.update();
-        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-        FtcDashboard.getInstance().getTelemetry().update();
-
-        mCollecting.shoot4(0.8) ;
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .turn(mPoses.hObeliskFTCRadians() )
+                        .turn(mPath.hObeliskFTCRadians() )
                         .build());
 
         mTimer.arm(100);
-        Vision.Pattern pattern = mVision.readPattern();
-        while(pattern == Vision.Pattern.NONE && mTimer.isArmed()) {
-            pattern = mVision.readPattern();
+        Pattern pat = mVision.readPattern();
+        mLogger.metric("READ PATTERN" , ""+pat);
+        while(pat == Pattern.NONE && mTimer.isArmed()) {
+            pat = mVision.readPattern();
+            mLogger.metric("READ PATTERN" , ""+pat);
         }
-        if(pattern == Vision.Pattern.NONE) { pattern = Vision.Pattern.PGP; }
-        if (pattern != Vision.Pattern.NONE) {
-            mPattern = pattern;
-            if(mPattern == Vision.Pattern.PPG) { mTargetPattern = Vision.Pattern.PGP; }
-            if(mPattern == Vision.Pattern.PGP) { mTargetPattern = Vision.Pattern.PPG; }
-            if(mPattern == Vision.Pattern.GPP) { mTargetPattern = this.computePattern(mPattern,mPatternShift);}
-            mPoses.initialize(mAlliance, mTargetPattern,mShallParkInLaunchZone);
+        if(pat == Pattern.NONE) { pat = Pattern.PGP; }
+
+        mPattern = pat;
+        mTargetPattern = this.computePattern(mPattern,mPatternShift);
+        mPath.initialize(mAlliance, mTargetPattern);
+        if(mTargetPattern == Pattern.PPG) { mThirdPattern = Pattern.PGP; }
+
+        mLogger.metric("==> PATTERN : " , mPattern.text());
+        mLogger.metric("==> PATTERN SHIFT : " , "" + mPatternShift);
+        mLogger.metric("==> PATTERN TARGET : " , mTargetPattern.text());
+        mLogger.update();
+
+        Pose2d pattern = mPath.pattern();
+        Pose2d next_pattern = mPath.nextPattern();
+        Pose2d end_intake = mPath.endIntake();
+        Pose2d back_intake = mPath.backIntake();
+        Pose2d end_next_intake = mPath.endNextIntake();
+        Pose2d back_next_intake = mPath.backNextIntake();
+        Pose2d shoot = mPath.shootingFar();
+        Pose2d leave = mPath.parking();
+        Pose2d ready = mPath.ready();
+
+        Actions.runBlocking(
+                mDrive.actionBuilder(mDrive.getPose())
+                        .afterTime(0.01,startIntakeAction)
+                        .setTangent(mPath.hObeliskFTCRadians() - Math.PI)
+                        .splineToLinearHeading(pattern,pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
+                        .setTangent(pattern.heading.toDouble())
+                        .splineToLinearHeading(end_intake,pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
+                        .afterTime(2,stopIntakeAction)
+                        .setTangent(-pattern.heading.toDouble())
+                        .splineToLinearHeading(back_intake,-pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                        .afterTime(0.01,engageAction)
+                        .setTangent(mPath.tgtIntakeToShootRadians())
+                        .splineToLinearHeading(shoot,0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25,50))
+                        .build());
+
+        mRobot.shoot3(mShootVelocity) ;
+
+        if(mShallGrabAnotherPattern) {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(mDrive.getPose())
+                            .afterTime(0.01,startIntakeAction)
+                            .setTangent(mPath.hObeliskFTCRadians() - Math.PI)
+                            .splineToLinearHeading(next_pattern,next_pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15,15))
+                            .setTangent(next_pattern.heading.toDouble())
+                            .splineToLinearHeading(end_next_intake,next_pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15,15))
+                            .afterTime(2,stopIntakeAction)
+                            .setTangent(-next_pattern.heading.toDouble())
+                            .splineToLinearHeading(ready,ready.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
+
+        }
+        else {
+            Actions.runBlocking(
+                    mDrive.actionBuilder(shoot)
+                            .setTangent(shoot.heading.toDouble() + Math.PI)
+                            .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
+                            .build());
         }
 
-        FtcDashboard.getInstance().getTelemetry().addData("PATTERN" , mPattern.text());
-        FtcDashboard.getInstance().getTelemetry().addData("PATTERN TARGET" , mTargetPattern.text());
 
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .turnTo(Math.PI)
-                        .build());
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .afterDisp(1,startIntakeAction)
-                        .setTangent(Math.PI)
-                        .splineToLinearHeading(new Pose2d (new Vector2d(mXOffset + mPoses.posPatternFTCInches().x,mYOffset + mPoses.posPatternFTCInches().y ),mAngleOffset + mPoses.hPatternFTCRadians()),mAngleOffset + mPoses.hPatternFTCRadians())
-                        .build());
-
-        Actions.runBlocking(
-                mDrive.actionBuilder(new Pose2d(mPoses.posPatternFTCInches(),mPoses.hPatternFTCRadians()))
-                        .afterDisp(0.9 * Math.abs(mPoses.yDeltaIntakeInches()),stopIntakeAction)
-                        .setTangent(mPoses.hPatternInitRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mPoses.posPatternFTCInches().x, mPoses.posPatternFTCInches().y + mPoses.yDeltaIntakeInches()),mPoses.hPatternFTCRadians()),mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(15), new ProfileAccelConstraint(-15,15))
-                        .build());
-
-
-
-//        mLogs.add( "==> GO TO CALIBRATION");
-//        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-//        telemetry.update();
-//        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-//        FtcDashboard.getInstance().getTelemetry().update();
-//
-        Actions.runBlocking(
-                mDrive.actionBuilder(mDrive.getPose())
-                        .afterDisp(0.1 * Math.abs(mPoses.yDeltaIntakeInches()),shakeAction)
-                        .setTangent(-mPoses.hPatternFTCRadians())
-                        .splineToLinearHeading(new Pose2d(new Vector2d(mDrive.getPose().position.x,mDrive.getPose().position.y - 0.6 * mPoses.yDeltaIntakeInches()*0.3), mDrive.getPose().heading),-mPoses.hPatternFTCRadians(), new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
-                        .build());
-//
-//        Actions.runBlocking(
-//                mDrive.actionBuilder(mDrive.getPose())
-//                        .afterDisp(0.1,engageAction)
-//                        .setTangent(mPoses.tgtIntakeToCalibrationFTCRadians())
-//                        .splineToLinearHeading(new Pose2d(mPoses.posCalibrationFTCInches(), mPoses.hCalibrationFTCRadians()),0, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30,30))
-//                        .build());
-//
-//
-//        updatePoseFromAprilTagIfVisible();
-//
-//        mLogs.add("==> CALIBRATION");
-//        mLogs.add("REF POSE :" + mDrive.getPose());
-//        mLogs.add("REF OFFSETS X= " + mXOffset + ", Y= " + mYOffset + ", ANG= " + mAngleOffset);
-//        mLogs.add("==> GO TO SHOOTING");
-//
-//        for (Object l : mLogs) { telemetry.addLine(l.toString());}
-//        telemetry.update();
-//        for (Object l : mLogs) { FtcDashboard.getInstance().getTelemetry().addLine(l.toString());}
-//        FtcDashboard.getInstance().getTelemetry().update();
-//
-//        Actions.runBlocking(
-//                mDrive.actionBuilder(mDrive.getPose())
-//                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posShootingCloseFTCInches().x, mYOffset + mPoses.posShootingCloseFTCInches().y), mAngleOffset + mPoses.hShootingCloseFTCRadians()),mAngleOffset + mPoses.hShootingCloseFTCRadians())
-//                        .build());
-//
-//        mCollecting.shoot3(0.8);
-//
-//        Actions.runBlocking(
-//                mDrive.actionBuilder(mDrive.getPose())
-//                        .setTangent(mAngleOffset + mPoses.hShootingCloseFTCRadians() + Math.PI)
-//                        .splineToLinearHeading(new Pose2d(new Vector2d(mXOffset + mPoses.posParkingFTCInches().x,mYOffset + mPoses.posParkingFTCInches().y), mAngleOffset + mPoses.hParkingFTCRadians()), mAngleOffset + mPoses.hParkingFTCRadians() + Math.PI)
-//                        .build());
-
-        Configuration.s_Current.persist("heading",mPoses.hAutoToTeleopRadians() + mDrive.getPose().heading.toDouble() - mPoses.hParkingFTCRadians() - mAngleOffset);
+        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
         mVision.close();
+        mLogger.stop();
 
     }
 
@@ -365,47 +279,37 @@ public class AutonomousGoalStart extends LinearOpMode {
         while(output == null && mTimer.isArmed()) { output = mVision.getPosition(); }
         if (output != null) {
 
-            mReferencePose = new Pose2d(
-                    -output.getPosition().x * Poses.M_TO_INCHES,
-                    -output.getPosition().y * Poses.M_TO_INCHES,
+            Pose2d newPose = new Pose2d(
+                    -output.getPosition().x * Path.M_TO_INCHES,
+                    -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
-            mDrive.updatePose(mReferencePose);
-            mXOffset = 0;
-            mYOffset = 0;
-            mAngleOffset = 0;
-
-            telemetry.addLine("==> NEW POSE : " + mReferencePose);
-            FtcDashboard.getInstance().getTelemetry().addLine("==> NEW POSE : " + mReferencePose);
-
-
-        }
-        else {
-            mReferencePose = new Pose2d(0,0,0);
-            mXOffset = - mPoses.posGoalInitFTCInches().x;
-            mYOffset = - mPoses.posGoalInitFTCInches().y;
-            mAngleOffset = - mPoses.hGoalInitFTCRadians();
+            mDrive.localizer.update();
+            mDrive.updatePose(newPose);
+            mLogger.metric("==> POSE","UPDATED");
         }
     }
 
-    Vision.Pattern  computePattern(Vision.Pattern official, int shift) {
+    Pattern  computePattern(Pattern official, int shift) {
 
-        Vision.Pattern result = Vision.Pattern.NONE;
+        Pattern result = Pattern.NONE;
 
-        if(official != Vision.Pattern.NONE) {
+        if(official != Pattern.NONE) {
             int target_identifier = (official.identifier() + shift) % 3;
-            if (target_identifier == Vision.Pattern.GPP.identifier()) {
-                result = Vision.Pattern.GPP;
+            if (target_identifier == Pattern.GPP.identifier()) {
+                result = Pattern.GPP;
             }
-            if (target_identifier == Vision.Pattern.PGP.identifier()) {
-                result = Vision.Pattern.PGP;
+            if (target_identifier == Pattern.PGP.identifier()) {
+                result = Pattern.PGP;
             }
-            if (target_identifier == Vision.Pattern.PPG.identifier()) {
-                result = Vision.Pattern.PPG;
+            if (target_identifier == Pattern.PPG.identifier()) {
+                result = Pattern.PPG;
             }
         }
 
         return result;
     }
+
+
 
 }

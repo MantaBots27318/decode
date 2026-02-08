@@ -1,26 +1,31 @@
-package org.firstinspires.ftc.teamcode.intake;
-
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Intake brushes subsystem
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-/* Configurations includes */
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
-
-/* Component includes */
+/* Components includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
-import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
+import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
+
+/* Configuration includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class IntakeBrushes {
 
-    Telemetry               mLogger;      // Local logger
+    Logger                  mLogger;      // Local logger
 
     boolean                 mReady;       // True if component is able to fulfil its mission
     boolean                 mIsMoving;
@@ -35,11 +40,11 @@ public class IntakeBrushes {
     public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Telemetry logger) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
-        mLogger = logger;
-        mReady = true;
-        mIsMoving = false;
+        mLogger     = logger;
+        mReady      = true;
+        mIsMoving   = false;
         mIsReversed = false;
 
         String status = "";
@@ -63,9 +68,8 @@ public class IntakeBrushes {
         }
 
         // Log status
-        if (mReady) { logger.addLine("==>  IN BRS : OK"); }
-        else        { logger.addLine("==>  IN BRS : KO : " + status); }
-
+        if (mReady) { logger.info("==>  IN BLT : OK"); }
+        else        { logger.warning("==>  IN BLT : KO : " + status); }
 
     }
 
@@ -78,7 +82,7 @@ public class IntakeBrushes {
             mMotor.setPower(power);
             mIsMoving = true;
             if(power < 0) { mIsReversed = true; }
-            else { mIsReversed = false; }
+            else          { mIsReversed = false; }
         }
 
     }
