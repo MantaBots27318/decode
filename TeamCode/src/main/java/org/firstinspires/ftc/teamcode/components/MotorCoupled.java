@@ -2,7 +2,7 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   CoupledMotor class overloads the FTC motor class to manage
+   MotorCoupled class overloads the FTC motor class to manage
    A couple of motors both turning the same hardware.
 
    Note that this is a dangerous situation which can result in
@@ -29,11 +29,15 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /* Configuration includes */
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class MotorCoupled extends MotorComponent {
 
-    Telemetry                       mLogger;
+    Logger                          mLogger;
 
     int                             mFirstInvertPosition;
     int                             mSecondInvertPosition;
@@ -43,7 +47,7 @@ public class MotorCoupled extends MotorComponent {
     DcMotorEx                       mSecond;
 
     /* -------------- Constructors --------------- */
-    public MotorCoupled(ConfMotor conf, HardwareMap hwMap, String name, Telemetry logger)
+    public MotorCoupled(ConfMotor conf, HardwareMap hwMap, String name, Logger logger)
     {
         mReady  = true;
         mLogger = logger;
@@ -239,13 +243,23 @@ public class MotorCoupled extends MotorComponent {
     }
 
     @Override
-    public double                         getVelocity()
+    public double                       getVelocity()
     {
         double result = 0;
         if(mReady) {
-            result = 0.5 * mSecond.getVelocity() + 0.5 * mFirst.getVelocity();
+            result = 0.5 * mSecond.getVelocity(AngleUnit.RADIANS)+ 0.5 * mFirst.getVelocity(AngleUnit.RADIANS);
         }
         return result;
+
+    }
+
+    @Override
+    public void                        setVelocity( double rate)
+    {
+        if(mReady) {
+            mFirst.setVelocity(rate, AngleUnit.RADIANS);
+            mSecond.setVelocity(rate, AngleUnit.RADIANS);
+        }
 
     }
 

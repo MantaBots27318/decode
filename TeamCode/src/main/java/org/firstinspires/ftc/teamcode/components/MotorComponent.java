@@ -2,16 +2,10 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   CoupledMotor class overloads the FTC motor class to manage
-   A couple of motors both turning the same hardware.
-
-   Note that this is a dangerous situation which can result in
-   motor destruction if not correctly tuned. The coupled motors
-   shall be the same model
+   MotorComponent is the abstract interface managing motors,
+   mocked motors and coupled motors with the same methods
    ------------------------------------------------------- */
-
 package org.firstinspires.ftc.teamcode.components;
-
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -44,7 +38,6 @@ public abstract class MotorComponent {
     public abstract void	                    setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior);
     public abstract void                        setPower(double power);
 
-
     /* -------------------- DcMotorEx functions -------------------- */
 
     public abstract void                        setPIDFCoefficients(DcMotor.RunMode mode, PIDFCoefficients pidfCoefficients);
@@ -52,6 +45,6 @@ public abstract class MotorComponent {
     public abstract void                        setTargetPositionTolerance(int tolerance);
     public abstract int                         getTargetPositionTolerance();
     public abstract double                      getVelocity();
-
+    public abstract void                        setVelocity( double rate );
 
 }

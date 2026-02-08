@@ -1,34 +1,45 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Calibration test : opmode to test calibration
+   ------------------------------------------------------- */
+
 package org.firstinspires.ftc.teamcode.test;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
+/* Qualcomm includes */
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.vision.Calibration;
+/* Acmerobotics includes */
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+
+/* OpenCV includes */
 import org.opencv.core.Point;
 
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
+
+/* Vision includes */
+import org.firstinspires.ftc.teamcode.vision.Calibration;
+
 @Config
-@TeleOp
+@TeleOp(name="CalibrationTest", group="Test")
 public class CalibrationTest extends LinearOpMode {
 
     // Inputs (editable from FTC Dashboard)
-    public static double pixelX = 0;
-    public static double pixelY = 0;
-    private Calibration calibration;
+    public static double PIXEL_X = 0;
+    public static double PIXEL_Y = 0;
 
+    private Calibration mCalibration;
+    private Logger      mLogger;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // Setup the dashboard
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-
-        // Example source points (pixels in image)
-
-        calibration = new Calibration();
-
-
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"calibration-test");
+        mCalibration = new Calibration();
 
         waitForStart();
 
@@ -36,22 +47,19 @@ public class CalibrationTest extends LinearOpMode {
 
             try {
                 // Create a pixel Point from dashboard inputs
-                Point inputPixelPoint = new Point(pixelX, pixelY);
+                Point inputPixelPoint = new Point(PIXEL_X, PIXEL_Y);
 
                 // Transform and send back through dashboard
-                calibration.distance(inputPixelPoint);
+                mCalibration.distance(inputPixelPoint);
 
-                telemetry.addData("Input Pixel X", pixelX);
-                dashboard.getTelemetry().addData("Input Pixel X", pixelX);
+                mLogger.metric("X", ""+PIXEL_X);
+                mLogger.metric("Y", ""+PIXEL_X);
 
-                telemetry.addData("Input Pixel Y", pixelY);
-                telemetry.update();
-                dashboard.getTelemetry().addData("Input Pixel Y", pixelY);
-                dashboard.getTelemetry().update();
+                mLogger.update();
 
                 sleep(100); // Refresh rate
             }
-            catch( Exception e) { dashboard.getTelemetry().addLine(e.getMessage()); }
+            catch( Exception e) { mLogger.error(e.getMessage()); }
         }
     }
 

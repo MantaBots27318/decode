@@ -35,20 +35,27 @@ android {
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+        }
+    }
+
 }
+
 repositories{
-    maven {
-        url = 'https://maven.brott.dev/'
-    }
-    maven {
-        url = 'https://repo.dairy.foundation/releases'
-    }
-    maven{
-        url = 'https://www.matthewo.tech/maven/'
-    }
+    maven { url = 'https://maven.brott.dev/' }
+    maven { url = 'https://repo.dairy.foundation/releases' }
+    maven { url = 'https://www.matthewo.tech/maven/'}
 }
+
 dependencies {
+
     implementation project(':FtcRobotController')
+
+    // ACME robotics
     implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
     implementation "com.acmerobotics.roadrunner:core:1.0.0"
     implementation "com.acmerobotics.roadrunner:actions:1.0.0"
@@ -56,4 +63,11 @@ dependencies {
 
     // Fast load
     implementation 'org.team11260:fast-load:0.1.2'
+
+    // Tests
+    //testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    //testImplementation 'org.mockito:mockito-core:5.4.0'
+    //testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
+    //testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }

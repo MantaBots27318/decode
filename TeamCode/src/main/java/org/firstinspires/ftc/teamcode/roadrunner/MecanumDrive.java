@@ -72,9 +72,10 @@ public final class MecanumDrive {
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
         public double inPerTick = 0.0019680681;
-        public double lateralInPerTick = 0.0014073703982018582; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 7827.720552591884;
+        public double lateralInPerTick = 0.001325911381078723; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 7485.690440328057;
 
+        // feedforward parameters (in tick units)
         // feedforward parameters (in tick units)
         public double kS = 0.98428244088846;
         public double kV = 0.00027017991524851717;
@@ -92,7 +93,7 @@ public final class MecanumDrive {
         // path controller gains
         public double axialGain = 4.0;
         public double lateralGain = 4.0;
-        public double headingGain = 4.0; // shared with turn
+        public double headingGain = 6.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -264,9 +265,6 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
-        FtcDashboard.getInstance().getTelemetry().addData("parYTicks",PinpointLocalizer.PARAMS.parYTicks);
-        FtcDashboard.getInstance().getTelemetry().addData("perpXTicks",PinpointLocalizer.PARAMS.perpXTicks);
-        FtcDashboard.getInstance().getTelemetry().update();
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
     public void updatePose (Pose2d newPose ){
@@ -306,8 +304,8 @@ public final class MecanumDrive {
             yPoints = new double[disps.size()];
             for (int i = 0; i < disps.size(); i++) {
                 Pose2d p = t.path.get(disps.get(i), 1).value();
-                xPoints[i] = p.position.x;
-                yPoints[i] = p.position.y;
+                xPoints[i] = -p.position.x;
+                yPoints[i] = -p.position.y;
             }
         }
 
@@ -360,8 +358,8 @@ public final class MecanumDrive {
             rightBack.setPower(rightBackPower);
             rightFront.setPower(rightFrontPower);
 
-            p.put("x", localizer.getPose().position.x);
-            p.put("y", localizer.getPose().position.y);
+            p.put("x", - localizer.getPose().position.x);
+            p.put("y", - localizer.getPose().position.y);
             p.put("heading (deg)", Math.toDegrees(localizer.getPose().heading.toDouble()));
 
             Pose2d error = txWorldTarget.value().minusExp(localizer.getPose());
@@ -374,10 +372,10 @@ public final class MecanumDrive {
             drawPoseHistory(c);
 
             c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
+            Drawing.drawRobot(c, new Pose2d(-txWorldTarget.value().position.x,-txWorldTarget.value().position.y, txWorldTarget.value().heading.toDouble()));
 
             c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Drawing.drawRobot(c, new Pose2d(- localizer.getPose().position.x,- localizer.getPose().position.y, localizer.getPose().heading.toDouble()));
 
             c.setStroke("#4CAF50FF");
             c.setStrokeWidth(1);
@@ -455,13 +453,13 @@ public final class MecanumDrive {
             drawPoseHistory(c);
 
             c.setStroke("#4CAF50");
-            Drawing.drawRobot(c, txWorldTarget.value());
+            Drawing.drawRobot(c, new Pose2d(-txWorldTarget.value().position.x,-txWorldTarget.value().position.y, txWorldTarget.value().heading.toDouble()));
 
             c.setStroke("#3F51B5");
-            Drawing.drawRobot(c, localizer.getPose());
+            Drawing.drawRobot(c, new Pose2d(-localizer.getPose().position.x,-localizer.getPose().position.y,localizer.getPose().heading.toDouble()));
 
             c.setStroke("#7C4DFFFF");
-            c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
+            c.fillCircle(-turn.beginPose.position.x, -turn.beginPose.position.y, 2);
 
             return true;
         }
@@ -469,7 +467,7 @@ public final class MecanumDrive {
         @Override
         public void preview(Canvas c) {
             c.setStroke("#7C4DFF7A");
-            c.fillCircle(turn.beginPose.position.x, turn.beginPose.position.y, 2);
+            c.fillCircle(-turn.beginPose.position.x, -turn.beginPose.position.y, 2);
         }
     }
 
@@ -493,8 +491,8 @@ public final class MecanumDrive {
 
         int i = 0;
         for (Pose2d t : poseHistory) {
-            xPoints[i] = t.position.x;
-            yPoints[i] = t.position.y;
+            xPoints[i] = -t.position.x;
+            yPoints[i] = -t.position.y;
 
             i++;
         }

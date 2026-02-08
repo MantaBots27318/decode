@@ -1,5 +1,5 @@
 /* -------------------------------------------------------
-   Copyright (c) [2024] FASNY
+   Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
    Motor configuration
@@ -14,14 +14,14 @@ import java.util.Map;
 public class ConfMotor {
 
     // To select if the motor shall be mocked --- not yet activated
-    private       boolean               mShallMock   = false;
+    private       boolean               mShallMock;
 
     // Mapping between motor name on the hub and the motor direction
-    private final Map<String, Boolean>  mHw    = new LinkedHashMap<>();
+    private final Map<String, Boolean>  mHw         = new LinkedHashMap<>();
     // Mapping between motor name on the hub and the encoder correction (even when direction is corrected, the encoder may still decrease when power is positive)
     private final Map<String, Boolean>  mEncoder    = new LinkedHashMap<>();
     // Reference encoder positions for the given motor (or motor couple)
-    private final Map<String, Integer > mPositions   = new LinkedHashMap<>();
+    private final Map<String, Integer > mPositions  = new LinkedHashMap<>();
 
     // Constructor for single motor
     public ConfMotor(String Name, boolean ShallReverse)
@@ -74,9 +74,9 @@ public class ConfMotor {
     public void addHw(String Name, boolean ShallReverse) { mHw.put(Name,ShallReverse);  }
     public void addPosition(String Name, Integer Value)   { mPositions.put(Name, Value); }
 
-    public Map<String, Boolean>       getHw()                  { return mHw;}
-    public Map<String, Boolean>       getEncoders()             { return mEncoder;}
-    public boolean                    shallMock()              { return mShallMock; }
+    public Map<String, Boolean>       getHw()                 { return mHw;}
+    public Map<String, Boolean>       getEncoders()           { return mEncoder;}
+    public boolean                    shallMock()             { return mShallMock; }
     public Map<String, Integer>       getPositions()          { return mPositions; }
 
     // Get Motors by index rather than by key ( for tuning )

@@ -1,0 +1,117 @@
+/* -------------------------------------------------------
+   Copyright (c) [2025] FASNY
+   All rights reserved
+   -------------------------------------------------------
+   Outtake lever arm subsystem
+   ------------------------------------------------------- */
+package org.firstinspires.ftc.teamcode.subsystems;
+
+/* System includes */
+
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.components.ServoComponent;
+import org.firstinspires.ftc.teamcode.components.ServoCoupled;
+import org.firstinspires.ftc.teamcode.components.ServoMock;
+import org.firstinspires.ftc.teamcode.components.ServoSingle;
+import org.firstinspires.ftc.teamcode.configurations.ConfServo;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import org.firstinspires.ftc.teamcode.utils.Logger;
+import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class IntakeEntryArm {
+
+    public enum Position {
+        LET,
+        PUSH
+    }
+
+    private static final Map<String, Position> sConfToPosition = Map.of(
+            "let", Position.LET,
+            "push", Position.PUSH
+    );
+
+    private static final int    sTimeOut = 1000; // Timeout in ms
+
+    Logger                      mLogger;      // Local logger
+
+    boolean                     mReady;       // True if component is able to fulfil its mission
+    SmartTimer                  mTimer;       // Timer for timeout management
+
+    Position                    mPosition;    // Current elbow position
+    ServoComponent              mServo;       // Servos (coupled if specified by the configuration) driving the elbow
+    Map<Position, Double>       mPositions;   // Link between positions enumerated and servos positions
+
+    // Return current reference position
+    public boolean isMoving() { return mTimer.isArmed();}
+
+    // Check if the component is currently moving on command
+    public Position getPosition() { return mPosition; }
+
+    // Initialize component from configuration
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
+
+        mLogger = logger;
+        mReady = true;
+
+        mPositions   = new LinkedHashMap<>();
+        mTimer = new SmartTimer(mLogger);
+
+        String status = "";
+
+        // Get configuration
+        ConfServo pitch  = config.getServo("intake-entry-arm");
+        if(pitch == null)  { mReady = false; status += " CONF";}
+        else {
+
+            // Configure servo
+            if (pitch.shallMock()) { mServo = new ServoMock("intake-entry-arm"); }
+            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "intake-entry-arm", logger); }
+            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "intake-entry-arm", logger); }
+
+            mPositions.clear();
+            Map<String, Double> confPosition = pitch.getPositions();
+            for (Map.Entry<String, Double> pos : confPosition.entrySet()) {
+                if(sConfToPosition.containsKey(pos.getKey())) {
+                    mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
+                }  else {
+                    mLogger.info("Found unmanaged intake lever arm position : " + pos.getKey());
+                }
+            }
+
+            if (!mServo.isReady()) { mReady = false; status += " HW";}
+        }
+
+        // Log status
+        if (mReady) { logger.info( "==>  IN ENTRY : OK"); }
+        else        { logger.warning( "==>  IN ENTRY : KO : " + status); }
+
+        // Initialize position
+        this.setPosition(Position.LET);
+
+    }
+
+    // Make the servo reach current position. A timer is armed, and the servo won't respond until it is unarmed.
+    // By the time, the servo should have reached its target position
+    public void setPosition(Position position) {
+
+        if( mPositions.containsKey(position) && mReady && !this.isMoving()) {
+            mServo.setPosition(mPositions.get(position));
+            mPosition = position;
+            mTimer.arm(sTimeOut);
+        }
+    }
+    public void setPosition(Position position, int timeout) {
+
+        if( mPositions.containsKey(position) && mReady && !this.isMoving()) {
+            mServo.setPosition(mPositions.get(position));
+            mPosition = position;
+            mTimer.arm(timeout);
+        }
+
+    }
+
+}

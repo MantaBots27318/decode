@@ -1,52 +1,55 @@
 /* -------------------------------------------------------
-   Copyright (c) [2024] FASNY
+   Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   Configuration for the robot second version (18th of january)
+   Configuration for the into-the-deep robot
    ------------------------------------------------------- */
-
 package org.firstinspires.ftc.teamcode.configurations;
 
+/* Qualcomm includes */
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class LastYear extends Configuration {
 
     protected void initialize(){
 
+        mVersion = Version.NONE;
+
         /* Moving configuration : Positive power makes wheel go forward */
-        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",false));      // CH Motor 0
-        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));        // CH Motor 1
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));     // CH Motor 2
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));       // CH Motor 3
+        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",false));
+        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));
 
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
-        mImus.put("pinpoint", new ConfImu("pinpoint")); // EH I2C 3
+        mImus.put("pinpoint", new ConfImu("pinpoint"));
 
+        /* Pinpoint configuration */
         mImus.get("pinpoint").setPar(-5.22, false);
         mImus.get("pinpoint").setPerp(0.0, false);
 
         /* Intake configuration */
         mMotors.put("intake-slides",new ConfMotor(
-                "intakeSlidesLeft",false, false,                            // EH Motor 3
-                "intakeSlidesRight",true, false));                                 // EH Motor 2
+                "intakeSlidesLeft",false, false,
+                "intakeSlidesRight",true, false));
         mServos.put("intake-arm-pitch", new ConfServo(
-                "intakeArmPitchLeft", false,                                                 // CH Servo 5     4bSPL
-                "intakeArmPitchRight", true                                                                     // EH Servo 1     4bSPR
+                "intakeArmPitchLeft", false,
+                "intakeArmPitchRight", true
         ));
-        mServos.put("intake-elbow-pitch", new ConfServo("intakeElbowPitch", false));        // EH Servo 0     CSPIn
-        mServos.put("intake-wrist-roll", new ConfServo("intakeWristRoll", false));          // CH Servo 4     CSRoIn
-        mServos.put("intake-claw", new ConfServo("intakeClaw", false));                     // EH Servo 2     CSIn
+        mServos.put("intake-elbow-pitch", new ConfServo("intakeElbowPitch", false));
+        mServos.put("intake-wrist-roll", new ConfServo("intakeWristRoll", false));
+        mServos.put("intake-claw", new ConfServo("intakeClaw", false));
 
         /* Outtake configuration */
         mMotors.put("outtake-slides",new ConfMotor(
-                "outtakeSlidesLeft",true, false,                              // EH Motor 0
-                       "outtakeSlidesRight",false, false));                          // EH Motor 1
+                "outtakeSlidesLeft",true, false,
+                       "outtakeSlidesRight",false, false));
 
-        mServos.put("outtake-wrist-roll", new ConfServo("outtakeWristRoll", false));         // CH Servo 0     CSRoOut
-        mServos.put("outtake-claw", new ConfServo("outtakeClaw", false));                    // CH Servo 1     CSOut
+        mServos.put("outtake-wrist-roll", new ConfServo("outtakeWristRoll", false));
+        mServos.put("outtake-claw", new ConfServo("outtakeClaw", false));
         mServos.put("outtake-elbow-pitch", new ConfServo(
-                "outtakeElbowPitchLeft", false,                                               // EH Servo 3     CSPROut
-                "outtakeElbowPitchRight", true)                                                      // CH Servo 3     CSPLOut
+                "outtakeElbowPitchLeft", false,
+                "outtakeElbowPitchRight", true)
         );
 
         mLimelights.put("limelight", new ConfLimelight("limelight"));

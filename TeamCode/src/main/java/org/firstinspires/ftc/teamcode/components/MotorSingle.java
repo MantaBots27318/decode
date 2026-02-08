@@ -2,12 +2,8 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   CoupledMotor class overloads the FTC motor class to manage
-   A couple of motors both turning the same hardware.
-
-   Note that this is a dangerous situation which can result in
-   motor destruction if not correctly tuned. The coupled motors
-   shall be the same model
+   MotorSingle class overloads the FTC motor class to manage
+   a single motor with the same functions as a couple of them
    ------------------------------------------------------- */
 
 package org.firstinspires.ftc.teamcode.components;
@@ -25,26 +21,27 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 /* Configuration includes */
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
+
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class MotorSingle extends MotorComponent {
 
-    Telemetry                       mLogger;
+    Logger                          mLogger;
 
-    DcMotorEx                         mMotor;
+    DcMotorEx                       mMotor;
 
     int                             mInvertPosition;
 
     /* -------------- Constructors --------------- */
-    public MotorSingle(ConfMotor conf, HardwareMap hwMap, String name, Telemetry logger)
+    public MotorSingle(ConfMotor conf, HardwareMap hwMap, String name, Logger logger)
     {
-        mReady  = true;
-        mLogger = logger;
-        mName   = name;
+        mReady          = true;
+        mLogger         = logger;
+        mName           = name;
         mInvertPosition = 1;
 
         Map<String, Boolean> hw = conf.getHw();
@@ -210,9 +207,18 @@ public class MotorSingle extends MotorComponent {
     {
         double result = 0;
         if(mReady) {
-            result = mMotor.getVelocity();
+            result = mMotor.getVelocity(AngleUnit.RADIANS);
         }
         return result;
+
+    }
+
+    @Override
+    public void                        setVelocity( double rate)
+    {
+        if(mReady) {
+            mMotor.setVelocity(rate, AngleUnit.RADIANS);
+        }
 
     }
 

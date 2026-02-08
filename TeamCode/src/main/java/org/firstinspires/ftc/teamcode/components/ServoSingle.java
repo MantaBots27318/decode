@@ -2,18 +2,8 @@
    Copyright (c) [2025] FASNY
    All rights reserved
    -------------------------------------------------------
-   CoupledServo class overloads the FTC servo class to manage
-   A couple of servos both turning the same hardware.
-
-   Note that this is a dangerous situation which can result in
-   servo destruction if not correctly tuned. The coupled servos
-   shall be tuned so that each orientation of the hardware they
-   both support correspond to the same position on the 2 servos.
-   If wrongly tuned, each of the 2 coupled servos may end up
-   each forcing into a position they can not reach without the
-   other failing.
-
-   This means for example that the 2 servos are the same model
+   ServoSingle class overloads the FTC motor class to manage
+   a single motor with the same functions as a couple of them
    ------------------------------------------------------- */
 
 package org.firstinspires.ftc.teamcode.components;
@@ -27,25 +17,23 @@ import java.util.List;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoController;
-import com.qualcomm.robotcore.hardware.HardwareDevice;
-
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 
+/* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.Logger;
+
 public class ServoSingle extends ServoComponent {
 
-    Telemetry               mLogger;
+    Logger                  mLogger;
 
     Servo.Direction         mDirection;
 
     Servo                   mServo;
 
     /* -------------- Constructors --------------- */
-    public ServoSingle(ConfServo conf, HardwareMap hwMap, String name, Telemetry logger)
+    public ServoSingle(ConfServo conf, HardwareMap hwMap, String name, Logger logger)
     {
         mReady = true;
         mLogger = logger;
