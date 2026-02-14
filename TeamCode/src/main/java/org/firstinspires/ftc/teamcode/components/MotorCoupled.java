@@ -247,7 +247,7 @@ public class MotorCoupled extends MotorComponent {
     {
         double result = 0;
         if(mReady) {
-            result = 0.5 * mSecond.getVelocity(AngleUnit.RADIANS)+ 0.5 * mFirst.getVelocity(AngleUnit.RADIANS);
+            result = 0.5 * mSecond.getVelocity()+ 0.5 * mFirst.getVelocity();
         }
         return result;
 
@@ -257,8 +257,8 @@ public class MotorCoupled extends MotorComponent {
     public void                        setVelocity( double rate)
     {
         if(mReady) {
-            mFirst.setVelocity(rate, AngleUnit.RADIANS);
-            mSecond.setVelocity(rate, AngleUnit.RADIANS);
+            mFirst.setVelocity(rate);
+            mSecond.setVelocity(rate);
         }
 
     }

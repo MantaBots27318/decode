@@ -16,6 +16,7 @@ abstract public class Configuration {
     public enum Version {
         V1,
         V2,
+        INTAKE,
         NONE
     }
 
@@ -31,7 +32,7 @@ abstract public class Configuration {
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V1();
+    public static Configuration s_Current = new Intake();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
