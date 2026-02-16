@@ -19,7 +19,7 @@ public class Intake extends Configuration {
         mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));
         mMotors.put("back-left-wheel",new ConfMotor("backLeft",true));
         mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
 
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT));
@@ -30,6 +30,9 @@ public class Intake extends Configuration {
         /* Intake configuration */
         mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",false));
         mMotors.put("intake-belts",new ConfMotor("intakeBrushes",false));
+
+        /* Transfer configuration */
+        mMotors.put("transfer-wheels",new ConfMotor("transferWheels",true));
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels", new ConfMotor("outtakeWheels", true));

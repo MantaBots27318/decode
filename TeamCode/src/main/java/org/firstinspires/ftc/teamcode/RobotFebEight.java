@@ -34,46 +34,56 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Camera;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeBelts;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeBrushes;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeEntryArm;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeLeverArm;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeWheels;
-import org.firstinspires.ftc.teamcode.subsystems.TransferWheels;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.utils.VelocityAbacus;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
-public class RobotIntake {
+public class RobotFebEight {
 
     enum Mode {
         ROBOT_CENTRIC,
-        FIELD_CENTRIC
+        FIELD_CENTRIC,
+        QRCODE_CENTRIC
     }
 
     Logger                  mLogger;
     boolean                 mReady;
     SmartTimer              mTimer;
 
-    IntakeBrushes           mIntakeBrushes;
+    IntakeBelts             mIntakeBelts;
 
-    TransferWheels          mTransferWheels;
+    double                  mTargetVelocity;
+    double                  mTargetDistance;
 
     Chassis                 mChassis;
     IMU                     mImu;
     double                  mHeadingOffset;
     Path                    mPath;
+    LockQRCode              mLocker;
 
     double                  mX;
     double                  mY;
     double                  mRotation;
 
+    Vision                  mVision;
+
     Controller              mGamepadChassis;
+    Controller              mGamepadAttachments;
 
     Mode                    mMode = Mode.FIELD_CENTRIC;
     Mode                    mFallbackMode;
 
+    boolean                 mIsPrecise = false;
+    boolean                 mIsMoving;
 
+    Pose2d                  mPark;
+    Action                  mAction;
+
+    boolean                 mShallCorrectSmallResidue = false;
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -85,16 +95,20 @@ public class RobotIntake {
         if(mReady) {
             mTimer              = new SmartTimer(mLogger);
             mGamepadChassis     = gamepad1;
+            mGamepadAttachments = gamepad2;
             mPath               = path;
             mFallbackMode       = mMode;
         }
+
         if(mReady) { mReady = this.initialize_collecting(config, hwm); }
         if(mReady) { mReady = this.initialize_drive(config, hwm);      }
+
 
         if(mReady) {
             mGamepadChassis.axes.left_stick_x.deadzone(0.1);
             mGamepadChassis.axes.right_stick_x.deadzone(0.1);
             mGamepadChassis.axes.left_stick_y.deadzone(0.1);
+            mIsMoving = false;
         }
 
         if(mReady) { mLogger.info("==>  READY"); }
@@ -104,6 +118,7 @@ public class RobotIntake {
 
     public void close()
     {
+        if(mReady) { mVision.close(); }
     }
 
     public void control() {
@@ -120,13 +135,19 @@ public class RobotIntake {
             mLogger.info("======== DRIVING =========");
             if (mMode == Mode.FIELD_CENTRIC)       { mLogger.info("==> MODE : FC"); }
             else if (mMode == Mode.ROBOT_CENTRIC)  { mLogger.info("==> MODE : RC"); }
+            else if (mMode == Mode.QRCODE_CENTRIC && !mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC"); }
+            else if (mMode == Mode.QRCODE_CENTRIC && mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC CORRECT"); }
 
             mLogger.info("======= COLLECTING =======");
+            mLogger.info("==> SHOOTING NOT ENGAGED");
         }
 
     }
 
     public void loop() {
+
+        mIsMoving = (Math.sqrt(mX * mX + mY * mY) >= 0.01);
+
 
         move(mX, mY, mRotation);
 
@@ -134,31 +155,49 @@ public class RobotIntake {
 
     void control_chassis() {
 
+        if (mGamepadChassis.buttons.right_trigger.pressed()) {
+            mLogger.info("==> QRCODE MODE RIGHT TRIGGER");
+            mMode = Mode.QRCODE_CENTRIC;
+            mShallCorrectSmallResidue = false;
+        }
+        else if (mGamepadChassis.buttons.right_bumper.pressed()) {
+            mLogger.info("==> QRCODE MODE RIGHT BUMPER");
+            mMode = Mode.QRCODE_CENTRIC;
+            mShallCorrectSmallResidue = true;
+        }
+        else if (mGamepadChassis.buttons.right_trigger.notPressed() && mGamepadChassis.buttons.right_bumper.notPressed()) {
+            mLogger.info("==> FALLBACK MODE");
+            mMode = mFallbackMode;
+            mShallCorrectSmallResidue = false;
+        }
         if (mGamepadChassis.buttons.a.pressedOnce()) {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
                 mLogger.info("==> ROBOT CENTRIC MODE");
                 mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
+                mShallCorrectSmallResidue = false;
             }
             else if(mFallbackMode == Mode.ROBOT_CENTRIC)      {
                 mLogger.info("==> FIELD CENTRIC MODE");
                 mFallbackMode = mMode = Mode.FIELD_CENTRIC;
+                mShallCorrectSmallResidue = false;
             }
         }
+
+
+        mIsPrecise = mGamepadChassis.buttons.left_bumper.pressed();
 
     }
 
     void control_attachments() {
 
-        if (mGamepadChassis.buttons.x.pressedOnce())   { start_intake();   }
-        if (mGamepadChassis.buttons.y.pressedOnce())  { stop_intake();  stop_transfer();  }
-        if (mGamepadChassis.buttons.b.pressedOnce())    {start_transfer();  }
-
-
+        if (mGamepadChassis.buttons.a.pressedOnce())   { start_intake();   }
+        if (mGamepadChassis.buttons.b.pressedOnce())   { stop_intake();   }
     }
 
     void move(double x, double y, double rotation) {
 
         double             multiplier = 0.9;
+        if (mIsPrecise)  { multiplier = 0.3; }
 
         mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
 
@@ -167,9 +206,24 @@ public class RobotIntake {
         }
         else if (mMode == Mode.FIELD_CENTRIC)
         {
-            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - mHeadingOffset;
-            mLogger.trace("yaw update : " + heading / Math.PI * 180);
+
+            double heading = mLocker.getPosition().heading.toDouble() - mHeadingOffset;
+            mLogger.trace("yaw : " + heading / Math.PI * 180);
             mChassis.drive(x,y,rotation, heading, multiplier);
+        }
+        else if(mMode == Mode.QRCODE_CENTRIC) {
+            if(mLocker.isSet()) {
+
+                if(!mIsMoving && !mShallCorrectSmallResidue) {
+                    mChassis.drive(x, y, 0, mLocker.getHeading(), multiplier);
+                }
+                else if (!mShallCorrectSmallResidue){
+                    mChassis.drive(x, y, mLocker.getRotation1(), mLocker.getHeading(), multiplier);
+                }
+                else {
+                    mChassis.drive(x, y, mLocker.getRotation2(), mLocker.getHeading(), multiplier);
+                }
+            }
         }
     }
 
@@ -179,13 +233,9 @@ public class RobotIntake {
 
         mLogger.info("======= COLLECTING =======");
 
-        mIntakeBrushes        = new IntakeBrushes();
+        mIntakeBelts        = new IntakeBelts();
 
-        mIntakeBrushes.setHW(config, hwm, mLogger);
-
-        mTransferWheels        = new TransferWheels();
-
-        mTransferWheels.setHW(config, hwm, mLogger);
+        mIntakeBelts.setHW(config, hwm, mLogger,null, null);
 
         return result;
 
@@ -241,29 +291,18 @@ public class RobotIntake {
 
     public boolean start_intake() {
         mLogger.info("==> STR INTAKE");
-        mIntakeBrushes.start(1.0);
+        mIntakeBelts.start(-1.0);
         return false;
     }
     public boolean reverse_intake() {
         mLogger.info("==> RVS INTAKE");
-        mIntakeBrushes.start(1.0);
+        mIntakeBelts.start(1.0);
         return false;
     }
     public boolean stop_intake() {
         mLogger.info("==> STP INTAKE");
-        mIntakeBrushes.stop();
+        mIntakeBelts.stop();
         return false;
     }
 
-    public boolean start_transfer() {
-        mLogger.info("==> STR TRANSFER");
-        mTransferWheels.start(1.0);
-        return false;
-    }
-
-    public boolean stop_transfer() {
-        mLogger.info("==> STP TRANSFER");
-        mTransferWheels.stop();
-        return false;
-    }
 }

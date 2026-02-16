@@ -1,8 +1,26 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import com.acmerobotics.roadrunner.Pose2d;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import org.firstinspires.ftc.teamcode.vision.Vision;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+
 public class PositionMath {
+    Vision mVision;
+    Logger mLogger;
+
+
+
+    public Pose3D limelightRobotPose(double angle_turret){
+        Pose3D position = mVision.getPosition();
+        double radius_turret = 0.0;
+
+        }
 
     public static Pose2d getRobotPoseFromLimelight(
             Pose2d limelightFieldPose,
