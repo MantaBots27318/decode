@@ -207,7 +207,7 @@ public class MotorSingle extends MotorComponent {
     {
         double result = 0;
         if(mReady) {
-            result = mMotor.getVelocity();
+            result = mMotor.getVelocity(AngleUnit.RADIANS);
         }
         return result;
 
@@ -217,7 +217,7 @@ public class MotorSingle extends MotorComponent {
     public void                        setVelocity( double rate)
     {
         if(mReady) {
-            mMotor.setVelocity(rate);
+            mMotor.setVelocity(rate,AngleUnit.RADIANS);
         }
 
     }

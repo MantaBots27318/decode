@@ -60,34 +60,20 @@ public class IntakeBelts {
         ConfMotor intake = config.getMotor("intake-belts");
         if(intake == null)  { mReady = false; status += " CONF";}
         else {
-
-            // Build motor based on configuration
-            if (intake.shallMock()) { mMotor = new MotorMock("intake-belts"); }
-            else if (intake.getHw().size() == 1) { mMotor = new MotorSingle(intake, hwm, "intake-belts", logger); }
-            else if (intake.getHw().size() == 2) { mMotor = new MotorCoupled(intake, hwm, "intake-belts", logger); }
-
+            mMotor = MotorComponent.factory(intake,hwm,"intake-belts",logger);
             if (!mMotor.isReady()) { mReady = false; status += " HW";}
-            else {
-                // Initialize motor
-                mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
-
         }
 
         ConfDistance distance = config.getDistance("intake");
         if(distance == null)  { mReady = false; status += " CONF";}
         else {
-
             mDistance = new Distance(distance,hwm,"intake-distance", logger);
             if (!mDistance.isReady()) { mReady = false; status += " HW";}
-
         }
 
         // Log status
         if (mReady) { logger.info("==>  IN BLT : OK"); }
         else        { logger.warning("==>  IN BLT : KO : " + status); }
-
 
     }
 

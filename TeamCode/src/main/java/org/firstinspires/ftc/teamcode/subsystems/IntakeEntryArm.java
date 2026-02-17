@@ -67,10 +67,7 @@ public class IntakeEntryArm {
         if(pitch == null)  { mReady = false; status += " CONF";}
         else {
 
-            // Configure servo
-            if (pitch.shallMock()) { mServo = new ServoMock("intake-entry-arm"); }
-            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "intake-entry-arm", logger); }
-            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "intake-entry-arm", logger); }
+            mServo = ServoComponent.factory(pitch,hwm, "intake-entry-arm", logger);
 
             mPositions.clear();
             Map<String, Double> confPosition = pitch.getPositions();

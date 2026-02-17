@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.pose.PathAutonomousMiddle;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Camera;
 import org.firstinspires.ftc.teamcode.utils.Logger;
+import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
@@ -46,6 +47,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
     int                     mPatternShift = 0;
     Alliance                mAlliance = Alliance.NONE;
     PathAutonomousMiddle    mPath;
+    Pose2d                  mLimelightPositionInRR;
+
     double                  mWaitingTime = 0.0;
     boolean                 mShallGrabAnotherPattern = true;
 
@@ -64,25 +67,27 @@ public class AutonomousMiddleStart extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
+        mLogger                 = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-middle-start");
         mLogger.level(Logger.Severity.INFO);
-        mTimer          = new SmartTimer(mLogger);
+        mTimer                  = new SmartTimer(mLogger);
 
-        mCamera         = new Camera();
+        mCamera                 = new Camera();
         mCamera.setHW(Configuration.s_Current,hardwareMap,mLogger);
 
-        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
+        mVision                 = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
-        mPattern        = Pattern.PGP;
-        mTargetPattern  = Pattern.PGP;
+        mPattern                = Pattern.PGP;
+        mTargetPattern          = Pattern.PGP;
 
-        mPath           = new PathAutonomousMiddle(mLogger);
-        mDrive          = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        mPath                   = new PathAutonomousMiddle(mLogger);
+        mLimelightPositionInRR  = Configuration.s_Current.getPosition("turret");
 
-        mGamepad1       = new Controller(gamepad1, mLogger);
-        mGamepad2       = new Controller(gamepad2, mLogger);
+        mDrive                  = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
 
-        mRobot = new Robot();
+        mGamepad1               = new Controller(gamepad1, mLogger);
+        mGamepad2               = new Controller(gamepad2, mLogger);
+
+        mRobot                  = new Robot();
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
 
         mCamera.setPosition(Camera.Position.TAG);
@@ -280,6 +285,10 @@ public class AutonomousMiddleStart extends LinearOpMode {
                     -output.getPosition().x * Path.M_TO_INCHES,
                     -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
+            // Ajouter l appel a la fonction de Zelie
+            if(mLimelightPositionInRR != null) {
+                newReference = PositionMath.getRobotPoseFromLimelight(newReference,mLimelightPositionInRR);
+            }
 
             mDrive.localizer.update();
             mDrive.updatePose(newReference);

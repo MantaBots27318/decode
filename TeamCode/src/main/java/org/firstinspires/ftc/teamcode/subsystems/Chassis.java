@@ -8,10 +8,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 
 /* Qualcomm includes */
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Components includes */
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.components.Distance;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
@@ -21,57 +24,87 @@ import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Utils includes */
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class Chassis {
 
-    Logger          mLogger;
-    boolean         mReady;
+    Logger mLogger;
+    boolean mReady;
 
+    MotorComponent mFrontLeftMotor;
+    MotorComponent mBackLeftMotor;
+    MotorComponent mFrontRightMotor;
+    MotorComponent mBackRightMotor;
 
-    MotorComponent  mFrontLeftMotor;
-    MotorComponent  mBackLeftMotor;
-    MotorComponent  mFrontRightMotor;
-    MotorComponent  mBackRightMotor;
+    PinpointLocalizer mLocalizer;
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger = logger;
-        mLogger.info(Logger.Target.DRIVER_STATION,"======== DRIVING =========");
+        mLogger.info(Logger.Target.DRIVER_STATION, "======== DRIVING =========");
 
         mLogger = logger;
-        mReady  = true;
+        mReady = true;
 
-        String  status = "";
+        String status = "";
 
         // Get wheels and IMU parameters from configuration
-        ConfMotor frontLeftWheel  = config.getMotor("front-left-wheel");
+        ConfMotor frontLeftWheel = config.getMotor("front-left-wheel");
         ConfMotor frontRightWheel = config.getMotor("front-right-wheel");
-        ConfMotor backLeftWheel   = config.getMotor("back-left-wheel");
-        ConfMotor backRightWheel  = config.getMotor("back-right-wheel");
-        ConfImu   imu             = config.getImu("built-in");
+        ConfMotor backLeftWheel = config.getMotor("back-left-wheel");
+        ConfMotor backRightWheel = config.getMotor("back-right-wheel");
+        ConfImu imu = config.getImu("built-in");
 
-        if(frontLeftWheel == null)  { status += " FL";  mReady = false; }
-        if(frontRightWheel == null) { status += " FR";  mReady = false; }
-        if(backLeftWheel == null)   { status += " BL";  mReady = false; }
-        if(backRightWheel == null)  { status += " BR";  mReady = false; }
-        if(imu == null)             { status += " IMU"; mReady = false; }
+        if (frontLeftWheel == null) {
+            status += " FL";
+            mReady = false;
+        }
+        if (frontRightWheel == null) {
+            status += " FR";
+            mReady = false;
+        }
+        if (backLeftWheel == null) {
+            status += " BL";
+            mReady = false;
+        }
+        if (backRightWheel == null) {
+            status += " BR";
+            mReady = false;
+        }
+        if (imu == null) {
+            status += " IMU";
+            mReady = false;
+        }
 
         if (mReady) {
 
-            mFrontLeftMotor = new MotorSingle(frontLeftWheel, hwm, "front-left-wheel",mLogger);
-            mBackLeftMotor = new MotorSingle(backLeftWheel, hwm, "back-left-wheel",mLogger);
-            mFrontRightMotor = new MotorSingle(frontRightWheel, hwm, "front-right-wheel",mLogger);
-            mBackRightMotor = new MotorSingle(backRightWheel, hwm, "back-right-wheel",mLogger);
+            mFrontLeftMotor = new MotorSingle(frontLeftWheel, hwm, "front-left-wheel", mLogger);
+            mBackLeftMotor = new MotorSingle(backLeftWheel, hwm, "back-left-wheel", mLogger);
+            mFrontRightMotor = new MotorSingle(frontRightWheel, hwm, "front-right-wheel", mLogger);
+            mBackRightMotor = new MotorSingle(backRightWheel, hwm, "back-right-wheel", mLogger);
 
-            if (!mFrontLeftMotor.isReady())     { status += " FL";  mReady = false; }
-            if (!mFrontRightMotor.isReady())    { status += " FR";  mReady = false; }
-            if (!mBackLeftMotor.isReady())      { status += " BL";  mReady = false; }
-            if (!mBackRightMotor.isReady())     { status += " BR";  mReady = false; }
+            if (!mFrontLeftMotor.isReady()) {
+                status += " FL";
+                mReady = false;
+            }
+            if (!mFrontRightMotor.isReady()) {
+                status += " FR";
+                mReady = false;
+            }
+            if (!mBackLeftMotor.isReady()) {
+                status += " BL";
+                mReady = false;
+            }
+            if (!mBackRightMotor.isReady()) {
+                status += " BR";
+                mReady = false;
+            }
 
         }
 
-        if(mReady) {
+        if (mReady) {
 
             mFrontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             mBackLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -85,22 +118,46 @@ public class Chassis {
 
         }
 
+        if (mReady) {
+
+            mLocalizer = null;
+            ConfImu pinpoint = config.getImu("pinpoint");
+            if (pinpoint == null) {
+                status += " PPT";
+                mReady = false;
+            } else {
+                PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
+                PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
+
+                double initial_yaw = 0;
+                Double initialHeading = config.retrieve("heading");
+                if (initialHeading != null) {
+                    // From FTC field reference to initial robot position;
+                    initial_yaw = initialHeading;
+                }
+                mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), new Pose2d(0,0,initial_yaw));
+            }
+        }
+
         // Log status
-        if (mReady) { mLogger.info("==>  CHS : OK"); }
-        else        { mLogger.warning("==>  CHS : KO : " + status); }
+        if (mReady) {
+            mLogger.info("==>  CHS : OK");
+        } else {
+            mLogger.warning("==>  CHS : KO : " + status);
+        }
 
     }
 
-    public void drive( double x, double y, double rotation, double heading, double multiplier) {
+    public void drive(double x, double y, double rotation, double heading, double multiplier) {
 
-        if(mReady) {
+        if (mReady) {
 
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(heading) - y * Math.sin(heading);
             double rotY = x * Math.sin(heading) + y * Math.cos(heading);
             rotX *= 1.1; // Counteract imperfect strafing
 
-            mLogger.info(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f",rotation /Math.PI * 180,heading /Math.PI * 180,rotX,rotY));
+            mLogger.info(String.format("==>  ROT: %2.2f HD : %6.1f X : %6.1f Y : %6.1f", rotation / Math.PI * 180, heading / Math.PI * 180, rotX, rotY));
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rotation), 1);
             double frontLeftPower = (rotX + rotY + rotation) / denominator * multiplier;
@@ -108,12 +165,37 @@ public class Chassis {
             double frontRightPower = (rotX - rotY - rotation) / denominator * multiplier;
             double backRightPower = (rotX + rotY - rotation) / denominator * multiplier;
 
-            mLogger.trace(Logger.Target.FILE,"before motor powering");
+            mLogger.trace(Logger.Target.FILE, "before motor powering");
             mFrontLeftMotor.setPower(frontLeftPower);
             mBackLeftMotor.setPower(backLeftPower);
             mFrontRightMotor.setPower(frontRightPower);
             mBackRightMotor.setPower(backRightPower);
-            mLogger.trace(Logger.Target.FILE,"after motor powering");
+            mLogger.trace(Logger.Target.FILE, "after motor powering");
         }
     }
+
+    public void setPosition(Pose2d ftcPosition) {
+       if(mReady) {
+           mLocalizer.setPose(ftcPosition);
+       }
+    }
+
+    public double getXVelocity()
+    {
+        double result = 0;
+        if(mReady) {
+            mLocalizer.driver.getVelX(DistanceUnit.INCH);
+        }
+        return result;
+    }
+
+    public double getYVelocity()
+    {
+        double result = 0;
+        if(mReady) {
+            mLocalizer.driver.getVelY(DistanceUnit.INCH);
+        }
+        return result;
+    }
+
 }

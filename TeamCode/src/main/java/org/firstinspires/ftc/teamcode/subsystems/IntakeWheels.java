@@ -7,60 +7,55 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+/* Components includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
 import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
+
+/* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class TransferWheels {
+public class IntakeWheels {
 
     Logger                  mLogger;      // Local logger
-
     boolean                 mReady;       // True if component is able to fulfil its mission
-    boolean                 mIsMoving;
 
+    MotorComponent          mIntake;      // Motor rotating the front wheels
+    MotorComponent          mTransfer;    // Motor rotating the transfer wheels
+
+    boolean                 mIsStarted;
     boolean                 mIsReversed;
 
-    MotorComponent          mMotor;       // Motor rotating the wheels
-
-    // Check if the component is currently moving on command
-    public boolean isMoving() { return mIsMoving; }
-
-    public boolean isReversed() { return mIsReversed; }
 
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Logger logger) {
 
         mLogger     = logger;
         mReady      = true;
-        mIsMoving   = false;
-        mIsReversed = false;
+        mIsStarted  = false;
 
         String status = "";
+
+        ConfMotor intake = config.getMotor("intake-wheels");
+        if(intake == null)  { mReady = false; status += " CONF";}
+        else {
+            mIntake = MotorComponent.factory(intake,hwm,"intake-wheels",logger);
+            if (!mIntake.isReady()) { mReady = false; status += " HW";}
+        }
 
         ConfMotor transfer = config.getMotor("transfer-wheels");
         if(transfer == null)  { mReady = false; status += " CONF";}
         else {
-
-            // Build motor based on configuration
-            if (transfer.shallMock()) { mMotor = new MotorMock("transfer-wheels"); }
-            else if (transfer.getHw().size() == 1) { mMotor = new MotorSingle(transfer, hwm, "transfer-wheels", logger); }
-            else if (transfer.getHw().size() == 2) { mMotor = new MotorCoupled(transfer, hwm, "transfer-wheels", logger); }
-
-            if (!mMotor.isReady()) { mReady = false; status += " HW";}
-            else {
-                // Initialize motor
-                mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            }
-
+            mTransfer = MotorComponent.factory(transfer,hwm,"transfer-wheels",logger);
+            if (!mTransfer.isReady()) { mReady = false; status += " HW";}
         }
 
         // Log status
@@ -69,16 +64,20 @@ public class TransferWheels {
 
     }
 
+    public boolean isMoving()   { return mIsStarted; }
+    public boolean isReversed() { return mIsReversed; }
+
     // Start the wheels with a given power
     public void start(double power)   {
 
         if(mReady)
         {
-            mMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mMotor.setPower(power);
-            mIsMoving = true;
-            if(power < 0) { mIsReversed = true; }
-            else          { mIsReversed = false; }
+            mIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            mIntake.setPower(power);
+            mTransfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            mTransfer.setPower(power);
+            mIsStarted = true;
+            mIsReversed = power < 0;
         }
 
     }
@@ -86,12 +85,10 @@ public class TransferWheels {
     // Stop brushes
     public void stop() {
         if(mReady) {
-            mMotor.setPower(0);
-            mIsMoving = false;
-            mIsReversed = false;
+            mIntake.setPower(0);
+            mTransfer.setPower(0);
+            mIsStarted = false;
         }
     }
-
-    public void persist(Configuration config) {}
 
 }

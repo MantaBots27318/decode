@@ -7,83 +7,69 @@
 package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
+/* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.components.Controller;
-import org.firstinspires.ftc.teamcode.components.LedComponent;
-import org.firstinspires.ftc.teamcode.components.LedCoupled;
-import org.firstinspires.ftc.teamcode.components.LedMock;
-import org.firstinspires.ftc.teamcode.components.LedSingle;
-import org.firstinspires.ftc.teamcode.configurations.ConfImu;
-import org.firstinspires.ftc.teamcode.configurations.ConfLed;
-import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
-import org.firstinspires.ftc.teamcode.configurations.Configuration;
-import org.firstinspires.ftc.teamcode.pose.LockQRCode;
-import org.firstinspires.ftc.teamcode.pose.Path;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.Camera;
-import org.firstinspires.ftc.teamcode.subsystems.Chassis;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeBelts;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeEntryArm;
-import org.firstinspires.ftc.teamcode.subsystems.OuttakeLeverArm;
-import org.firstinspires.ftc.teamcode.subsystems.OuttakeWheels;
-import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.SmartTimer;
-import org.firstinspires.ftc.teamcode.utils.VelocityAbacus;
-import org.firstinspires.ftc.teamcode.vision.Vision;
 
-public class RobotFebEight {
+/* Local includes */
+import org.firstinspires.ftc.teamcode.components.Controller;
+import org.firstinspires.ftc.teamcode.configurations.ConfImu;
+import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import org.firstinspires.ftc.teamcode.pose.Path;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
+import org.firstinspires.ftc.teamcode.subsystems.Chassis;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeWheels;
+import org.firstinspires.ftc.teamcode.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.utils.Logger;
+import org.firstinspires.ftc.teamcode.utils.PositionMath;
+import org.firstinspires.ftc.teamcode.utils.SmartTimer;
+
+public class RobotNew {
+
+    static final double    sDefaultMovementsMultiplier = 1.0;
+
+    static final double    sPreciseMovementsMultiplier = 0.3;
+
+    static final double    sGamepadChassisDeadZone     = 0.1;
 
     enum Mode {
         ROBOT_CENTRIC,
-        FIELD_CENTRIC,
-        QRCODE_CENTRIC
+        FIELD_CENTRIC
     }
 
     Logger                  mLogger;
     boolean                 mReady;
     SmartTimer              mTimer;
 
-    IntakeBelts             mIntakeBelts;
-
-    double                  mTargetVelocity;
-    double                  mTargetDistance;
-
-    Chassis                 mChassis;
-    IMU                     mImu;
+    // Configuration
     double                  mHeadingOffset;
     Path                    mPath;
-    LockQRCode              mLocker;
+    Mode                    mMode = Mode.FIELD_CENTRIC;
+    Mode                    mFallbackMode;
+    boolean                 mPreciseMovements;
+    Pose2d                  mTurretPositionInRR;
+
+    // Subsystems
+    Chassis                 mChassis;
+    IntakeWheels            mIntake;
+    Turret                  mTurret;
+
+    // Components
+    IMU                     mImu;
+    PinpointLocalizer       mLocalizer;
+
+    Controller              mGamepadChassis;
+    Controller              mGamepadAttachments;
 
     double                  mX;
     double                  mY;
     double                  mRotation;
 
-    Vision                  mVision;
 
-    Controller              mGamepadChassis;
-    Controller              mGamepadAttachments;
-
-    Mode                    mMode = Mode.FIELD_CENTRIC;
-    Mode                    mFallbackMode;
-
-    boolean                 mIsPrecise = false;
-    boolean                 mIsMoving;
-
-    Pose2d                  mPark;
-    Action                  mAction;
-
-    boolean                 mShallCorrectSmallResidue = false;
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -98,17 +84,19 @@ public class RobotFebEight {
             mGamepadAttachments = gamepad2;
             mPath               = path;
             mFallbackMode       = mMode;
+            mPreciseMovements   = false;
         }
-
         if(mReady) { mReady = this.initialize_collecting(config, hwm); }
         if(mReady) { mReady = this.initialize_drive(config, hwm);      }
-
+        if(mReady) {
+            mTurretPositionInRR = config.getPosition("turret");
+            if(mTurretPositionInRR == null) { mReady = false; }
+        }
 
         if(mReady) {
-            mGamepadChassis.axes.left_stick_x.deadzone(0.1);
-            mGamepadChassis.axes.right_stick_x.deadzone(0.1);
-            mGamepadChassis.axes.left_stick_y.deadzone(0.1);
-            mIsMoving = false;
+            mGamepadChassis.axes.left_stick_x.deadzone(sGamepadChassisDeadZone);
+            mGamepadChassis.axes.right_stick_x.deadzone(sGamepadChassisDeadZone);
+            mGamepadChassis.axes.left_stick_y.deadzone(sGamepadChassisDeadZone);
         }
 
         if(mReady) { mLogger.info("==>  READY"); }
@@ -118,7 +106,7 @@ public class RobotFebEight {
 
     public void close()
     {
-        if(mReady) { mVision.close(); }
+        mTurret.close();
     }
 
     public void control() {
@@ -135,69 +123,51 @@ public class RobotFebEight {
             mLogger.info("======== DRIVING =========");
             if (mMode == Mode.FIELD_CENTRIC)       { mLogger.info("==> MODE : FC"); }
             else if (mMode == Mode.ROBOT_CENTRIC)  { mLogger.info("==> MODE : RC"); }
-            else if (mMode == Mode.QRCODE_CENTRIC && !mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC"); }
-            else if (mMode == Mode.QRCODE_CENTRIC && mShallCorrectSmallResidue) { mLogger.info("==> MODE : QC CORRECT"); }
 
             mLogger.info("======= COLLECTING =======");
-            mLogger.info("==> SHOOTING NOT ENGAGED");
         }
 
     }
 
     public void loop() {
-
-        mIsMoving = (Math.sqrt(mX * mX + mY * mY) >= 0.01);
-
-
-        move(mX, mY, mRotation);
-
+        if(mReady) {
+            move(mX, mY, mRotation);
+            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
+            Pose2d turret_ftc_position = mTurret.getFTCPosition();
+            if (turret_ftc_position != null) {
+                mLocalizer.setPose(PositionMath.getRobotPoseFromLimelight(turret_ftc_position, mTurretPositionInRR));
+            }
+        }
     }
 
     void control_chassis() {
 
-        if (mGamepadChassis.buttons.right_trigger.pressed()) {
-            mLogger.info("==> QRCODE MODE RIGHT TRIGGER");
-            mMode = Mode.QRCODE_CENTRIC;
-            mShallCorrectSmallResidue = false;
-        }
-        else if (mGamepadChassis.buttons.right_bumper.pressed()) {
-            mLogger.info("==> QRCODE MODE RIGHT BUMPER");
-            mMode = Mode.QRCODE_CENTRIC;
-            mShallCorrectSmallResidue = true;
-        }
-        else if (mGamepadChassis.buttons.right_trigger.notPressed() && mGamepadChassis.buttons.right_bumper.notPressed()) {
-            mLogger.info("==> FALLBACK MODE");
-            mMode = mFallbackMode;
-            mShallCorrectSmallResidue = false;
-        }
         if (mGamepadChassis.buttons.a.pressedOnce()) {
             if(mFallbackMode == Mode.FIELD_CENTRIC)      {
                 mLogger.info("==> ROBOT CENTRIC MODE");
                 mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
-                mShallCorrectSmallResidue = false;
             }
             else if(mFallbackMode == Mode.ROBOT_CENTRIC)      {
                 mLogger.info("==> FIELD CENTRIC MODE");
                 mFallbackMode = mMode = Mode.FIELD_CENTRIC;
-                mShallCorrectSmallResidue = false;
             }
         }
 
-
-        mIsPrecise = mGamepadChassis.buttons.left_bumper.pressed();
+        mPreciseMovements = mGamepadChassis.buttons.left_bumper.pressed();
 
     }
 
     void control_attachments() {
 
-        if (mGamepadChassis.buttons.a.pressedOnce())   { start_intake();   }
-        if (mGamepadChassis.buttons.b.pressedOnce())   { stop_intake();   }
+        if (mGamepadChassis.buttons.x.pressedOnce())   { start_stop_intake(); }
+        if (mGamepadChassis.buttons.y.pressedOnce())   { reverse_stop_intake(); }
+
     }
 
     void move(double x, double y, double rotation) {
 
-        double             multiplier = 0.9;
-        if (mIsPrecise)  { multiplier = 0.3; }
+        double                    multiplier = sDefaultMovementsMultiplier;
+        if (mPreciseMovements)  { multiplier = sPreciseMovementsMultiplier; }
 
         mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
 
@@ -206,24 +176,9 @@ public class RobotFebEight {
         }
         else if (mMode == Mode.FIELD_CENTRIC)
         {
-
-            double heading = mLocker.getPosition().heading.toDouble() - mHeadingOffset;
-            mLogger.trace("yaw : " + heading / Math.PI * 180);
+            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - mHeadingOffset;
+            mLogger.trace("yaw update : " + heading / Math.PI * 180);
             mChassis.drive(x,y,rotation, heading, multiplier);
-        }
-        else if(mMode == Mode.QRCODE_CENTRIC) {
-            if(mLocker.isSet()) {
-
-                if(!mIsMoving && !mShallCorrectSmallResidue) {
-                    mChassis.drive(x, y, 0, mLocker.getHeading(), multiplier);
-                }
-                else if (!mShallCorrectSmallResidue){
-                    mChassis.drive(x, y, mLocker.getRotation1(), mLocker.getHeading(), multiplier);
-                }
-                else {
-                    mChassis.drive(x, y, mLocker.getRotation2(), mLocker.getHeading(), multiplier);
-                }
-            }
         }
     }
 
@@ -233,9 +188,8 @@ public class RobotFebEight {
 
         mLogger.info("======= COLLECTING =======");
 
-        mIntakeBelts        = new IntakeBelts();
-
-        mIntakeBelts.setHW(config, hwm, mLogger,null, null);
+        mIntake        = new IntakeWheels();
+        mIntake.setHW(config, hwm, mLogger);
 
         return result;
 
@@ -289,19 +243,26 @@ public class RobotFebEight {
 
     }
 
-    public boolean start_intake() {
+    public boolean start_stop_intake() {
         mLogger.info("==> STR INTAKE");
-        mIntakeBelts.start(-1.0);
+        if(mIntake.isMoving()) {
+            if(mIntake.isReversed()) { mIntake.start(1.0); }
+            else { mIntake.stop(); }
+        }
+        else {
+            mIntake.start(1.0);
+            mTurret.reset();
+        }
         return false;
     }
-    public boolean reverse_intake() {
+
+    public boolean reverse_stop_intake() {
         mLogger.info("==> RVS INTAKE");
-        mIntakeBelts.start(1.0);
-        return false;
-    }
-    public boolean stop_intake() {
-        mLogger.info("==> STP INTAKE");
-        mIntakeBelts.stop();
+        if(mIntake.isMoving()) {
+            if(!mIntake.isReversed()) { mIntake.start(-1.0); }
+            else { mIntake.stop(); }
+        }
+        else { mIntake.start(-1.0); }
         return false;
     }
 

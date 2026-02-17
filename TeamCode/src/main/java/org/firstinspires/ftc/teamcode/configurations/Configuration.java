@@ -8,6 +8,8 @@
 package org.firstinspires.ftc.teamcode.configurations;
 
 /* System includes */
+import com.acmerobotics.roadrunner.Pose2d;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,9 +33,10 @@ abstract public class Configuration {
     protected final  Map<String, ConfLed>       mLeds           = new LinkedHashMap<>();
     protected final  Map<String, ConfDistance>  mDistances      = new LinkedHashMap<>();
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
+    protected        Map<String, Pose2d>        mPositions      = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V3();
+    public static Configuration s_Current = new V2();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
@@ -55,6 +58,9 @@ abstract public class Configuration {
 
     // Method to retrieve a led by its reference name
     public ConfDistance     getDistance(String name)    { return mDistances.getOrDefault(name, null);  }
+
+    // Method to retrieve the relative position of the robot components
+    public Pose2d           getPosition(String name)    { return mPositions.getOrDefault(name, null); }
 
     // Method to retrieve all servos uncoupled for tuning
     public Map<String, ConfServo>   getForTuning()      { return mServos; }

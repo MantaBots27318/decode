@@ -97,15 +97,9 @@ public class OuttakeWheels {
         if(wheels == null)  { mReady = false; status += " CONF";}
         else {
 
-            // Build motor based on configuration
-            if (wheels.shallMock()) { mMotor = new MotorMock("outtake-wheels"); }
-            else if (wheels.getHw().size() == 1) { mMotor = new MotorSingle(wheels, hwm, "outtake-wheels", logger); }
-            else if (wheels.getHw().size() == 2) { mMotor = new MotorCoupled(wheels, hwm, "outtake-wheels", logger); }
-
+            mMotor = MotorComponent.factory(wheels, hwm, "outtake-wheels", logger);
             if (!mMotor.isReady()) { mReady = false; status += " HW";}
             else {
-                // Initialize motor
-                mMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 mCoefficients = new PIDFCoefficients(300,50,100,0);
                 mMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
@@ -78,10 +79,7 @@ public class OuttakeLeverArm {
         if(pitch == null)  { mReady = false; status += " CONF";}
         else {
 
-            // Configure servo
-            if (pitch.shallMock()) { mServo = new ServoMock("outtake-lever-arm"); }
-            else if (pitch.getHw().size() == 1) { mServo = new ServoSingle(pitch, hwm, "outtake-lever-arm", logger); }
-            else if (pitch.getHw().size() == 2) { mServo = new ServoCoupled(pitch, hwm, "outtake-lever-arm", logger); }
+            mServo = ServoComponent.factory(pitch, hwm, "outtake-lever-arm", logger);
 
             mPositions.clear();
             Map<String, Double> confPosition = pitch.getPositions();

@@ -31,17 +31,17 @@ public class PathAutonomousMiddle extends Path {
     protected static final double Y_DELTA_INTAKE_INCHES_RED                  = -41;
 
 
-    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 22;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 71;
+    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 19;
+    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 40;
+    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 68;
     private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 24;
     private static final double X_DELTA_PGP_PATTERN_INCHES_RED               = 45;
     private static final double X_DELTA_PPG_PATTERN_INCHES_RED               = 71;
 
-    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE         = 45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE         = 70;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_RED          = 46;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_RED          = 71;
+//    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE         = 45;
+//    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE         = 70;
+//    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_RED          = 46;
+//    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_RED          = 71;
     private static final double Y_DELTA_PATTERN_INCHES_BLUE                  = 10;
     private static final double Y_DELTA_PATTERN_INCHES_RED                   = -10;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE             = Math.PI / 2;
@@ -95,7 +95,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_RED,
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
@@ -105,7 +105,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
@@ -115,7 +115,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
             }
@@ -158,7 +158,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
@@ -168,7 +168,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
+                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }
@@ -178,7 +178,7 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
                 mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE,
+                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_BLUE,
                         Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
             }

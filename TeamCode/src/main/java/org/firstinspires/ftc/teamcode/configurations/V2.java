@@ -7,6 +7,7 @@
 package org.firstinspires.ftc.teamcode.configurations;
 
 /* Qualcomm includes */
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class V2 extends Configuration {
@@ -28,7 +29,6 @@ public class V2 extends Configuration {
         mImus.get("pinpoint").setPerp(-8.0, false);
 
         /* Intake configuration */
-
         mMotors.put("intake-belts",new ConfMotor("intakeBeltsFront",false, "intakeBeltsBack", true));
         mServos.put("intake-entry-arm", new ConfServo("intakeEntryArm", false));
         mServos.get("intake-entry-arm").addPosition("let", 0.22);
@@ -58,6 +58,10 @@ public class V2 extends Configuration {
 
         /* Distance sensors configuration */
         mDistances.put("intake", new ConfDistance("intakeDistance"));
+
+        /* Components relative positions in robot reference */
+        mPositions.put("limelight-rotation-radius", new Pose2d(0,0,0));
+        mPositions.put("turret", new Pose2d(7,2.75,0));
 
     }
 

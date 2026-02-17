@@ -142,7 +142,7 @@ public class LockQRCode {
                     // From FTC field reference to initial robot position;
                     initial_yaw = initialHeading;
                 }
-                mRobotPosition = new Pose2d(initial_yaw, 0, 0);
+                mRobotPosition = new Pose2d(0,0,initial_yaw);
                 mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), mRobotPosition);
             }
         }

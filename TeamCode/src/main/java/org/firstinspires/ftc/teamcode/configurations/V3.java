@@ -9,6 +9,9 @@ package org.firstinspires.ftc.teamcode.configurations;
 /* Qualcomm includes */
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
+/* AcmeRobotics includes */
+import com.acmerobotics.roadrunner.Pose2d;
+
 public class V3 extends Configuration {
 
     protected void initialize(){
@@ -23,15 +26,27 @@ public class V3 extends Configuration {
 
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+        mImus.put("pinpoint", new ConfImu("pinpoint"));
+        mImus.get("pinpoint").setPar(-3.1, false);
+        mImus.get("pinpoint").setPerp(-8.0, false);
 
         /* Intake configuration */
-        mMotors.put("intake-brushes",new ConfMotor("intakeBrushes",true));
-        mMotors.put("intake-belts",new ConfMotor("intakeBrushes",true));
-
-        /* Transfer configuration */
+        mMotors.put("intake-wheels",new ConfMotor("intakeWheels",true));
         mMotors.put("transfer-wheels",new ConfMotor("transferWheels",true));
 
-        /* Turret configuration */
+        /* Outtake configuration */
+        mMotors.put("outtake-wheels",new ConfMotor(
+                "outtakeWheelsLeft",false, false,
+                "outtakeWheelsRight",true, false));
+
+        mServos.put("turret-rotation", new ConfServo(
+                "turretRotationLeft", false,
+                "turretRotationRight", false));
+        mServos.put("turret-hood", new ConfServo("turretHood", false));
+
+        /* Components relative positions in robot reference */
+        mPositions.put("limelight-rotation-radius", new Pose2d(6,6,0));
+        mPositions.put("turret", new Pose2d(-10,0,0));
 
     }
 

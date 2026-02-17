@@ -12,14 +12,14 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-@TeleOp(name="\uD83D\uDD35 Manual OpMode 8 feb")
-public class OpModeBlueTestFebEight extends LinearOpMode {
+@TeleOp(name="\uD83D\uDD35 Manual OpMode Intake")
+public class ManualOpModeV3 extends LinearOpMode {
 
     Logger      mLogger;
 
     Alliance    mAlliance;
 
-    RobotFebEight       mRobot;
+    RobotNew    mRobot;
 
     Path        mPath;
 
@@ -29,7 +29,7 @@ public class OpModeBlueTestFebEight extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
-        mLogger.level(Logger.Severity.INFO);
+        mLogger.level(Logger.Severity.TRACE);
 
         mAlliance = Alliance.BLUE;
 
@@ -39,7 +39,7 @@ public class OpModeBlueTestFebEight extends LinearOpMode {
         mPath = new Path(mLogger);
         mPath.initialize(mAlliance);
 
-        mRobot = new RobotFebEight();
+        mRobot = new RobotNew();
         mRobot.setHW(Configuration.s_Current,hardwareMap,mLogger, mGamepad1, mGamepad2, mPath);
 
         mLogger.info("ALL : " +  mAlliance);
