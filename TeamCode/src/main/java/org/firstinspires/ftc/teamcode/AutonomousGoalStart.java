@@ -44,6 +44,8 @@ import javax.xml.XMLConstants;
 @Autonomous
 public class AutonomousGoalStart extends LinearOpMode {
 
+    List<AutonomousStep> mListActions;
+
     Vision              mVision;
     MecanumDrive        mDrive;
     Robot               mRobot;
@@ -54,8 +56,8 @@ public class AutonomousGoalStart extends LinearOpMode {
     int                 mPatternShift = 0;
     Alliance            mAlliance = Alliance.NONE;
     PathAutonomousGoal  mPath;
+
     Pose2d              mLimelightPositionInRR;
-    double              mWaitingTime = 0.0;
 
     SmartTimer          mTimer;
 
@@ -70,8 +72,9 @@ public class AutonomousGoalStart extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        mListActions = new ArrayList<AutonomousStep>();
 
-        List mListActions       = new ArrayList();
+        int mCurrentStepNumber     = 0;
 
         mLogger                 = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
@@ -100,6 +103,15 @@ public class AutonomousGoalStart extends LinearOpMode {
         mShallGrabAnotherPattern = true;
 
         while (opModeInInit()) {
+            if (gamepad1.dpad_right){
+                mCurrentStepNumber = mCurrentStepNumber + 1;
+            }
+            if(gamepad1.dpad_left){
+                mCurrentStepNumber = mCurrentStepNumber - 1;
+            }
+            if(gamepad1.dpad_up){
+                mListActions.set(mCurrentStepNumber,mListActions.get(mCurrentStepNumber).next());
+            }
 
             if (mGamepad1.buttons.dpad_right.pressedOnce())         {
                 mAlliance = Alliance.RED;
@@ -109,9 +121,6 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mAlliance = Alliance.BLUE;
                 mPath.initialize(mAlliance, mTargetPattern);
             }
-
-            if (mGamepad1.buttons.dpad_up.pressedOnce())            { mWaitingTime += 1; mWaitingTime = Math.min(mWaitingTime,4);}
-            if (mGamepad1.buttons.dpad_down.pressedOnce())          { mWaitingTime -= 1; mWaitingTime = Math.max(mWaitingTime,0); }
 
             if (mGamepad1.buttons.x.pressedOnce())  {
                 mPatternShift -= 1;
@@ -138,7 +147,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
             mLogger.info("======= CONFIGURATION =======");
             mLogger.metric("==> ALLIANCE : ", mAlliance.name());
-            mLogger.metric("==> WAITING TIME : ", mWaitingTime + " s");
             mLogger.metric("==> PATTERN SHIFT : ", ""+mPatternShift);
 
             if (mShallGrabAnotherPattern) {
@@ -148,6 +156,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mLogger.metric("==> THIRD GRAB","NO");
             }
             mPath.log();
+            mLogger.info( "List"+mListActions);
 
             mLogger.update();
 
@@ -186,7 +195,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(start)
-                        .waitSeconds(mWaitingTime)
                         .afterTime(0.1,engageAction)
                         .lineToXConstantHeading(mPath.shootingFar().position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50,50))
                         .build());
