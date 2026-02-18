@@ -29,7 +29,7 @@ public class IntakeWheels {
     boolean                 mReady;       // True if component is able to fulfil its mission
 
     MotorComponent          mIntake;      // Motor rotating the front wheels
-    MotorComponent          mTransfer;    // Motor rotating the transfer wheels
+    MotorComponent          mGuiding;    // Motor rotating the transfer wheels
 
     boolean                 mIsStarted;
     boolean                 mIsReversed;
@@ -51,11 +51,11 @@ public class IntakeWheels {
             if (!mIntake.isReady()) { mReady = false; status += " HW";}
         }
 
-        ConfMotor transfer = config.getMotor("transfer-wheels");
-        if(transfer == null)  { mReady = false; status += " CONF";}
+        ConfMotor guiding = config.getMotor("guiding-wheels");
+        if(guiding == null)  { mReady = false; status += " CONF";}
         else {
-            mTransfer = MotorComponent.factory(transfer,hwm,"transfer-wheels",logger);
-            if (!mTransfer.isReady()) { mReady = false; status += " HW";}
+            mGuiding = MotorComponent.factory(guiding,hwm,"guiding-wheels",logger);
+            if (!mGuiding.isReady()) { mReady = false; status += " HW";}
         }
 
         // Log status
@@ -74,8 +74,8 @@ public class IntakeWheels {
         {
             mIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mIntake.setPower(power);
-            mTransfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mTransfer.setPower(power);
+            mGuiding.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            mGuiding.setPower(power);
             mIsStarted = true;
             mIsReversed = power < 0;
         }
@@ -86,7 +86,7 @@ public class IntakeWheels {
     public void stop() {
         if(mReady) {
             mIntake.setPower(0);
-            mTransfer.setPower(0);
+            mGuiding.setPower(0);
             mIsStarted = false;
         }
     }

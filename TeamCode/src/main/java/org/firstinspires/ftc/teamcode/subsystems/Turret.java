@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.components.ServoComponent;
 import org.firstinspires.ftc.teamcode.components.ServoCoupled;
 import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
+import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
@@ -63,9 +64,14 @@ public class Turret {
         mLogger     = logger;
         mReady      = true;
         mShallReset = false;
+        mTimer      = new SmartTimer(logger);
 
         String status = "";
-        mVision         = new Vision(Configuration.s_Current.getLimelight("limelight"), hwm, "vision", mLogger);
+        ConfLimelight limelight = Configuration.s_Current.getLimelight("limelight");
+        if(limelight == null){ mReady = false; status += " CONF";}
+        else {
+            mVision         = new Vision(limelight, hwm, "vision", mLogger);
+        }
 
         ConfMotor wheels = config.getMotor("transfer-wheels");
         if(wheels == null)  { mReady = false; status += " CONF";}
@@ -116,18 +122,20 @@ public class Turret {
 
     public void loop(double velocityX, double velocityY, double deltaTime) {
 
-        Pose3D output = mVision.getPosition();
-        if (output != null) {
+        if(mReady) {
+            Pose3D output = mVision.getPosition();
+            if (output != null) {
 
-            Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
-            Pose2d limelightTurret = this.calculerPoseLimelightRobot(mRotation.getPosition(), mDistanceCenterLimelight);
-            mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
-            double deltaAngle = this.angularError(mPath.qrcode(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
-            double servo_position = this.calculateServoPosition(deltaAngle, mRotation.getPosition(), mShallReset);
-            mRotation.setPosition(servo_position);
+                Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
+                Pose2d limelightTurret = this.calculerPoseLimelightRobot(mRotation.getPosition(), mDistanceCenterLimelight);
+                mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
+                double deltaAngle = this.angularError(mPath.qrcode(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
+                double servo_position = this.calculateServoPosition(deltaAngle, mRotation.getPosition(), mShallReset);
+                mRotation.setPosition(servo_position);
+            }
+
+            if (!mTimer.isArmed()) { mShallReset = false; }
         }
-
-        if(!mTimer.isArmed()) { mShallReset = false; }
     }
 
     public void reset() {

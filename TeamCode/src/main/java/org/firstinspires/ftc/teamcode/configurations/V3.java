@@ -27,12 +27,17 @@ public class V3 extends Configuration {
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint"));
-        mImus.get("pinpoint").setPar(-3.1, false);
-        mImus.get("pinpoint").setPerp(-8.0, false);
+        mImus.get("pinpoint").setPar(2.0+15/16, false);
+        mImus.get("pinpoint").setPerp(-(6.0+11.0/16), false);
 
         /* Intake configuration */
         mMotors.put("intake-wheels",new ConfMotor("intakeWheels",true));
-        mMotors.put("transfer-wheels",new ConfMotor("transferWheels",true));
+        mMotors.put("guiding-wheels",new ConfMotor("guidingWheels",true));
+
+        /* Transfer configuration */
+        mServos.put("transfer-servo", new ConfServo("transferServo", false));
+        mServos.get("transfer-servo").addPosition("block", 0.6);
+        mServos.get("transfer-servo").addPosition("let", 1.0);
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(

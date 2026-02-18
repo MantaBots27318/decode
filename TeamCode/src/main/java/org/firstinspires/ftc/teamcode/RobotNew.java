@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeWheels;
+import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PositionMath;
@@ -57,6 +58,7 @@ public class RobotNew {
     Chassis                 mChassis;
     IntakeWheels            mIntake;
     Turret                  mTurret;
+    Transfer                mTransfer;
 
     // Components
     IMU                     mImu;
@@ -68,8 +70,6 @@ public class RobotNew {
     double                  mX;
     double                  mY;
     double                  mRotation;
-
-
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -162,6 +162,10 @@ public class RobotNew {
         if (mGamepadChassis.buttons.x.pressedOnce())   { start_stop_intake(); }
         if (mGamepadChassis.buttons.y.pressedOnce())   { reverse_stop_intake(); }
 
+        if(mGamepadChassis.buttons.b.pressedOnce()) {
+            if(mTransfer.getPosition() == Transfer.Position.BLOCK) { mTransfer.setPosition(Transfer.Position.LET); }
+            else if(mTransfer.getPosition() == Transfer.Position.LET) { mTransfer.setPosition(Transfer.Position.BLOCK); }
+        }
     }
 
     void move(double x, double y, double rotation) {
@@ -188,8 +192,14 @@ public class RobotNew {
 
         mLogger.info("======= COLLECTING =======");
 
+        mTurret = new Turret();
+        mTurret.setHW(config, hwm, mLogger);
+
         mIntake        = new IntakeWheels();
         mIntake.setHW(config, hwm, mLogger);
+
+        mTransfer      = new Transfer();
+        mTransfer.setHW(config, hwm, mLogger);
 
         return result;
 
@@ -251,7 +261,7 @@ public class RobotNew {
         }
         else {
             mIntake.start(1.0);
-            mTurret.reset();
+            //mTurret.reset();
         }
         return false;
     }

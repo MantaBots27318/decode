@@ -124,7 +124,7 @@ public class Chassis {
             ConfImu pinpoint = config.getImu("pinpoint");
             if (pinpoint == null) {
                 status += " PPT";
-                mReady = false;
+            //    mReady = false;
             } else {
                 PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
                 PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
