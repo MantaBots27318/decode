@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class PathAutonomousMiddle extends Path {
 
-    private static final double X_START_INCHES                               = -53.5;
+    private static final double X_START_INCHES                               = -53.5 - 5;
     private static final double Y_START_INCHES_BLUE                          = 18;
     private static final double Y_START_INCHES_RED                           = -18;
     private static final double ANGLE_START_RADIANS                          = 0;

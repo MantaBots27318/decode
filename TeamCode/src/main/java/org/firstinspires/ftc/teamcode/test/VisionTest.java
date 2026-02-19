@@ -13,6 +13,7 @@ import java.util.List;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -23,9 +24,11 @@ import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
 /* Utils includes */
+import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 /* Vision includes */
+import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.vision.Ball;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
@@ -100,7 +103,14 @@ public class VisionTest extends LinearOpMode {
                     Pose3D output = mVision.getPosition();
                     Pose3D prevOutput = null;
                     if (output != null) {
-                        mLogger.info("Pose3D" + output);
+                        Pose2d newReference = new Pose2d(
+                                -output.getPosition().x * Path.M_TO_INCHES,
+                                -output.getPosition().y * Path.M_TO_INCHES,
+                                (output.getOrientation().getYaw() + 180) * Math.PI / 180);
+                        newReference = PositionMath.getRobotPoseFromLimelight(newReference,new Pose2d(7, 2.5, 0));
+
+                        mLogger.metric("POSITION",""+newReference.position);
+                        mLogger.metric("HEADING",""+newReference.heading.toDouble()/ Math.PI*180);
                         mPreviousOutput = output;
                     } else {
                         if(mPreviousOutput != null) {

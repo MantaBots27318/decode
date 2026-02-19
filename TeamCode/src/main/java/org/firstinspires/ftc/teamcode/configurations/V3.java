@@ -27,7 +27,7 @@ public class V3 extends Configuration {
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint"));
-        mImus.get("pinpoint").setPar(2.0+15/16, false);
+        mImus.get("pinpoint").setPar(1.6, false);
         mImus.get("pinpoint").setPerp(-(6.0+11.0/16), false);
 
         /* Intake configuration */

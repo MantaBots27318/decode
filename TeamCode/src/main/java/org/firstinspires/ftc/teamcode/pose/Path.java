@@ -42,7 +42,7 @@ public class Path {
     private static final double Y_SHOOTING_FAR_INCHES_RED                        = -24;
     private static final double ANGLE_SHOOTING_FAR_RADIANS_RED                   = - Math.PI / 4;
 
-    private static final double X_SHOOTING_VERY_FAR_INCHES                      = -52;
+    private static final double X_SHOOTING_VERY_FAR_INCHES                      = -52 - 5;
     private static final double Y_SHOOTING_VERY_FAR_INCHES_BLUE                 = 19;
     private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE            = 0.365424564;
     private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -19;

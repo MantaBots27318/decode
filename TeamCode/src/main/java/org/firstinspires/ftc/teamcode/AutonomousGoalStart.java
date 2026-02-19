@@ -302,26 +302,5 @@ public class AutonomousGoalStart extends LinearOpMode {
         }
     }
 
-    Pattern  computePattern(Pattern official, int shift) {
-
-        Pattern result = Pattern.NONE;
-
-        if(official != Pattern.NONE) {
-            int target_identifier = (official.identifier() + shift) % 3;
-            if (target_identifier == Pattern.GPP.identifier()) {
-                result = Pattern.GPP;
-            }
-            if (target_identifier == Pattern.PGP.identifier()) {
-                result = Pattern.PGP;
-            }
-            if (target_identifier == Pattern.PPG.identifier()) {
-                result = Pattern.PPG;
-            }
-        }
-
-        return result;
-    }
-
-
 
 }
