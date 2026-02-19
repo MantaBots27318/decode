@@ -194,7 +194,7 @@ public class LockQRCode {
 
             if(mIsInFTC) {
 
-                Pose2d qrcode = mPath.qrcode();
+                Pose2d qrcode = mPath.target();
 
                 mRobotPosition = mLocalizer.getPose();
                 mLogger.info(String.format("==> PPT : X: %2.2f Y: %2.2f HD : %2.2f" , mRobotPosition.position.x,mRobotPosition.position.y,mRobotPosition.heading.toDouble() / Math.PI * 180));

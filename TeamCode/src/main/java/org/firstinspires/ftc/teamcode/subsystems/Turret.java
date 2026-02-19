@@ -7,26 +7,16 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
-import org.firstinspires.ftc.teamcode.components.MotorCoupled;
-import org.firstinspires.ftc.teamcode.components.MotorMock;
-import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
-import org.firstinspires.ftc.teamcode.components.ServoCoupled;
-import org.firstinspires.ftc.teamcode.components.ServoMock;
-import org.firstinspires.ftc.teamcode.components.ServoSingle;
 import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
@@ -129,7 +119,7 @@ public class Turret {
                 Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
                 Pose2d limelightTurret = this.calculerPoseLimelightRobot(mRotation.getPosition(), mDistanceCenterLimelight);
                 mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
-                double deltaAngle = this.angularError(mPath.qrcode(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
+                double deltaAngle = this.angularError(mPath.target(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
                 double servo_position = this.calculateServoPosition(deltaAngle, mRotation.getPosition(), mShallReset);
                 mRotation.setPosition(servo_position);
             }
@@ -212,7 +202,7 @@ public class Turret {
     }
 
     private double initialize_rotation() {
-         return  0;
+        return  0;
         ///  to be changed
     }
 

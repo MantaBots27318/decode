@@ -36,7 +36,7 @@ abstract public class Configuration {
     protected        Map<String, Pose2d>        mPositions      = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V2();
+    public static Configuration s_Current = new V3();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
