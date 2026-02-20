@@ -12,9 +12,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Components includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
-import org.firstinspires.ftc.teamcode.components.MotorCoupled;
-import org.firstinspires.ftc.teamcode.components.MotorMock;
-import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;

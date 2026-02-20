@@ -28,8 +28,8 @@ public abstract class MotorComponent {
 
         // Build motor based on configuration
         if (config.shallMock()) { result = new MotorMock(name); }
-        else if (config.getHw().size() == 1) { result = new MotorSingle(config, hwm, "outtake-wheels", logger); }
-        else if (config.getHw().size() == 2) { result = new MotorCoupled(config, hwm, "outtake-wheels", logger); }
+        else if (config.getHw().size() == 1) { result = new MotorSingle(config, hwm, name, logger); }
+        else if (config.getHw().size() == 2) { result = new MotorCoupled(config, hwm, name, logger); }
 
         // Default configuration
         if (result.isReady()) {

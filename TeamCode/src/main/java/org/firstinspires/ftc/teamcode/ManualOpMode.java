@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-
 @TeleOp(name="Manual OpMode")
 public class ManualOpMode extends LinearOpMode {
 
@@ -30,11 +29,11 @@ public class ManualOpMode extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
-        mLogger.level(Logger.Severity.INFO);
+        mLogger.level(Logger.Severity.TRACE);
 
         mAlliance = Alliance.NONE;
         Double alliance_value = Configuration.s_Current.retrieve("alliance");
-        if(alliance_value == null) { alliance_value = Alliance.RED.getValue(); }
+        if(alliance_value == null) { alliance_value = Alliance.BLUE.getValue(); }
         if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01)  { mAlliance = Alliance.RED;}
         if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01) { mAlliance = Alliance.BLUE;}
 

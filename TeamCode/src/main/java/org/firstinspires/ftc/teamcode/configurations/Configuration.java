@@ -29,6 +29,7 @@ abstract public class Configuration {
     protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
     protected final  Map<String, ConfImu>       mImus           = new LinkedHashMap<>();
     protected final  Map<String, ConfServo>     mServos         = new LinkedHashMap<>();
+    protected final  Map<String, ConfEncoder>   mEncoders       = new LinkedHashMap<>();
     protected final  Map<String, ConfLimelight> mLimelights     = new LinkedHashMap<>();
     protected final  Map<String, ConfLed>       mLeds           = new LinkedHashMap<>();
     protected final  Map<String, ConfDistance>  mDistances      = new LinkedHashMap<>();
@@ -52,6 +53,9 @@ abstract public class Configuration {
 
     // Method to retrieve a servo by its reference name
     public ConfServo        getServo(String name)       { return mServos.getOrDefault(name, null);  }
+
+    // Method to retrieve an encoder by its reference name
+    public ConfEncoder      getEncoder(String name)     { return mEncoders.getOrDefault(name, null);  }
 
     // Method to retrieve a led by its reference name
     public ConfLed          getLed(String name)         { return mLeds.getOrDefault(name, null);  }

@@ -34,9 +34,7 @@ public class AutonomousGoalStartGatePickup extends LinearOpMode {
 
     Controller mGamepad1;
     Controller          mGamepad2;
-    Camera mCamera;
-
-    Logger mLogger;
+     Logger mLogger;
     boolean             mShallGrabAnotherPattern;
 
     double              mShootVelocity = 2.7;

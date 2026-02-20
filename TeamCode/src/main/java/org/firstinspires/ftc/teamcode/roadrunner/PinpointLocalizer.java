@@ -43,7 +43,6 @@ public final class PinpointLocalizer implements Localizer {
         else                { initialPerpDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD; }
 
         driver.setEncoderDirections(initialParDirection, initialPerpDirection);
-
         driver.resetPosAndIMU();
 
         txWorldPinpoint = initialPose;

@@ -27,7 +27,6 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousMiddle;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystems.Camera;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
@@ -61,11 +60,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     Controller mGamepad1;
     Controller mGamepad2;
 
-    Camera mCamera;
-
     Logger mLogger;
-    double mVelocityFar = 3.3;
-    double mVelocityClose = 2.7;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -76,9 +71,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-middle-start");
         mLogger.level(Logger.Severity.INFO);
         mTimer = new SmartTimer(mLogger);
-
-        mCamera = new Camera();
-        mCamera.setHW(Configuration.s_Current, hardwareMap, mLogger);
 
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
@@ -95,8 +87,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mRobot = new Robot();
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
-
-        mCamera.setPosition(Camera.Position.TAG);
 
         while (opModeInInit()) {
             if (mGamepad1.buttons.dpad_right.pressedOnce()) {
@@ -172,21 +162,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mDrive = new MecanumDrive(hardwareMap, mPath.start());
 
-        Action startIntakeAction = new Action() {
+        Action startStopIntakeAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
-
-                mDrive.localizer.update();
-                return mRobot.start_intake();
-            }
-        };
-
-        Action stopIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                mDrive.localizer.update();
-                return mRobot.stop_intake();
+                mRobot.start_stop_intake();
+                return false;
             }
         };
 
@@ -194,7 +174,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
                 mDrive.localizer.update();
-                return mRobot.start_engage(mVelocityFar);
+                return mRobot.start_engage();
             }
         };
 
@@ -203,7 +183,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket p) {
 
                 mDrive.localizer.update();
-                return mRobot.start_engage(mVelocityClose);
+                return mRobot.start_engage();
             }
         };
 
@@ -219,7 +199,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .turnTo(shootinit.heading.toDouble())
                         .build());
 
-        mRobot.shoot3(mVelocityFar);
+        mRobot.shoot3();
         updatePoseFromAprilTagIfVisible();
 
         mLogger.metric("SHOOT POSE POSITION",""+mDrive.localizer.getPose().position);
@@ -247,12 +227,12 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
                 Actions.runBlocking(
                         mDrive.actionBuilder(shootinit)
-                                .afterTime(0.01, startIntakeAction)
+                                .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(shootinit.heading.toDouble())
                                 .splineToLinearHeading(pattern, pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(pattern.heading.toDouble())
                                 .splineToLinearHeading(end_intake, pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                .afterTime(2, stopIntakeAction)
+                                .afterTime(2, startStopIntakeAction)
                                 .setTangent(-end_intake.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                 .afterTime(0, engageFarAction)
@@ -260,7 +240,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                                 .splineToLinearHeading(shoot, Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                 .build());
 
-                mRobot.shoot3(mVelocityClose);
+                mRobot.shoot3();
                 updatePoseFromAprilTagIfVisible();
 
             }
@@ -275,6 +255,8 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
+        Configuration.s_Current.persist("x", mDrive.getPose().position.x);
+        Configuration.s_Current.persist("y", mDrive.getPose().position.y);
         Configuration.s_Current.persist("alliance", mAlliance.getValue());
 
         mVision.close();

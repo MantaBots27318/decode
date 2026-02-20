@@ -18,6 +18,7 @@ import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -50,6 +51,7 @@ public class AutonomousGoalStart extends LinearOpMode {
     MecanumDrive        mDrive;
     Robot               mRobot;
 
+
     Pattern             mPattern;
     Pattern             mTargetPattern;
     Pattern             mThirdPattern = Pattern.PPG;
@@ -63,7 +65,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
     Controller          mGamepad1;
     Controller          mGamepad2;
-    Camera              mCamera;
 
     Logger              mLogger;
     boolean             mShallGrabAnotherPattern;
@@ -74,14 +75,12 @@ public class AutonomousGoalStart extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         mListActions = new ArrayList<AutonomousStep>();
 
-        int mCurrentStepNumber     = 0;
+        int mCurrentStepNumber  = 0;
 
         mLogger                 = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
         mTimer                  = new SmartTimer(mLogger);
 
-        mCamera                 = new Camera();
-        mCamera.setHW(Configuration.s_Current,hardwareMap,mLogger);
 
         mVision                 = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
@@ -99,7 +98,6 @@ public class AutonomousGoalStart extends LinearOpMode {
         mRobot                  = new Robot();
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
 
-        mCamera.setPosition(Camera.Position.TAG);
         mShallGrabAnotherPattern = true;
 
         while (opModeInInit()) {
@@ -174,26 +172,20 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mDrive = new MecanumDrive(hardwareMap,mPath.start());
 
-        Action startIntakeAction = new Action() {
+        Action startStopIntakeAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
 
-                return mRobot.start_intake();
+                mRobot.start_stop_intake();
+                return false;
             }
         };
 
-        Action stopIntakeAction = new Action() {
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-
-                return mRobot.stop_intake();
-            }
-        };
 
         Action engageAction = new Action() {
             @Override
             public boolean run(@NonNull TelemetryPacket p) {
-                return mRobot.start_engage(mShootVelocity);
+                return mRobot.start_engage();
             }
         };
 
@@ -207,7 +199,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.info("==> Shoot");
         mLogger.update();
 
-        mRobot.shoot3(mShootVelocity);
+        mRobot.shoot3();
 
         updatePoseFromAprilTagIfVisible();
 
@@ -228,12 +220,12 @@ public class AutonomousGoalStart extends LinearOpMode {
 
                 Actions.runBlocking(
                         mDrive.actionBuilder(mDrive.getPose())
-                                .afterTime(0.01, startIntakeAction)
+                                .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(-Math.PI)
                                 .splineToLinearHeading(pattern, pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(pattern.heading.toDouble())
                                 .splineToLinearHeading(end_intake, pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                .afterTime(2, stopIntakeAction)
+                                .afterTime(2, startStopIntakeAction)
                                 .setTangent(-pattern.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                 .afterTime(0.01, engageAction)
@@ -241,7 +233,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                 .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                 .build());
 
-                mRobot.shoot3(mShootVelocity);
+                mRobot.shoot3();
                 updatePoseFromAprilTagIfVisible();
                 mLogger.metric("PATTERN POSE POSITION",""+mDrive.localizer.getPose().position);
                 mLogger.metric("PATTERN POSE HEADING",""+mDrive.localizer.getPose().heading.toDouble());
@@ -260,12 +252,13 @@ public class AutonomousGoalStart extends LinearOpMode {
                         .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100,100))
                         .build());
 
+         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
+         Configuration.s_Current.persist("x", mDrive.getPose().position.x);
+         Configuration.s_Current.persist("y", mDrive.getPose().position.y);
+         Configuration.s_Current.persist("alliance",mAlliance.getValue());
 
-        Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
-        Configuration.s_Current.persist("alliance",mAlliance.getValue());
-
-        mVision.close();
-        mLogger.stop();
+         mVision.close();
+         mLogger.stop();
 
     }
 
@@ -282,9 +275,8 @@ public class AutonomousGoalStart extends LinearOpMode {
                     -output.getPosition().y * Path.M_TO_INCHES,
                     (output.getOrientation().getYaw() + 180) * Math.PI / 180);
 
-            // Ajouter l appel a la fonction de Zelie
-            if(mLimelightPositionInRR != null) {
-                newPose = PositionMath.getRobotPoseFromLimelight(newPose,mLimelightPositionInRR);
+            if (mLimelightPositionInRR != null) {
+                newPose = PositionMath.getRobotPoseFromLimelight(newPose, mLimelightPositionInRR);
             }
 
             mLogger.metric("NEW POSE POSITION",""+newPose.position);

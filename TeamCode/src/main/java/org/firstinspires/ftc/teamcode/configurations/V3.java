@@ -54,6 +54,9 @@ public class V3 extends Configuration {
                 "turretRotationRight", false));
         mServos.put("turret-hood", new ConfServo("turretHood", false));
 
+        // Turntable encoder is plugged on the intake wheels motor
+        mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",true));
+
         /* Components relative positions in robot reference */
         mPositions.put("limelight-rotation-radius", new Pose2d(2.5,2.5,0));
         mPositions.put("turret", new Pose2d(-10,0,0));

@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /* Components includes */
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.components.Distance;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
@@ -55,52 +54,26 @@ public class Chassis {
         ConfMotor frontRightWheel = config.getMotor("front-right-wheel");
         ConfMotor backLeftWheel = config.getMotor("back-left-wheel");
         ConfMotor backRightWheel = config.getMotor("back-right-wheel");
-        ConfImu imu = config.getImu("built-in");
+        ConfImu pinpoint = config.getImu("pinpoint");
 
-        if (frontLeftWheel == null) {
-            status += " FL";
-            mReady = false;
-        }
-        if (frontRightWheel == null) {
-            status += " FR";
-            mReady = false;
-        }
-        if (backLeftWheel == null) {
-            status += " BL";
-            mReady = false;
-        }
-        if (backRightWheel == null) {
-            status += " BR";
-            mReady = false;
-        }
-        if (imu == null) {
-            status += " IMU";
-            mReady = false;
-        }
+        if (frontLeftWheel == null) { status += " FL"; mReady = false; }
+        if (frontRightWheel == null) { status += " FR"; mReady = false;}
+        if (backLeftWheel == null) { status += " BL"; mReady = false; }
+        if (backRightWheel == null) { status += " BR"; mReady = false; }
+        if (pinpoint == null) { status += " PPT";  mReady = false; }
 
         if (mReady) {
 
-            mFrontLeftMotor = new MotorSingle(frontLeftWheel, hwm, "front-left-wheel", mLogger);
-            mBackLeftMotor = new MotorSingle(backLeftWheel, hwm, "back-left-wheel", mLogger);
+            mFrontLeftMotor  = new MotorSingle(frontLeftWheel, hwm, "front-left-wheel", mLogger);
+            mBackLeftMotor   = new MotorSingle(backLeftWheel, hwm, "back-left-wheel", mLogger);
             mFrontRightMotor = new MotorSingle(frontRightWheel, hwm, "front-right-wheel", mLogger);
-            mBackRightMotor = new MotorSingle(backRightWheel, hwm, "back-right-wheel", mLogger);
+            mBackRightMotor  = new MotorSingle(backRightWheel, hwm, "back-right-wheel", mLogger);
+            mLocalizer       = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), new Pose2d(0,0,0));
 
-            if (!mFrontLeftMotor.isReady()) {
-                status += " FL";
-                mReady = false;
-            }
-            if (!mFrontRightMotor.isReady()) {
-                status += " FR";
-                mReady = false;
-            }
-            if (!mBackLeftMotor.isReady()) {
-                status += " BL";
-                mReady = false;
-            }
-            if (!mBackRightMotor.isReady()) {
-                status += " BR";
-                mReady = false;
-            }
+            if (!mFrontLeftMotor.isReady()) { status += " FL"; mReady = false; }
+            if (!mFrontRightMotor.isReady()) { status += " FR"; mReady = false; }
+            if (!mBackLeftMotor.isReady()) { status += " BL"; mReady = false; }
+            if (!mBackRightMotor.isReady()) { status += " BR"; mReady = false; }
 
         }
 
@@ -116,35 +89,21 @@ public class Chassis {
             mFrontRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             mBackRightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        }
+            PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
+            PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
+            Double initial_heading = config.retrieve("heading");
+            if (initial_heading == null) { initial_heading = 0.0; }
+            Double initial_x = config.retrieve("x");
+            if (initial_x == null) { initial_x = 0.0; }
+            Double initial_y = config.retrieve("y");
+            if (initial_y == null) { initial_y = 0.0; }
+            mLocalizer.setPose(new Pose2d(initial_x,initial_y,initial_heading));
 
-        if (mReady) {
-
-            mLocalizer = null;
-            ConfImu pinpoint = config.getImu("pinpoint");
-            if (pinpoint == null) {
-                status += " PPT";
-            //    mReady = false;
-            } else {
-                PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
-                PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
-
-                double initial_yaw = 0;
-                Double initialHeading = config.retrieve("heading");
-                if (initialHeading != null) {
-                    // From FTC field reference to initial robot position;
-                    initial_yaw = initialHeading;
-                }
-                mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), new Pose2d(0,0,initial_yaw));
-            }
         }
 
         // Log status
-        if (mReady) {
-            mLogger.info("==>  CHS : OK");
-        } else {
-            mLogger.warning("==>  CHS : KO : " + status);
-        }
+        if (mReady) { mLogger.info("==>  CHS : OK"); }
+        else { mLogger.warning("==>  CHS : KO : " + status); }
 
     }
 
@@ -178,6 +137,10 @@ public class Chassis {
        if(mReady) {
            mLocalizer.setPose(ftcPosition);
        }
+    }
+
+    public Pose2d getFTCPosition() {
+        return mLocalizer.getPose();
     }
 
     public double getXVelocity()
