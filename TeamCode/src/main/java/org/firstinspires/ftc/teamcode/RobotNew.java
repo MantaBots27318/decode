@@ -62,7 +62,6 @@ public class RobotNew {
 
     // Components
     IMU                     mImu;
-    PinpointLocalizer       mLocalizer;
 
     Controller              mGamepadChassis;
     Controller              mGamepadAttachments;
@@ -135,7 +134,7 @@ public class RobotNew {
             mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
             Pose2d turret_ftc_position = mTurret.getFTCPosition();
             if (turret_ftc_position != null) {
-                mLocalizer.setPose(PositionMath.getRobotPoseFromLimelight(turret_ftc_position, mTurretPositionInRR));
+                mChassis.setPosition(PositionMath.getRobotPoseFromLimelight(turret_ftc_position, mTurretPositionInRR));
             }
         }
     }
@@ -193,7 +192,7 @@ public class RobotNew {
         mLogger.info("======= COLLECTING =======");
 
         mTurret = new Turret();
-        mTurret.setHW(config, hwm, mLogger);
+        mTurret.setHW(config, hwm, mLogger,mPath);
 
         mIntake        = new IntakeWheels();
         mIntake.setHW(config, hwm, mLogger);

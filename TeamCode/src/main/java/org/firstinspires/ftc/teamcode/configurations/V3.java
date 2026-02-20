@@ -28,7 +28,7 @@ public class V3 extends Configuration {
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         mImus.put("pinpoint", new ConfImu("pinpoint"));
         mImus.get("pinpoint").setPar(1.6, false);
-        mImus.get("pinpoint").setPerp(-(6.0+11.0/16), false);
+        mImus.get("pinpoint").setPerp(-(6.0+14.0/16), true);
 
         /* Intake configuration */
         mMotors.put("intake-wheels",new ConfMotor("intakeWheels",true));
@@ -55,7 +55,7 @@ public class V3 extends Configuration {
         mServos.put("turret-hood", new ConfServo("turretHood", false));
 
         /* Components relative positions in robot reference */
-        mPositions.put("limelight-rotation-radius", new Pose2d(6,6,0));
+        mPositions.put("limelight-rotation-radius", new Pose2d(2.5,2.5,0));
         mPositions.put("turret", new Pose2d(-10,0,0));
 
     }
