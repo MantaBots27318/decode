@@ -30,14 +30,16 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 
 public class Turret {
 
-    static final double     sRotationAmplitude = 1.75 * 2 * Math.PI - 15.0 / 180 * Math.PI;
+    static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 5000;
-    static final int        sRotationEncoderAmplitude = 4362;
+    static final int        sRotationEncoderAmplitude = 5917 - -16398;
+    static final int        sProcessingPeriodMs = 200;
 
     Logger                  mLogger;
     boolean                 mReady;
     boolean                 mShallReset;
-    SmartTimer              mTimer;
+    SmartTimer              mResetTimer;
+    SmartTimer              mPeriodTimer;
 
     double                  mDistanceCenterLimelight;
     Pose2d                  mCenterPositionFTC;
@@ -55,11 +57,12 @@ public class Turret {
 
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Pose2d initial_position) {
-        mLogger     = logger;
-        mReady      = true;
-        mShallReset = false;
-        mTimer      = new SmartTimer(logger);
-        mPath       = path;
+        mLogger      = logger;
+        mReady       = true;
+        mShallReset  = false;
+        mResetTimer  = new SmartTimer(logger);
+        mPeriodTimer = new SmartTimer(logger);
+        mPath        = path;
 
         String status = "";
         ConfLimelight limelight = Configuration.s_Current.getLimelight("limelight");
@@ -84,8 +87,8 @@ public class Turret {
             else {
                 mRotation.setPosition(0);
                 //this.initialize_rotation(initial_position);
-                mTimer.arm(sResetTimeMs);
-                while(mTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
+                mResetTimer.arm(sResetTimeMs);
+                while(mResetTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
             }
         }
 
@@ -120,8 +123,8 @@ public class Turret {
 
         if(mReady) {
             //this.initialize_rotation(initial_position);
-            //mTimer.arm(sResetTimeMs);
-            //while(mTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
+            //mResetTimer.arm(sResetTimeMs);
+            //while(mResetTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
         }
 
     }
@@ -138,7 +141,7 @@ public class Turret {
 
     public void loop(double velocityX, double velocityY, double deltaTime) {
 
-        if(mReady) {
+        if(mReady && !mPeriodTimer.isArmed()) {
 
             Pose3D output = mVision.getPosition();
             if (output != null) {
@@ -151,20 +154,22 @@ public class Turret {
                 mLogger.info("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble()/ Math.PI * 180);
                 mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
                 mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble()/ Math.PI * 180);
+                mCenterPositionFTC = new Pose2d(mCenterPositionFTC.position.x,mCenterPositionFTC.position.y,limelightFTC.heading.toDouble());
+                mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble()/ Math.PI * 180);
                 double deltaAngle = this.angularError(mPath.target(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
                 double servo_position = this.calculateServoPosition(-deltaAngle, position, mShallReset);
                 mLogger.info("SERVO POSITION : " + servo_position);
                 mRotation.setPosition(servo_position);
-                try { Thread.sleep(1000); } catch (Exception e) {}
             }
 
-            if (!mTimer.isArmed()) { mShallReset = false; }
+            if (!mResetTimer.isArmed()) { mShallReset = false; }
+            mPeriodTimer.arm(sProcessingPeriodMs);
         }
     }
 
     public void reset() {
         mShallReset = true;
-        mTimer.arm(sResetTimeMs);
+        mResetTimer.arm(sResetTimeMs);
     }
 
     private Pose2d convertLimelightPoseToFTC(Pose3D limelight){
