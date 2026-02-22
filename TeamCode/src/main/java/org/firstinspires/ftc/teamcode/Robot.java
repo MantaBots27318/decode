@@ -160,6 +160,8 @@ public class Robot {
 
         if (mGamepadChassis.buttons.x.pressedOnce())   { start_stop_intake(); }
         if (mGamepadChassis.buttons.y.pressedOnce())   { reverse_stop_intake(); }
+        if (mGamepadChassis.buttons.dpad_up.pressedOnce())  { mTurret.start_flyWheel(); }
+        if (mGamepadChassis.buttons.dpad_up.pressedOnce())  { mTurret.stop_flyWheel(); }
 
         if(mGamepadChassis.buttons.b.pressedOnce()) {
             if(mTransfer.getPosition() == Transfer.Position.BLOCK) { mTransfer.setPosition(Transfer.Position.LET); }
