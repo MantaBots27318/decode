@@ -253,4 +253,11 @@ public class Turret {
         mRotation.setPosition(0);
     }
 
+    public void start_flyWheel(){
+        mFlywheel.setVelocity(6000);
+    }
+
+    public void stop_flyWheel(){
+        mFlywheel.setVelocity(0);
+    }
 }
