@@ -165,6 +165,9 @@ public class Robot {
             if(mTransfer.getPosition() == Transfer.Position.BLOCK) { mTransfer.setPosition(Transfer.Position.LET); }
             else if(mTransfer.getPosition() == Transfer.Position.LET) { mTransfer.setPosition(Transfer.Position.BLOCK); }
         }
+        if(mGamepadChassis.buttons.right_bumper.pressedOnce()) {
+            start_stop_shooting();
+        }
     }
 
     void move(double x, double y, double rotation) {
@@ -278,6 +281,15 @@ public class Robot {
             else { mIntake.stop(); }
         }
         else { mIntake.start(-1.0); }
+    }
+
+
+    public void start_stop_shooting() {
+        mLogger.info("==> SHOOT");
+        if(mTurret.isShooting()) {
+            mTurret.stop();
+        }
+        else { mTurret.shoot(); }
     }
 
     public boolean start_engage() {

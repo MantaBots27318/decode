@@ -7,6 +7,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -28,16 +29,19 @@ import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
+@Config
 public class Turret {
 
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 5000;
     static final int        sRotationEncoderAmplitude = 5917 - -16398;
     static final int        sProcessingPeriodMs = 200;
+    static public double    sMaxSpeed = 1000;
 
     Logger                  mLogger;
     boolean                 mReady;
     boolean                 mShallReset;
+    boolean                 mIsShooting;
     SmartTimer              mResetTimer;
     SmartTimer              mPeriodTimer;
 
@@ -59,6 +63,7 @@ public class Turret {
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Pose2d initial_position) {
         mLogger      = logger;
         mReady       = true;
+        mIsShooting  = false;
         mShallReset  = false;
         mResetTimer  = new SmartTimer(logger);
         mPeriodTimer = new SmartTimer(logger);
@@ -135,6 +140,8 @@ public class Turret {
         }
     }
 
+    public boolean isShooting() { return mIsShooting;}
+
     public Pose2d getFTCPosition() {
         return mCenterPositionFTC;
     }
@@ -164,6 +171,20 @@ public class Turret {
 
             if (!mResetTimer.isArmed()) { mShallReset = false; }
             mPeriodTimer.arm(sProcessingPeriodMs);
+        }
+    }
+
+    public void shoot() {
+        if(mReady) {
+            mFlywheel.setPower(1.0);
+            mIsShooting = true;
+        }
+    }
+    
+    public void stop() {
+        if(mReady) {
+            mFlywheel.setPower(0.0);
+            mIsShooting = false;
         }
     }
 

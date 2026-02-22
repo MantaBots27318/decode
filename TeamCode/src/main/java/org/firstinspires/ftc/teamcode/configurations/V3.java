@@ -47,7 +47,7 @@ public class V3 extends Configuration {
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(
                 "outtakeWheelsLeft",false, false,
-                "outtakeWheelsRight",true, false));
+                "outtakeWheelsRight",false, false));
 
         mServos.put("turret-rotation", new ConfServo(
                 "turretRotationLeft", false,
