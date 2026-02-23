@@ -53,8 +53,8 @@ public class EncoderSingle extends EncoderComponent {
 
             Map.Entry<String,Boolean> encoder = hwiterator.next();
             Map.Entry<String,Boolean> invert = inviterator.next();
-            logger.info(encoder.getKey());
-            mEncoder = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey() )));
+            try { mEncoder = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey() ))); }
+            catch(Exception e) { mEncoder = null; }
             if(mEncoder != null && encoder.getValue()) { mEncoder.setDirection(DcMotor.Direction.REVERSE);}
             else if(mEncoder != null)                  { mEncoder.setDirection(DcMotor.Direction.FORWARD);}
 

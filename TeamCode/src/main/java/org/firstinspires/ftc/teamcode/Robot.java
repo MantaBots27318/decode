@@ -31,14 +31,19 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 public class Robot {
 
     static final double    sDefaultMovementsMultiplier = 1.0;
-
     static final double    sPreciseMovementsMultiplier = 0.3;
-
     static final double    sGamepadChassisDeadZone     = 0.1;
 
     enum Mode {
         ROBOT_CENTRIC,
         FIELD_CENTRIC
+    }
+
+    public enum TransferState {
+        NONE,
+        WAITING,
+        DOWN,
+        LET
     }
 
     Logger                  mLogger;
@@ -51,6 +56,8 @@ public class Robot {
     Mode                    mMode = Mode.FIELD_CENTRIC;
     Mode                    mFallbackMode;
     boolean                 mPreciseMovements;
+
+    // Relative position
     Pose2d                  mTurretPositionInRR;
 
     // Subsystems
@@ -62,12 +69,16 @@ public class Robot {
     // Components
     IMU                     mImu;
 
+    // Controllers
     Controller              mGamepadChassis;
     Controller              mGamepadAttachments;
 
+    // Current displacement
     double                  mX;
     double                  mY;
     double                  mRotation;
+
+    TransferState           mTransferState;
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -83,6 +94,7 @@ public class Robot {
             mPath               = path;
             mFallbackMode       = mMode;
             mPreciseMovements   = false;
+            mTransferState      = TransferState.NONE;
         }
         if(mReady) {
             mTurretPositionInRR = config.getPosition("turret");
@@ -92,7 +104,7 @@ public class Robot {
         if(mReady) { mReady = this.initialize_collecting(config, hwm, mChassis.getFTCPosition()); }
 
 
-        if(mReady) {
+        if(mReady && mGamepadChassis != null) {
             mGamepadChassis.axes.left_stick_x.deadzone(sGamepadChassisDeadZone);
             mGamepadChassis.axes.right_stick_x.deadzone(sGamepadChassisDeadZone);
             mGamepadChassis.axes.left_stick_y.deadzone(sGamepadChassisDeadZone);
@@ -129,6 +141,7 @@ public class Robot {
     }
 
     public void loop() {
+
         if(mReady) {
             move(mX, mY, mRotation);
             mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
@@ -136,63 +149,65 @@ public class Robot {
             if (turret_ftc_position != null) {
                 mChassis.setPosition(PositionMath.getRobotPoseFromLimelight(turret_ftc_position, mTurretPositionInRR));
             }
+            if(mTransferState != TransferState.NONE) { transfer_cycle(); }
         }
+
     }
 
     void control_chassis() {
 
-        if (mGamepadChassis.buttons.a.pressedOnce()) {
-            if(mFallbackMode == Mode.FIELD_CENTRIC)      {
-                mLogger.info("==> ROBOT CENTRIC MODE");
-                mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
-            }
-            else if(mFallbackMode == Mode.ROBOT_CENTRIC)      {
-                mLogger.info("==> FIELD CENTRIC MODE");
-                mFallbackMode = mMode = Mode.FIELD_CENTRIC;
-            }
-        }
+        if(mReady && mGamepadChassis != null) {
 
-        mPreciseMovements = mGamepadChassis.buttons.left_bumper.pressed();
+            if (mGamepadChassis.buttons.a.pressedOnce()) {
+                if (mFallbackMode == Mode.FIELD_CENTRIC) {
+                    mLogger.info("==> ROBOT CENTRIC MODE");
+                    mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
+                } else if (mFallbackMode == Mode.ROBOT_CENTRIC) {
+                    mLogger.info("==> FIELD CENTRIC MODE");
+                    mFallbackMode = mMode = Mode.FIELD_CENTRIC;
+                }
+            }
+
+            mPreciseMovements = mGamepadChassis.buttons.left_bumper.pressed();
+        }
 
     }
 
     void control_attachments() {
 
-        if (mGamepadChassis.buttons.x.pressedOnce())   { start_stop_intake(); }
-        if (mGamepadChassis.buttons.y.pressedOnce())   { reverse_stop_intake(); }
-        if (mGamepadChassis.buttons.dpad_up.pressedOnce())  { mTurret.start_flyWheel(); }
-        if (mGamepadChassis.buttons.dpad_up.pressedOnce())  { mTurret.stop_flyWheel(); }
-
-        if(mGamepadChassis.buttons.b.pressedOnce()) {
-            if(mTransfer.getPosition() == Transfer.Position.BLOCK) { mTransfer.setPosition(Transfer.Position.LET); }
-            else if(mTransfer.getPosition() == Transfer.Position.LET) { mTransfer.setPosition(Transfer.Position.BLOCK); }
-        }
-        if(mGamepadChassis.buttons.right_bumper.pressedOnce()) {
-            start_stop_shooting();
+        if(mReady && mGamepadChassis != null) {
+            if (mGamepadChassis.buttons.x.pressedOnce()) { start_stop_intake();   }
+            if (mGamepadChassis.buttons.y.pressedOnce()) { reverse_stop_intake(); }
+            if (mGamepadChassis.buttons.b.pressedOnce()) {
+                if (mTransfer.getPosition() == Transfer.Position.BLOCK) {
+                    transfer_cycle();
+                } else if (mTransfer.getPosition() == Transfer.Position.LET) {
+                    mTransfer.setPosition(Transfer.Position.BLOCK);
+                }
+            }
+            if (mGamepadChassis.buttons.right_bumper.pressedOnce()) { start_stop_shooting(); }
         }
     }
 
     void move(double x, double y, double rotation) {
 
-        double                    multiplier = sDefaultMovementsMultiplier;
-        if (mPreciseMovements)  { multiplier = sPreciseMovementsMultiplier; }
+        if(mReady) {
+            double multiplier = sDefaultMovementsMultiplier;
+            if (mPreciseMovements) { multiplier = sPreciseMovementsMultiplier; }
 
-        mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x,y,rotation));
+            mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x, y, rotation));
 
-        if(mMode == Mode.ROBOT_CENTRIC) {
-            mChassis.drive(x,y,rotation, 0, multiplier);
-        }
-        else if (mMode == Mode.FIELD_CENTRIC)
-        {
-            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - mHeadingOffset;
-            mLogger.trace("yaw update : " + heading / Math.PI * 180);
-            mChassis.drive(x,y,rotation, heading, multiplier);
+            if (mMode == Mode.ROBOT_CENTRIC) { mChassis.drive(x, y, rotation, 0, multiplier); }
+            else if (mMode == Mode.FIELD_CENTRIC) {
+
+                double heading = mChassis.getFTCPosition().heading.toDouble() - mHeadingOffset;
+                mLogger.trace("yaw : " + heading / Math.PI * 180);
+                mChassis.drive(x,y,rotation, heading, multiplier);
+            }
         }
     }
 
     boolean initialize_collecting(Configuration config, HardwareMap hwm, Pose2d chassis) {
-
-        boolean result = true;
 
         mLogger.info("======= COLLECTING =======");
 
@@ -212,55 +227,23 @@ public class Robot {
             mTransfer.setHW(config, hwm, mLogger);
         }
 
-        return result;
+        return true;
 
     }
 
     boolean initialize_drive(Configuration config, HardwareMap hwm) {
 
-        boolean result = true;
-
         mLogger.info("======== DRIVING =========");
-
-        // Get wheels and IMU parameters from configuration
-        ConfImu imu = config.getImu("built-in");
 
         if (mMode == Mode.FIELD_CENTRIC)      { mLogger.info("==>  FIELD CENTRIC"); }
         else if (mMode == Mode.ROBOT_CENTRIC) { mLogger.info("==>  ROBOT CENTRIC"); }
 
-        String status = "";
-        if (imu == null)             { status += " IMU"; result = false; }
-
-        if (result) {
-
-            status = "";
-
+        if(mReady) {
             mChassis = new Chassis();
             mChassis.setHW(config, hwm, mLogger);
-
-            mImu = null;
-            mImu = hwm.tryGet(IMU.class, imu.getName());
-            if (mImu == null)                { status += " IMU"; result = false; }
         }
 
-        if (result) {
-
-            RevHubOrientationOnRobot RevOrientation = new RevHubOrientationOnRobot(
-                    imu.getLogo(), imu.getUsb());
-            mImu.initialize(new IMU.Parameters(RevOrientation));
-            mImu.resetYaw();
-            double heading = mImu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            mLogger.trace("yaw : " + heading / Math.PI * 180);
-
-            mHeadingOffset = mPath.fieldCentric2FTC();
-
-        }
-
-        if(result) { mLogger.info("==>  CONF : OK"); }
-        else       { mLogger.warning("==>  CONF : KO : " + status); }
-
-
-        return result;
+        return true;
 
     }
 
@@ -272,7 +255,7 @@ public class Robot {
         }
         else {
             mIntake.start(1.0);
-            mTurret.reset();
+            //mTurret.reset();
         }
     }
 
@@ -291,14 +274,40 @@ public class Robot {
         if(mTurret.isShooting()) {
             mTurret.stop();
         }
-        else { mTurret.shoot(); }
+        else { mTurret.start(); }
     }
 
     public boolean start_engage() {
+        if(mReady) { mTurret.start(); }
         return false;
     }
 
-    public void shoot3() {}
+    public void shoot() {}
 
+
+    boolean transfer_cycle() {
+
+
+        if (mTransferState == TransferState.NONE) {
+            mTransferState = TransferState.WAITING;
+        }
+        else if (mTransferState == TransferState.WAITING) {
+            mTransfer.setPosition(Transfer.Position.DOWN);
+            if (mTransfer.getPosition() == Transfer.Position.DOWN)  {
+                mTransferState = TransferState.DOWN;
+            }
+        }
+        else if(mTransferState == TransferState.DOWN && !mTransfer.isMoving()) {
+            mTransfer.setPosition(Transfer.Position.LET);
+            if (mTransfer.getPosition() == Transfer.Position.LET)  {
+                mTransferState = TransferState.LET;
+            }
+        }
+        else if (mTransferState == TransferState.LET && !mTransfer.isMoving()) {
+            mTransferState = TransferState.NONE;
+        }
+
+        return mTransferState != TransferState.NONE;
+    }
 
 }

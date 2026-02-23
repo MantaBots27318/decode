@@ -63,7 +63,10 @@ public class EncoderCoupled extends EncoderComponent {
 
             Map.Entry<String,Boolean> encoder = hwiterator.next();
             Map.Entry<String,Boolean> invert = inviterator.next();
-            mFirst = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey() )));
+            try {
+                mFirst = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey())));
+            }
+            catch(Exception e) { mFirst = null; }
             if(mFirst != null && encoder.getValue()) { mFirst.setDirection(DcMotor.Direction.REVERSE);}
             else if(mFirst != null)                  { mFirst.setDirection(DcMotor.Direction.FORWARD);}
 
@@ -71,7 +74,10 @@ public class EncoderCoupled extends EncoderComponent {
 
             encoder = hwiterator.next();
             invert = inviterator.next();
-            mSecond = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey())));
+            try {
+                mSecond = new OverflowEncoder(new RawEncoder(hwMap.get(DcMotorEx.class, encoder.getKey())));
+            }
+            catch(Exception e) { mSecond = null; }
             if(mSecond != null && encoder.getValue()) { mSecond.setDirection(DcMotor.Direction.REVERSE);}
             else if(mSecond != null)                  { mSecond.setDirection(DcMotor.Direction.FORWARD);}
 

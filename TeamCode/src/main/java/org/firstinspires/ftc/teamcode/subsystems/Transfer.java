@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 /* System includes */
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
@@ -19,16 +20,23 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Config
 public class Transfer {
 
+
+    public static double sBLOCK = 0.6;
+    public static double sLET = 0.5;
+    public static double sDOWN = 0.62;
     public enum Position {
         BLOCK,
-        LET
+        LET,
+        DOWN
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
             "let", Position.LET,
-            "block", Position.BLOCK
+            "block", Position.BLOCK,
+            "down", Position.DOWN
     );
 
     private static final int    sTimeOut = 100; // Timeout in ms
@@ -75,6 +83,10 @@ public class Transfer {
                     mLogger.info("Found unmanaged intake lever arm position : " + pos.getKey());
                 }
             }
+
+            mPositions.put(Position.LET,sLET);
+            mPositions.put(Position.BLOCK,sBLOCK);
+            mPositions.put(Position.DOWN,sDOWN);
 
             if (!mServo.isReady()) { mReady = false; status += " HW";}
         }

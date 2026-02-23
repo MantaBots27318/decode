@@ -199,7 +199,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .turnTo(shootinit.heading.toDouble())
                         .build());
 
-        mRobot.shoot3();
+        mRobot.shoot();
         updatePoseFromAprilTagIfVisible();
 
         mLogger.metric("SHOOT POSE POSITION",""+mDrive.localizer.getPose().position);
@@ -240,7 +240,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                                 .splineToLinearHeading(shoot, Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                 .build());
 
-                mRobot.shoot3();
+                mRobot.shoot();
                 updatePoseFromAprilTagIfVisible();
 
             }

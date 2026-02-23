@@ -36,8 +36,9 @@ public class V3 extends Configuration {
 
         /* Transfer configuration */
         mServos.put("transfer-servo", new ConfServo("transferServo", false));
-        mServos.get("transfer-servo").addPosition("block", 0.66);
-        mServos.get("transfer-servo").addPosition("let", 0.5);
+        mServos.get("transfer-servo").addPosition("block", 0.58);
+        mServos.get("transfer-servo").addPosition("let", 0.55);
+        mServos.get("transfer-servo").addPosition("down", 0.6);
 
         /* Limelight configuration */
         mLimelights.put("limelight", new ConfLimelight("limelight"));

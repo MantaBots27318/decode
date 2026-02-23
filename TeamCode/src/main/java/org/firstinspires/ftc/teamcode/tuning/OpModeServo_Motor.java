@@ -21,14 +21,12 @@ public class OpModeServo_Motor extends OpMode {
     public static double MOTOR2 = 0;
 
     public void init(){
-        mServo = hardwareMap.get(Servo.class, "camera");
-        mDcMotor1 = hardwareMap.get(DcMotor.class,"intakeBeltsFront");
-        mDcMotor2 = hardwareMap.get(DcMotor.class,"intakeBeltsBack");
+        mDcMotor1 = hardwareMap.get(DcMotor.class,"outtakeWheelsLeft");
+        mDcMotor2 = hardwareMap.get(DcMotor.class,"outtakeWheelsRight");
     }
     public void loop(){
-        mServo.setPosition(SERVO);
         mDcMotor1.setPower(MOTOR1);
-        mDcMotor2.setPower(MOTOR2*(-1));
+        mDcMotor2.setPower(MOTOR2);
     }
 
 }

@@ -62,7 +62,7 @@ public class ShootingTest extends OpMode {
     public static double VELOCITY_OUTTAKE;
     public static String MOTOR_INTAKE="intake-belts";
     public static double VELOCITY_INTAKE;
-    public static String SERVO_OUTTAKE="outtake-lever-arm";
+    public static String SERVO_OUTTAKE="transfer-servo";
     public static double POSITION_OUTTAKE;
 
     MotorComponent  mMotorOuttake = null;

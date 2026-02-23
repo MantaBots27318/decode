@@ -33,10 +33,11 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 public class Turret {
 
     static final double     sRotationAmplitude = 4 * Math.PI;
-    static final int        sResetTimeMs = 5000;
+    static final int        sResetTimeMs = 1000;
     static final int        sRotationEncoderAmplitude = 5917 - -16398;
     static final int        sProcessingPeriodMs = 200;
     static public double    sMaxSpeed = 1000;
+    static public double    sStartPosition = 0;
 
     Logger                  mLogger;
     boolean                 mReady;
@@ -57,7 +58,8 @@ public class Turret {
     ServoComponent          mHood;
     EncoderComponent        mRotationEncoder;
 
-    double                  mInitialRotationPosition;
+    double                  mInitialEncoderPosition;
+    double                  mInitialServoPosition;
 
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Pose2d initial_position) {
@@ -90,10 +92,8 @@ public class Turret {
             mRotation = ServoComponent.factory(rotation, hwm, "turret-rotation", logger);
             if (!mRotation.isReady()) { mReady = false; status += " HW ROT";}
             else {
-                mRotation.setPosition(0);
-                //this.initialize_rotation(initial_position);
-                mResetTimer.arm(sResetTimeMs);
-                while(mResetTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
+                mInitialServoPosition = mRotation.getPosition();
+                mLogger.info("initial position : " + mInitialServoPosition);
             }
         }
 
@@ -103,8 +103,8 @@ public class Turret {
             mRotationEncoder = EncoderComponent.factory(turntable, hwm, "turret-rotation", logger);
             if (!mRotationEncoder.isReady()) { mReady = false; status += " HW ROT EN";}
             else {
-                mInitialRotationPosition = mRotationEncoder.getCurrentPosition();
-                mLogger.info("initial encoder : " + mInitialRotationPosition);
+                mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
+                mLogger.info("initial encoder : " + mInitialEncoderPosition);
             }
         }
 
@@ -127,6 +127,7 @@ public class Turret {
         else        { logger.warning("==>  TURRET : KO : " + status); }
 
         if(mReady) {
+            mRotation.setPosition(0);
             //this.initialize_rotation(initial_position);
             //mResetTimer.arm(sResetTimeMs);
             //while(mResetTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
@@ -154,9 +155,10 @@ public class Turret {
             if (output != null) {
                 Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
                 mLogger.info("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
-                double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialRotationPosition;
+                double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
                 mLogger.info("DELTA ENCODER" + delta_encoder);
-                double position = delta_encoder / sRotationEncoderAmplitude;
+                double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
+                mLogger.info("CURRENT SERVO POSITION" + position);
                 Pose2d limelightTurret = this.calculerPoseLimelightRobot(position, mDistanceCenterLimelight);
                 mLogger.info("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble()/ Math.PI * 180);
                 mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
@@ -165,7 +167,7 @@ public class Turret {
                 mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble()/ Math.PI * 180);
                 double deltaAngle = this.angularError(mPath.target(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
                 double servo_position = this.calculateServoPosition(-deltaAngle, position, mShallReset);
-                mLogger.info("SERVO POSITION : " + servo_position);
+                mLogger.info("NEXT SERVO POSITION : " + servo_position);
                 mRotation.setPosition(servo_position);
             }
 
@@ -174,16 +176,16 @@ public class Turret {
         }
     }
 
-    public void shoot() {
+    public void start() {
         if(mReady) {
-            mFlywheel.setPower(1.0);
+            mFlywheel.setVelocity(sMaxSpeed);
             mIsShooting = true;
         }
     }
     
     public void stop() {
         if(mReady) {
-            mFlywheel.setPower(0.0);
+            mFlywheel.setVelocity(0.0);
             mIsShooting = false;
         }
     }
@@ -249,7 +251,7 @@ public class Turret {
 
         double angle = current_position * sRotationAmplitude;
         angle += delta_angle;
-        result = angle / sRotationAmplitude;
+        result = angle / sRotationAmplitude + sStartPosition;
 
         while(result > 1) { result -= 2 * Math.PI / sRotationAmplitude; }
         while(result < 0) { result += 2 * Math.PI / sRotationAmplitude; }
@@ -272,13 +274,5 @@ public class Turret {
         double servo_position = this.calculateServoPosition(-deltaAngle, 0, false);
         mLogger.info("SERVO POSITION : " + servo_position);
         mRotation.setPosition(0);
-    }
-
-    public void start_flyWheel(){
-        mFlywheel.setVelocity(6000);
-    }
-
-    public void stop_flyWheel(){
-        mFlywheel.setVelocity(0);
     }
 }
