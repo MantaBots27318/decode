@@ -14,7 +14,7 @@
             <goBILDA5202SeriesMotor name="guidingWheels" port="1" />
             <goBILDA5202SeriesMotor name="frontRight" port="2" />
             <goBILDA5202SeriesMotor name="backRight" port="3" />
-            <Servo name="transferServo" portv3.xml="0" />
+            <Servo name="transferServo" port="0" />
             <Servo name="turretRotationRight" port="1" />
             <Servo name="turretHood" port="2" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
