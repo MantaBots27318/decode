@@ -40,33 +40,23 @@ import java.util.List;
 @Autonomous
 public class AutonomousMiddleStart extends LinearOpMode {
 
-    List<AutonomousStep> mListActions;
-    Vision mVision;
-    MecanumDrive mDrive;
-    Robot mRobot;
+    Logger                  mLogger;
+    SmartTimer              mTimer;
 
-    Pattern mPattern;
-    Pattern mTargetPattern;
-    int mPatternShift = 0;
-    Alliance mAlliance = Alliance.NONE;
-    PathAutonomousMiddle mPath;
-    Pose2d mLimelightPositionInRR;
+    List<AutonomousStep>    mSteps;
+    Alliance                mAlliance = Alliance.NONE;
+    PathAutonomousMiddle    mPath;
+    Controller              mGamepad1;
 
-    double mWaitingTime = 0.0;
-    boolean mShallGrabAnotherPattern = true;
+    Vision                  mVision;
+    MecanumDrive            mDrive;
+    Robot                   mRobot;
 
-    SmartTimer mTimer;
+    Pose2d                  mLimelightPositionInRR;
 
-    Controller mGamepad1;
-    Controller mGamepad2;
-
-    Logger mLogger;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        mListActions = new ArrayList<AutonomousStep>();
-
-        int mCurrentStepNumber = 0;
 
         mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-middle-start");
         mLogger.level(Logger.Severity.INFO);
@@ -74,8 +64,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap, "vision", mLogger);
         mVision.initialize();
-        mPattern = Pattern.PGP;
-        mTargetPattern = Pattern.PGP;
 
         mPath = new PathAutonomousMiddle(mLogger);
         mLimelightPositionInRR = Configuration.s_Current.getPosition("turret");
@@ -83,74 +71,72 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         mGamepad1 = new Controller(gamepad1, mLogger);
-        mGamepad2 = new Controller(gamepad2, mLogger);
 
         mRobot = new Robot();
-        mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, mGamepad2, mPath);
+        mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, null, mPath);
 
+        mSteps = new ArrayList<AutonomousStep>();
+        mSteps.add(AutonomousStep.NONE);
+        int current_step  = mSteps.size() - 1;
         while (opModeInInit()) {
+
             if (mGamepad1.buttons.dpad_right.pressedOnce()) {
-                mCurrentStepNumber = mCurrentStepNumber + 1;
+                current_step ++;
+                if(current_step >= mSteps.size()) { mSteps.add(AutonomousStep.NONE); }
             }
-            if (mGamepad1.buttons.dpad_left.pressedOnce() && mCurrentStepNumber > 0) {
-                mCurrentStepNumber = mCurrentStepNumber - 1;
-
-            }
-            if (mGamepad1.buttons.dpad_up.pressedOnce()) {
-                if (mListActions.size() <= mCurrentStepNumber) {
-                    mListActions.add(AutonomousStep.NONE);
-                } else {
-                    mListActions.set(mCurrentStepNumber, mListActions.get(mCurrentStepNumber).next());
-                }
+            if (mGamepad1.buttons.dpad_left.pressedOnce()) {
+                current_step --;
+                if(current_step < 0) { current_step = 0; }
             }
 
-            if (mGamepad1.buttons.right_trigger.pressedOnce()) {
+            if (mGamepad1.buttons.dpad_up.pressedOnce()){
+                mSteps.set(current_step,mSteps.get(current_step).next());
+            }
+            if(mGamepad1.buttons.dpad_down.pressedOnce()){
+                mSteps.set(current_step,mSteps.get(current_step).previous());
+            }
+
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mSteps.clear();
+                current_step = 0;
+                mSteps.add(AutonomousStep.NONE);
+            }
+
+            if (mGamepad1.buttons.right_trigger.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPath.initialize(mAlliance, mTargetPattern);
+                mPath.initialize(mAlliance);
             }
-            if (mGamepad1.buttons.left_trigger.pressedOnce()) {
+            if (mGamepad1.buttons.left_trigger.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPath.initialize(mAlliance, mTargetPattern);
+                mPath.initialize(mAlliance);
             }
-
-            if (mGamepad1.buttons.x.pressedOnce()) {
-                mPatternShift -= 1;
-                mPatternShift = Math.max(mPatternShift, 0);
-                mPath.initialize(mAlliance, mTargetPattern);
-            }
-            if (mGamepad1.buttons.b.pressedOnce()) {
-                mPatternShift += 1;
-                mPatternShift = Math.min(mPatternShift, 3);
-                mPath.initialize(mAlliance, mTargetPattern);
-            }
-            if (mGamepad1.buttons.a.pressedOnce()) {
-                mShallGrabAnotherPattern = true;
-            }
-            if (mGamepad1.buttons.y.pressedOnce()) {
-                mShallGrabAnotherPattern = false;
-            }
-            if (mGamepad1.buttons.dpad_down.pressedOnce()) {
-                mListActions.clear();
-            }
-
 
             mLogger.info("=========== MENU ============");
-            mLogger.info("Choose Alliance: DPAD LEFT/RIGHT");
-            mLogger.info("Choose Pattern Shift: X/B ");
-            mLogger.info("Choose Waiting Time: DPAD UP/DOWN");
-            mLogger.info("Choose Park Position: Y/A");
+            mLogger.info("Choose Alliance : TRIGGER LEFT/RIGHT");
+            mLogger.info("Add a step      : DPAD LEFT/RIGHT");
+            mLogger.info("Modify step     : DPAD UP/DOWN");
+            mLogger.info("Clear all steps : Y");
+            mLogger.info("");
 
             mLogger.info("======= CONFIGURATION =======");
-            mLogger.metric("==> ALLIANCE : ", mAlliance.name());
-            mLogger.metric("==> PATTERN SHIFT : ", "" + mPatternShift);
+            mLogger.info("==> ALLIANCE : " + mAlliance.name());
+            StringBuilder steps = new StringBuilder("[");
+            for(int i_step = 0; i_step < mSteps.size(); i_step ++)
+            {
+                if(i_step == current_step) {
+                    steps.append(mSteps.get(i_step).text().toUpperCase());
+                }
+                else {
+                    steps.append(mSteps.get(i_step).text().toLowerCase());
+                }
+                if(i_step < (mSteps.size() - 1)) { steps.append(" , "); }
 
-            if (mShallGrabAnotherPattern) {
-                mLogger.metric("==> THIRD GRAB", "YES");
-            } else {
-                mLogger.metric("==> THIRD GRAB", "NO");
             }
+            steps.append("]");
+            mLogger.info("==> STEPS : " + steps);
+            mLogger.info("" + current_step);
+
             mPath.log();
-            mLogger.info( "List"+mListActions);
             mLogger.update();
 
         }
@@ -192,7 +178,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Actions.runBlocking(
                 mDrive.actionBuilder(start)
-                        .waitSeconds(mWaitingTime)
                         .afterTime(0.01, engageFarAction)
                         .setTangent(start.heading.toDouble())
                         .splineToLinearHeading(new Pose2d(shootinit.position.x, shootinit.position.y, start.heading.toDouble()), start.heading.toDouble())
@@ -206,32 +191,36 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mLogger.metric("SHOOT POSE HEADING",""+mDrive.localizer.getPose().heading.toDouble());
         mLogger.update();
 
-        for (AutonomousStep step : mListActions) {
+        for (AutonomousStep step : mSteps) {
             mLogger.info("" + step);
             if (step != AutonomousStep.NONE) {
+
+                Pose2d shoot = mPath.shootingVeryFar();
+                Pose2d start_intake,end_intake, back_intake;
                 if (step == AutonomousStep.GPP) {
-                    mPath.initialize(mAlliance, Pattern.GPP);
-                } else if (step == AutonomousStep.PGP) {
-                    mPath.initialize(mAlliance, Pattern.PGP);
-                } else if (step == AutonomousStep.PPG) {
-                    mPath.initialize(mAlliance, Pattern.PPG);
+                    start_intake = mPath.startIntake(Pattern.GPP);
+                    end_intake = mPath.endIntake(Pattern.GPP);
+                    back_intake = mPath.backIntake(Pattern.GPP);
+                }
+                else if (step == AutonomousStep.PGP) {
+                    start_intake = mPath.startIntake(Pattern.PGP);
+                    end_intake = mPath.endIntake(Pattern.PGP);
+                    back_intake = mPath.backIntake(Pattern.PGP);
+                }
+                else {
+                    start_intake = mPath.startIntake(Pattern.PPG);
+                    end_intake = mPath.endIntake(Pattern.PPG);
+                    back_intake = mPath.backIntake(Pattern.PPG);
                 }
 
-
-                Pose2d pattern = mPath.pattern();
-                Pose2d end_intake = mPath.endIntake();
-                Pose2d back_intake = mPath.backIntake();
-                Pose2d shoot = mPath.shootingVeryFar();
-                Pose2d leave = mPath.parking();
-                Pose2d ready = mPath.ready();
 
                 Actions.runBlocking(
                         mDrive.actionBuilder(shootinit)
                                 .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(shootinit.heading.toDouble())
-                                .splineToLinearHeading(pattern, pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
-                                .setTangent(pattern.heading.toDouble())
-                                .splineToLinearHeading(end_intake, pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
+                                .setTangent(start_intake.heading.toDouble())
+                                .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                 .afterTime(2, startStopIntakeAction)
                                 .setTangent(-end_intake.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
@@ -247,11 +236,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mLogger.update();
         }
 
-//                Actions.runBlocking(
-//                    mDrive.actionBuilder(shoot)
-//                            .setTangent(shoot.heading.toDouble() + Math.PI)
-//                            .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-//                            .build());
+        Pose2d leave = mPath.leaveVeryFar();
+        Pose2d shoot = mPath.shootingVeryFar();
+
+        Actions.runBlocking(
+            mDrive.actionBuilder(shoot)
+                            .setTangent(shoot.heading.toDouble() + Math.PI)
+                            .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                            .build());
 
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());

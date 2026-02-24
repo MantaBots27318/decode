@@ -36,10 +36,10 @@ import java.util.List;
 @Autonomous
 public class AutonomousGoalStart extends LinearOpMode {
 
-    SmartTimer              mTimer;
-    Controller              mGamepad1;
     Logger                  mLogger;
+    SmartTimer              mTimer;
 
+    Controller              mGamepad1;
     MecanumDrive            mDrive;
     Robot                   mRobot;
     
@@ -53,10 +53,6 @@ public class AutonomousGoalStart extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         
-        mSteps = new ArrayList<AutonomousStep>();
-
-        int mCurrentStepNumber  = 0;
-
         mLogger                 = new Logger(telemetry, FtcDashboard.getInstance(),"autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
         mTimer                  = new SmartTimer(mLogger);
@@ -71,45 +67,68 @@ public class AutonomousGoalStart extends LinearOpMode {
         mRobot                  = new Robot();
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, null, mPath);
 
+        mSteps = new ArrayList<AutonomousStep>();
+        mSteps.add(AutonomousStep.NONE);
+        int current_step  = mSteps.size() - 1;
         while (opModeInInit()) {
 
-            if (mGamepad1.buttons.dpad_right.pressedOnce()){
-                mCurrentStepNumber = mCurrentStepNumber + 1;
+            if (mGamepad1.buttons.dpad_right.pressedOnce()) {
+                current_step ++;
+                if(current_step >= mSteps.size()) { mSteps.add(AutonomousStep.NONE); }
             }
-            if(mGamepad1.buttons.dpad_left.pressedOnce() && mCurrentStepNumber > 0){
-                mCurrentStepNumber = mCurrentStepNumber - 1;
+            if (mGamepad1.buttons.dpad_left.pressedOnce()) {
+                current_step --;
+                if(current_step < 0) { current_step = 0; }
             }
 
-            if(mGamepad1.buttons.dpad_up.pressedOnce()){
-                if(mSteps.size() <= mCurrentStepNumber) { mSteps.add(AutonomousStep.NONE); }
-                else{ mSteps.set(mCurrentStepNumber,mSteps.get(mCurrentStepNumber).next());}
+            if (mGamepad1.buttons.dpad_up.pressedOnce()){
+                mSteps.set(current_step,mSteps.get(current_step).next());
+            }
+            if(mGamepad1.buttons.dpad_down.pressedOnce()){
+                mSteps.set(current_step,mSteps.get(current_step).previous());
+            }
+
+            if(mGamepad1.buttons.y.pressedOnce()){
+                mSteps.clear();
+                current_step = 0;
+                mSteps.add(AutonomousStep.NONE);
             }
 
             if (mGamepad1.buttons.right_trigger.pressedOnce())         {
                 mAlliance = Alliance.RED;
-                mPath.initialize(mAlliance,Pattern.GPP);
+                mPath.initialize(mAlliance);
             }
             if (mGamepad1.buttons.left_trigger.pressedOnce())          {
                 mAlliance = Alliance.BLUE;
-                mPath.initialize(mAlliance, Pattern.GPP);
-            }
-
-            if(mGamepad1.buttons.dpad_down.pressedOnce()){
-                mSteps.clear();
+                mPath.initialize(mAlliance);
             }
 
             mLogger.info("=========== MENU ============");
-            mLogger.info("Choose Alliance: DPAD LEFT/RIGHT");
-            mLogger.info("Choose Pattern Shift: X/B ");
-            mLogger.info("Choose Waiting Time: DPAD UP/DOWN");
-            mLogger.info("Choose Park Position: Y/A");
+            mLogger.info("Choose Alliance : TRIGGER LEFT/RIGHT");
+            mLogger.info("Add a step      : DPAD LEFT/RIGHT");
+            mLogger.info("Modify step     : DPAD UP/DOWN");
+            mLogger.info("Clear all steps : Y");
+            mLogger.info("");
 
             mLogger.info("======= CONFIGURATION =======");
-            mLogger.metric("==> ALLIANCE : ", mAlliance.name());
+            mLogger.info("==> ALLIANCE : " + mAlliance.name());
+            StringBuilder steps = new StringBuilder("[");
+            for(int i_step = 0; i_step < mSteps.size(); i_step ++)
+            {
+                if(i_step == current_step) {
+                    steps.append(mSteps.get(i_step).text().toUpperCase());
+                }
+                else {
+                    steps.append(mSteps.get(i_step).text().toLowerCase());
+                }
+                if(i_step < (mSteps.size() - 1)) { steps.append(" , "); }
+
+            }
+            steps.append("]");
+            mLogger.info("==> STEPS : " + steps);
+            mLogger.info("" + current_step);
 
             mPath.log();
-            mLogger.info( "==> STEPS : " + mSteps);
-
             mLogger.update();
 
         }
@@ -158,25 +177,36 @@ public class AutonomousGoalStart extends LinearOpMode {
 
             if(step != AutonomousStep.NONE) {
 
-                if (step == AutonomousStep.GPP)      { mPath.initialize(mAlliance, Pattern.GPP); }
-                else if (step == AutonomousStep.PGP) { mPath.initialize(mAlliance, Pattern.PGP); }
-                else if (step == AutonomousStep.PPG) { mPath.initialize(mAlliance, Pattern.PPG); }
-
-                Pose2d pattern = mPath.pattern();
-                Pose2d end_intake = mPath.endIntake();
-                Pose2d back_intake = mPath.backIntake();
+                Pose2d start_intake,end_intake, back_intake;
                 Pose2d shoot = mPath.shootingFar();
+
+                if (step == AutonomousStep.GPP) {
+                    start_intake = mPath.startIntake(Pattern.GPP);
+                    end_intake = mPath.endIntake(Pattern.GPP);
+                    back_intake = mPath.backIntake(Pattern.GPP);
+                }
+                else if (step == AutonomousStep.PGP) {
+                    start_intake = mPath.startIntake(Pattern.PGP);
+                    end_intake = mPath.endIntake(Pattern.PGP);
+                    back_intake = mPath.backIntake(Pattern.PGP);
+                }
+                else {
+                    start_intake = mPath.startIntake(Pattern.PPG);
+                    end_intake = mPath.endIntake(Pattern.PPG);
+                    back_intake = mPath.backIntake(Pattern.PPG);
+                }
+
 
                 Actions.runBlocking(
                         mDrive.actionBuilder(mDrive.getPose())
                                 .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(-Math.PI)
-                                .splineToLinearHeading(pattern, pattern.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
-                                .setTangent(pattern.heading.toDouble())
-                                .splineToLinearHeading(end_intake, pattern.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
+                                .setTangent(start_intake.heading.toDouble())
+                                .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                 .afterTime(2, startStopIntakeAction)
-                                .setTangent(-pattern.heading.toDouble())
-                                .splineToLinearHeading(back_intake, -pattern.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                .setTangent(-end_intake.heading.toDouble())
+                                .splineToLinearHeading(back_intake, -back_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                 .afterTime(0.01, engageAction)
                                 .setTangent(mPath.tgtIntakeToShootRadians())
                                 .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
@@ -194,9 +224,7 @@ public class AutonomousGoalStart extends LinearOpMode {
             mLogger.update();
         }
 
-        mPath.initialize(mAlliance, Pattern.GPP);
-
-        Pose2d leave = mPath.parking();
+        Pose2d leave = mPath.leave();
         Pose2d shoot = mPath.shootingFar();
 
         Actions.runBlocking(

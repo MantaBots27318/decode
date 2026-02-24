@@ -96,14 +96,6 @@ public class Chassis implements Posable {
 
             PinpointLocalizer.PARAMS.parYTicks = pinpoint.getParY() / MecanumDrive.PARAMS.inPerTick;
             PinpointLocalizer.PARAMS.perpXTicks = pinpoint.getPerpX() / MecanumDrive.PARAMS.inPerTick;
-            Double initial_heading = config.retrieve("heading");
-            if (initial_heading == null) { initial_heading = 0.0; }
-            Double initial_x = config.retrieve("x");
-            if (initial_x == null) { initial_x = 0.0; }
-            Double initial_y = config.retrieve("y");
-            if (initial_y == null) { initial_y = 0.0; }
-            mLocalizer.setPose(new Pose2d(initial_x,initial_y,initial_heading));
-
         }
 
         // Log status
@@ -143,7 +135,9 @@ public class Chassis implements Posable {
     @Override
     public void setFTCPosition(Pose2d ftcPosition) {
        if(mReady) {
+           mLocalizer.update();
            mLocalizer.setPose(ftcPosition);
+           mLocalizer.update();
        }
     }
 

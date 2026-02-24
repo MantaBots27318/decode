@@ -109,10 +109,19 @@ public class Robot {
         else       { mLogger.warning("==>  NOT READY"); }
     }
 
-
     public void close()
     {
         mTurret.close();
+    }
+
+    public void initialize(Pose2d position) {
+        if(mReady && position != null) {
+            mChassis.setFTCPosition(position);
+            mLogger.info("ROBOT FTC POSITION FROM INIT : " + position.position + " " + position.heading.toDouble() / Math.PI * 180);
+            Pose2d turret_ftc_position = Posable.derivePose(position, new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
+            mLogger.info("TURRET FTC POSITION FROM INIT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+            mTurret.setFTCPosition(turret_ftc_position);
+        }
     }
 
     public void control() {
