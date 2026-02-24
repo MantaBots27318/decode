@@ -89,6 +89,14 @@ public class ServoCoupled extends ServoComponent {
     }
 
     @Override
+    public void                         reset() {
+        if(mReady) {
+            mFirst.resetDeviceConfigurationForOpMode();
+            mSecond.resetDeviceConfigurationForOpMode();
+        }
+    }
+
+    @Override
     public void	                        scaleRange(double min, double max)
     {
         if(mReady) {

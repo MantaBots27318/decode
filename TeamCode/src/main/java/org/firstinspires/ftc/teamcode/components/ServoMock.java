@@ -52,4 +52,6 @@ public class ServoMock extends ServoComponent {
         mPosition = max(mPosition,mMin);
     }
 
+    public void                         reset() {}
+
 }

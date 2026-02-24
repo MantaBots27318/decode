@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
+import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 import java.io.FileWriter;
@@ -52,17 +53,28 @@ import java.io.IOException;
 @TeleOp(name="TurntableTest", group="Test")
 public class TurntableTest extends OpMode {
 
+
+
     EncoderComponent mEncoder;
     ServoComponent      mServo;
 
     Logger              mLogger;
 
+    double              mInitialPosition;
+
+    SmartTimer          mTimer;
+
     public static double mPosition;
+    public static double sEncoderAmplitude = 22315;
+
+    public static boolean mShallReset = false;
+
 
     @Override
     public void init() {
 
         mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"turntable-test");
+        mTimer          = new SmartTimer(mLogger);
 
         ConfEncoder confenc = Configuration.s_Current.getEncoder("turret-rotation");
         if(confenc != null) {
@@ -75,7 +87,12 @@ public class TurntableTest extends OpMode {
         }
 
         if(confenc == null) { mLogger.warning("Could not find encoder named turret-rotation in configuration " + Configuration.s_Current.getVersion()); }
-        if(confservo == null) { mLogger.warning("Could not find servo named turret-rotation in configuration " + Configuration.s_Current.getVersion()); }
+        else if(confservo == null) { mLogger.warning("Could not find servo named turret-rotation in configuration " + Configuration.s_Current.getVersion()); }
+        else {
+            mServo.setPosition(mPosition);
+            mTimer.arm(5000);
+            mInitialPosition = mEncoder.getCurrentPosition();
+        }
 
         mLogger.update();
 
@@ -86,7 +103,12 @@ public class TurntableTest extends OpMode {
 
         if(mServo != null && mEncoder != null) {
             mServo.setPosition(mPosition);
-            mLogger.info("encoder value"+mEncoder.getCurrentPosition());
+            double enc = mEncoder.getCurrentPosition();
+            double delta = enc-mInitialPosition;
+            mLogger.info("encoder value : "+enc);
+            mLogger.info("encoder delta : "+delta);
+            mLogger.info("servo estimated value"+delta / sEncoderAmplitude);
+            if(mShallReset) { mInitialPosition = enc; }
         }
 
 

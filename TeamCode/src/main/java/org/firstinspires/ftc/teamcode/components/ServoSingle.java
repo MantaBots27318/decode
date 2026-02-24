@@ -84,6 +84,14 @@ public class ServoSingle extends ServoComponent {
         }
     }
 
+
+    @Override
+    public void                         reset() {
+        if(mReady) {
+            mServo.resetDeviceConfigurationForOpMode();
+        }
+    }
+
     @Override
     public void	                        setDirection(Servo.Direction direction)
     {

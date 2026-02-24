@@ -34,10 +34,10 @@ public class Turret {
 
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 1000;
-    static final int        sRotationEncoderAmplitude = 5917 - -16398;
-    static final int        sProcessingPeriodMs = 200;
+    static final int        sRotationEncoderAmplitude = 20798;
+    static final int        sProcessingPeriodMs = 0;
     static public double    sMaxSpeed = 1000;
-    static public double    sStartPosition = 0;
+    static public double    sStartPosition = 0.5;
 
     Logger                  mLogger;
     boolean                 mReady;
@@ -61,10 +61,13 @@ public class Turret {
     double                  mInitialEncoderPosition;
     double                  mInitialServoPosition;
 
+    boolean                 mFirstLoop;
+
     // Initialize component from configuration
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Pose2d initial_position) {
         mLogger      = logger;
         mReady       = true;
+        mFirstLoop   = true;
         mIsShooting  = false;
         mShallReset  = false;
         mResetTimer  = new SmartTimer(logger);
@@ -91,10 +94,7 @@ public class Turret {
         else {
             mRotation = ServoComponent.factory(rotation, hwm, "turret-rotation", logger);
             if (!mRotation.isReady()) { mReady = false; status += " HW ROT";}
-            else {
-                mInitialServoPosition = mRotation.getPosition();
-                mLogger.info("initial position : " + mInitialServoPosition);
-            }
+
         }
 
         ConfEncoder turntable = config.getEncoder("turret-rotation");
@@ -102,10 +102,6 @@ public class Turret {
         else {
             mRotationEncoder = EncoderComponent.factory(turntable, hwm, "turret-rotation", logger);
             if (!mRotationEncoder.isReady()) { mReady = false; status += " HW ROT EN";}
-            else {
-                mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
-                mLogger.info("initial encoder : " + mInitialEncoderPosition);
-            }
         }
 
         ConfServo hood = config.getServo("turret-hood");
@@ -127,10 +123,9 @@ public class Turret {
         else        { logger.warning("==>  TURRET : KO : " + status); }
 
         if(mReady) {
-            mRotation.setPosition(0);
-            //this.initialize_rotation(initial_position);
-            //mResetTimer.arm(sResetTimeMs);
-            //while(mResetTimer.isArmed()) { try { Thread.sleep(100); } catch(Exception e) {}}
+
+            mRotation.setPosition(sStartPosition);
+            mResetTimer.arm(3000);
         }
 
     }
@@ -151,28 +146,43 @@ public class Turret {
 
         if(mReady && !mPeriodTimer.isArmed()) {
 
-            Pose3D output = mVision.getPosition();
-            if (output != null) {
-                Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
-                mLogger.info("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
-                double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
-                mLogger.info("DELTA ENCODER" + delta_encoder);
-                double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
-                mLogger.info("CURRENT SERVO POSITION" + position);
-                Pose2d limelightTurret = this.calculerPoseLimelightRobot(position, mDistanceCenterLimelight);
-                mLogger.info("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble()/ Math.PI * 180);
-                mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
-                mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble()/ Math.PI * 180);
-                mCenterPositionFTC = new Pose2d(mCenterPositionFTC.position.x,mCenterPositionFTC.position.y,limelightFTC.heading.toDouble());
-                mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble()/ Math.PI * 180);
-                double deltaAngle = this.angularError(mPath.target(), mCenterPositionFTC, velocityX, velocityY, deltaTime);
-                double servo_position = this.calculateServoPosition(-deltaAngle, position, mShallReset);
-                mLogger.info("NEXT SERVO POSITION : " + servo_position);
-                mRotation.setPosition(servo_position);
+            if(mFirstLoop && !(mResetTimer.isArmed())) {
+                mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
+                mLogger.info("initial encoder : " + mInitialEncoderPosition);
+                mInitialServoPosition = mRotation.getPosition();
+                mLogger.info("initial position : " + mInitialServoPosition);
+                mFirstLoop = false;
             }
+            if(!mFirstLoop) {
 
-            if (!mResetTimer.isArmed()) { mShallReset = false; }
-            mPeriodTimer.arm(sProcessingPeriodMs);
+                mLogger.info("RETRIEVING LIMELIGHT POSITION");
+
+                Pose3D output = mVision.getPosition();
+                if (output != null) {
+                    Pose2d limelightFTC = this.convertLimelightPoseToFTC(output);
+                    mLogger.info("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
+                    double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
+                    mLogger.info("DELTA ENCODER : " + delta_encoder);
+                    double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
+                    mLogger.info("CURRENT SERVO POSITION : " + position);
+                    Pose2d limelightTurret = this.calculerPoseLimelightRobot(position, mDistanceCenterLimelight);
+                    mLogger.info("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
+                    mCenterPositionFTC = PositionMath.getRobotPoseFromLimelight(limelightFTC, limelightTurret);
+                    mLogger.info("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
+                    Pose2d turret_orient = new Pose2d(mCenterPositionFTC.position.x, mCenterPositionFTC.position.y, limelightFTC.heading.toDouble());
+                    mLogger.info("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
+                    double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
+                    mLogger.info("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
+                    double servo_position = this.calculateServoPosition(-deltaAngle, position, mShallReset);
+                    mLogger.info("NEXT SERVO POSITION : " + servo_position);
+                    mRotation.setPosition(servo_position);
+                }
+
+                if (!mResetTimer.isArmed()) {
+                    mShallReset = false;
+                }
+                mPeriodTimer.arm(sProcessingPeriodMs);
+            }
         }
     }
 
@@ -221,25 +231,19 @@ public class Turret {
 
         Vector2d pos_ftc = new Vector2d(target.position.x - turret.position.x, target.position.y - turret.position.y);
         double length = pos_ftc.norm();
-        mLogger.info(length+"length");
         double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
-        mLogger.info(theta1+"theta1");
         double theta2 = target.heading.toDouble() - theta1;
-        mLogger.info(theta2+"theta");
 
         mDirection = new Vector2d(length*Math.sin(theta2),length*Math.cos(theta2));
-        mLogger.info(mDirection+"direction");
         double yaw = -Math.atan2(mDirection.x, mDirection.y);
-        mLogger.info(yaw+"yaw");
         double error = turret.heading.toDouble() - yaw - target.heading.toDouble() ;
-        mLogger.info(error+"error");
 
-        mLogger.info(String.format("==> TRT ERROR: %2.2f ",error / Math.PI * 180));
+        mLogger.trace(String.format("==> TRT ERROR: %2.2f ",error / Math.PI * 180));
 
         double rotation_speed = (pos_ftc.y * vx - pos_ftc.x * vy) / length / length;
         error += rotation_speed * deltaTime;
 
-        mLogger.info(String.format("==> TRT ERROR + SPD: %2.2f ",error / Math.PI * 180));
+        mLogger.trace(String.format("==> TRT ERROR + SPD: %2.2f ",error / Math.PI * 180));
 
         return error;
 
@@ -251,7 +255,8 @@ public class Turret {
 
         double angle = current_position * sRotationAmplitude;
         angle += delta_angle;
-        result = angle / sRotationAmplitude + sStartPosition;
+        result = angle / sRotationAmplitude;
+        result = Math.round(result * 100) * 1.0/ 100;
 
         while(result > 1) { result -= 2 * Math.PI / sRotationAmplitude; }
         while(result < 0) { result += 2 * Math.PI / sRotationAmplitude; }
