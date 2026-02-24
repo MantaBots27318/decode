@@ -8,24 +8,19 @@ package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
-/* FTC Controller includes */
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 /* Local includes */
 import org.firstinspires.ftc.teamcode.components.Controller;
-import org.firstinspires.ftc.teamcode.configurations.ConfImu;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
+import org.firstinspires.ftc.teamcode.pose.Posable;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeWheels;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 public class Robot {
@@ -144,10 +139,20 @@ public class Robot {
 
         if(mReady) {
             move(mX, mY, mRotation);
+            Pose2d chassis_ftc_position = mChassis.getFTCPosition();
+            if(chassis_ftc_position != null) {
+                mLogger.info("ROBOT FTC POSITION FROM PINPOINT : " + chassis_ftc_position.position + " " + chassis_ftc_position.heading.toDouble() / Math.PI * 180);
+                Pose2d turret_ftc_position = Posable.derivePose(chassis_ftc_position, new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
+                mLogger.info("TURRET FTC POSITION FROM PINPOINT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+                mTurret.setFTCPosition(turret_ftc_position);
+            }
             mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
             Pose2d turret_ftc_position = mTurret.getFTCPosition();
             if (turret_ftc_position != null) {
-                mChassis.setPosition(PositionMath.getRobotPoseFromLimelight(turret_ftc_position, mTurretPositionInRR));
+                mLogger.info("TURRET FTC POSITION FROM LIMELIGHT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+                Pose2d robot_ftc_position = Posable.derivePose(turret_ftc_position, mTurretPositionInRR);
+                mLogger.info("ROBOT FTC POSITION FROM LIMELIGHT : " + robot_ftc_position.position + " " + robot_ftc_position.heading.toDouble() / Math.PI * 180);
+                mChassis.setFTCPosition(robot_ftc_position);
             }
             if(mTransferState != TransferState.NONE) { transfer_cycle(); }
         }
@@ -214,9 +219,9 @@ public class Robot {
         if(mReady) {
 
             mTurret = new Turret();
-            Pose2d turret_position = PositionMath.getRobotPoseFromLimelight(
+            Pose2d turret_position = Posable.derivePose(
                     chassis,
-                    new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, mTurretPositionInRR.heading.toDouble()));
+                    new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
 
             mTurret.setHW(config, hwm, mLogger, mPath, turret_position);
 

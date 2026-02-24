@@ -59,7 +59,7 @@ public class V3 extends Configuration {
         mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",false));
 
         /* Components relative positions in robot reference */
-        mPositions.put("limelight-rotation-radius", new Pose2d(2.5,2.5,0));
+        mPositions.put("limelight-rotation-radius", new Pose2d(6,6,0));
         mPositions.put("turret", new Pose2d(-10,0,0));
 
     }

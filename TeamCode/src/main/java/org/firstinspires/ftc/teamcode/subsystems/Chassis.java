@@ -8,12 +8,17 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 
 /* Qualcomm includes */
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+/* Acmerobotics includes */
+import com.acmerobotics.roadrunner.Pose2d;
+
+/* Pose includes */
+import org.firstinspires.ftc.teamcode.pose.Posable;
 
 /* Components includes */
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
@@ -27,7 +32,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class Chassis {
+public class Chassis implements Posable {
 
     Logger mLogger;
     boolean mReady;
@@ -111,6 +116,8 @@ public class Chassis {
 
         if (mReady) {
 
+            mLocalizer.update();
+
             // Rotate the movement direction counter to the bot's rotation
             double rotX = x * Math.cos(heading) - y * Math.sin(heading);
             double rotY = x * Math.sin(heading) + y * Math.cos(heading);
@@ -133,12 +140,14 @@ public class Chassis {
         }
     }
 
-    public void setPosition(Pose2d ftcPosition) {
+    @Override
+    public void setFTCPosition(Pose2d ftcPosition) {
        if(mReady) {
            mLocalizer.setPose(ftcPosition);
        }
     }
 
+    @Override
     public Pose2d getFTCPosition() {
         return mLocalizer.getPose();
     }

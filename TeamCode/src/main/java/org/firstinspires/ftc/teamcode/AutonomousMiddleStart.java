@@ -26,9 +26,9 @@ import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousMiddle;
+import org.firstinspires.ftc.teamcode.pose.Posable;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.PositionMath;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
 import org.firstinspires.ftc.teamcode.vision.Vision;
@@ -282,7 +282,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         (output.getOrientation().getYaw() + 180) * Math.PI / 180);
                 // Ajouter l appel a la fonction de Zelie
                 if (mLimelightPositionInRR != null) {
-                    newReference = PositionMath.getRobotPoseFromLimelight(newReference, mLimelightPositionInRR);
+                    newReference = Posable.derivePose(newReference, mLimelightPositionInRR);
                 }
 
                 mDrive.localizer.update();

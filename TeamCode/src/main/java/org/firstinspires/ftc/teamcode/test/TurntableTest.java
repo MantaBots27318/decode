@@ -60,8 +60,9 @@ public class TurntableTest extends OpMode {
 
     Logger              mLogger;
 
-    double              mInitialPosition;
+    double              mInitialEncoderPosition;
 
+    double              mInitialServoPosition;
     SmartTimer          mTimer;
 
     public static double mPosition;
@@ -91,7 +92,8 @@ public class TurntableTest extends OpMode {
         else {
             mServo.setPosition(mPosition);
             mTimer.arm(5000);
-            mInitialPosition = mEncoder.getCurrentPosition();
+            mInitialEncoderPosition = mEncoder.getCurrentPosition();
+            mInitialServoPosition = mServo.getPosition();
         }
 
         mLogger.update();
@@ -104,11 +106,14 @@ public class TurntableTest extends OpMode {
         if(mServo != null && mEncoder != null) {
             mServo.setPosition(mPosition);
             double enc = mEncoder.getCurrentPosition();
-            double delta = enc-mInitialPosition;
+            double delta = enc-mInitialEncoderPosition;
             mLogger.info("encoder value : "+enc);
             mLogger.info("encoder delta : "+delta);
-            mLogger.info("servo estimated value"+delta / sEncoderAmplitude);
-            if(mShallReset) { mInitialPosition = enc; }
+            mLogger.info("servo estimated value" + (delta / sEncoderAmplitude + mInitialServoPosition));
+            if(mShallReset) {
+                mInitialEncoderPosition = enc;
+                mInitialServoPosition = mServo.getPosition();
+            }
         }
 
 
