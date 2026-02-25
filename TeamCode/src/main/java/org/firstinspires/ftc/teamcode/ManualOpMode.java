@@ -53,7 +53,7 @@ public class ManualOpMode extends LinearOpMode {
         if (initial_x == null) { initial_x = 0.0; }
         Double initial_y = Configuration.s_Current.retrieve("y");
         if (initial_y == null) { initial_y = 0.0; }
-        mRobot.initialize(new Pose2d(initial_x,initial_y,initial_heading));
+        mRobot.initialize(new Pose2d(initial_x,initial_y,initial_heading),Robot.Mode.FIELD_CENTRIC);
 
         mLogger.info("ALL : " +  mAlliance);
         mLogger.update();

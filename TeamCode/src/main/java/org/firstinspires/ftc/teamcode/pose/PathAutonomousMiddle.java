@@ -46,8 +46,8 @@ public class PathAutonomousMiddle extends Path {
     private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE =          Math.PI / 2;
     private static final double ANGLE_DELTA_PATTERN_RADIANS_RED =           -Math.PI / 2;
 
-    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE =    -Math.PI/2;
-    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED =     Math.PI/2;
+    private static final double TGT_SHOOT_TO_LEAVE_RADIANS_BLUE =           Math.PI/2;
+    private static final double TGT_SHOOT_TO_LEAVE_RADIANS_RED =            -Math.PI/2;
 
     private static final double X_LEAVE_VERY_FAR_INCHES = -52;
     private static final double Y_LEAVE_VERY_FAR_INCHES_BLUE = 19;
@@ -61,7 +61,7 @@ public class PathAutonomousMiddle extends Path {
     Map<Pattern, Pose2d>    mEndIntake      = new LinkedHashMap<>();
     Map<Pattern, Pose2d>    mBackIntake     = new LinkedHashMap<>();
     Pose2d  mLeaveVeryFar                   = new Pose2d(0,0,0);
-    double  mTgtIntakeToShootRadians        = 0;
+    double  mTgtShootToLeaveRadians         = 0;
 
     public PathAutonomousMiddle(Logger logger) {
         super(logger);
@@ -108,7 +108,7 @@ public class PathAutonomousMiddle extends Path {
                         Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
             }
 
-            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED + ANGLE_START_RADIANS;
+            mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_RED + ANGLE_START_RADIANS;
             mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_RED,ANGLE_LEAVE_VERY_FAR_RADIANS_RED);
 
         }
@@ -148,7 +148,7 @@ public class PathAutonomousMiddle extends Path {
                 }
             }
 
-            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE + ANGLE_START_RADIANS;
+            mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_BLUE + ANGLE_START_RADIANS;
             mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_BLUE,ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE);
 
         }
@@ -160,28 +160,28 @@ public class PathAutonomousMiddle extends Path {
     public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
     public Pose2d   leaveVeryFar()                  { return mLeaveVeryFar; }
 
-    public double   tgtIntakeToShootRadians()       { return mTgtIntakeToShootRadians;}
+    public double   tgtShootToLeaveRadians()       { return mTgtShootToLeaveRadians;}
 
     public void log() {
 
         mLogger.info("START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
         if(mStartIntake.get(Pattern.GPP) != null) {
-            mLogger.info("PATTERN GPP X : " + mStartIntake.get(Pattern.GPP).position.x + " Y: " + mStartIntake.get(Pattern.GPP).position.y + " H: " + mStartIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info("START INTAKE GPP X : " + mStartIntake.get(Pattern.GPP).position.x + " Y: " + mStartIntake.get(Pattern.GPP).position.y + " H: " + mStartIntake.get(Pattern.GPP).heading.toDouble());
             mLogger.info("END INTAKE GPP X : " + mEndIntake.get(Pattern.GPP).position.x + " Y: " + mEndIntake.get(Pattern.GPP).position.y + " H: " + mEndIntake.get(Pattern.GPP).heading.toDouble());
             mLogger.info("BACK INTAKE GPP X : " + mBackIntake.get(Pattern.GPP).position.x + " Y: " + mBackIntake.get(Pattern.GPP).position.y + " H: " + mBackIntake.get(Pattern.GPP).heading.toDouble());
         }
         if(mStartIntake.get(Pattern.PGP) != null) {
-            mLogger.info("PATTERN PGP X : " + mStartIntake.get(Pattern.PGP).position.x + " Y: " + mStartIntake.get(Pattern.PGP).position.y + " H: " + mStartIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info("START INTAKE PGP X : " + mStartIntake.get(Pattern.PGP).position.x + " Y: " + mStartIntake.get(Pattern.PGP).position.y + " H: " + mStartIntake.get(Pattern.PGP).heading.toDouble());
             mLogger.info("END INTAKE PGP X : " + mEndIntake.get(Pattern.PGP).position.x + " Y: " + mEndIntake.get(Pattern.PGP).position.y + " H: " + mEndIntake.get(Pattern.PGP).heading.toDouble());
             mLogger.info("BACK INTAKE PGP X : " + mBackIntake.get(Pattern.PGP).position.x + " Y: " + mBackIntake.get(Pattern.PGP).position.y + " H: " + mBackIntake.get(Pattern.PGP).heading.toDouble());
         }
         if(mStartIntake.get(Pattern.PPG) != null) {
-            mLogger.info("PATTERN PPG X : " + mStartIntake.get(Pattern.PPG).position.x + " Y: " + mStartIntake.get(Pattern.PPG).position.y + " H: " + mStartIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info("START INTAKE PPG X : " + mStartIntake.get(Pattern.PPG).position.x + " Y: " + mStartIntake.get(Pattern.PPG).position.y + " H: " + mStartIntake.get(Pattern.PPG).heading.toDouble());
             mLogger.info("END INTAKE PPG X : " + mEndIntake.get(Pattern.PPG).position.x + " Y: " + mEndIntake.get(Pattern.PPG).position.y + " H: " + mEndIntake.get(Pattern.PPG).heading.toDouble());
             mLogger.info("BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
         }
         mLogger.info("LEAVE : " + mLeaveVeryFar.position.x + " Y: " + mLeaveVeryFar.position.y + " H: " + mLeaveVeryFar.heading.toDouble());
-        mLogger.info("TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
+        mLogger.info("TGT SHOOT TO LEAVE : " + mTgtShootToLeaveRadians);
         super.log();
     }
 

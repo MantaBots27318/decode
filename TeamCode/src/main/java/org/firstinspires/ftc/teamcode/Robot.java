@@ -29,16 +29,18 @@ public class Robot {
     static final double    sPreciseMovementsMultiplier = 0.3;
     static final double    sGamepadChassisDeadZone     = 0.1;
 
-    enum Mode {
+    public enum Mode {
         ROBOT_CENTRIC,
-        FIELD_CENTRIC
+        FIELD_CENTRIC,
+        AUTONOMOUS
     }
 
     public enum TransferState {
         NONE,
         WAITING,
         DOWN,
-        LET
+        LET,
+        BLOCK
     }
 
     Logger                  mLogger;
@@ -49,7 +51,6 @@ public class Robot {
     double                  mHeadingOffset;
     Path                    mPath;
     Mode                    mMode = Mode.FIELD_CENTRIC;
-    Mode                    mFallbackMode;
     boolean                 mPreciseMovements;
 
     // Relative position
@@ -60,9 +61,6 @@ public class Robot {
     IntakeWheels            mIntake;
     Turret                  mTurret;
     Transfer                mTransfer;
-
-    // Components
-    IMU                     mImu;
 
     // Controllers
     Controller              mGamepadChassis;
@@ -87,7 +85,6 @@ public class Robot {
             mGamepadChassis     = gamepad1;
             mGamepadAttachments = gamepad2;
             mPath               = path;
-            mFallbackMode       = mMode;
             mPreciseMovements   = false;
             mTransferState      = TransferState.NONE;
         }
@@ -114,13 +111,17 @@ public class Robot {
         mTurret.close();
     }
 
-    public void initialize(Pose2d position) {
-        if(mReady && position != null) {
-            mChassis.setFTCPosition(position);
-            mLogger.info("ROBOT FTC POSITION FROM INIT : " + position.position + " " + position.heading.toDouble() / Math.PI * 180);
-            Pose2d turret_ftc_position = Posable.derivePose(position, new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
-            mLogger.info("TURRET FTC POSITION FROM INIT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
-            mTurret.setFTCPosition(turret_ftc_position);
+    public void initialize(Pose2d position, Mode mode) {
+        if(mReady)
+        {
+            mMode = mode;
+            if(position != null) {
+                mChassis.setFTCPosition(position);
+                mLogger.info("ROBOT FTC POSITION FROM INIT : " + position.position + " " + position.heading.toDouble() / Math.PI * 180);
+                Pose2d turret_ftc_position = Posable.derivePose(position, new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
+                mLogger.info("TURRET FTC POSITION FROM INIT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+                mTurret.setFTCPosition(turret_ftc_position);
+            }
         }
     }
 
@@ -147,7 +148,7 @@ public class Robot {
     public void loop() {
 
         if(mReady) {
-            move(mX, mY, mRotation);
+            if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
             Pose2d chassis_ftc_position = mChassis.getFTCPosition();
             if(chassis_ftc_position != null) {
                 mLogger.info("ROBOT FTC POSITION FROM PINPOINT : " + chassis_ftc_position.position + " " + chassis_ftc_position.heading.toDouble() / Math.PI * 180);
@@ -173,12 +174,12 @@ public class Robot {
         if(mReady && mGamepadChassis != null) {
 
             if (mGamepadChassis.buttons.a.pressedOnce()) {
-                if (mFallbackMode == Mode.FIELD_CENTRIC) {
+                if (mMode == Mode.FIELD_CENTRIC) {
                     mLogger.info("==> ROBOT CENTRIC MODE");
-                    mFallbackMode = mMode = Mode.ROBOT_CENTRIC;
-                } else if (mFallbackMode == Mode.ROBOT_CENTRIC) {
+                    mMode = Mode.ROBOT_CENTRIC;
+                } else if (mMode == Mode.ROBOT_CENTRIC) {
                     mLogger.info("==> FIELD CENTRIC MODE");
-                    mFallbackMode = mMode = Mode.FIELD_CENTRIC;
+                    mMode = Mode.FIELD_CENTRIC;
                 }
             }
 
@@ -192,13 +193,7 @@ public class Robot {
         if(mReady && mGamepadChassis != null) {
             if (mGamepadChassis.buttons.x.pressedOnce()) { start_stop_intake();   }
             if (mGamepadChassis.buttons.y.pressedOnce()) { reverse_stop_intake(); }
-            if (mGamepadChassis.buttons.b.pressedOnce()) {
-                if (mTransfer.getPosition() == Transfer.Position.BLOCK) {
-                    transfer_cycle();
-                } else if (mTransfer.getPosition() == Transfer.Position.LET) {
-                    mTransfer.setPosition(Transfer.Position.BLOCK);
-                }
-            }
+            if (mGamepadChassis.buttons.b.pressedOnce()) { transfer_cycle();      }
             if (mGamepadChassis.buttons.right_bumper.pressedOnce()) { start_stop_shooting(); }
         }
     }
@@ -291,16 +286,13 @@ public class Robot {
         else { mTurret.start(); }
     }
 
-    public boolean start_engage() {
-        if(mReady) { mTurret.start(); }
-        return false;
+    public void shoot() {
+        transfer_cycle();
+        while(mTransferState != TransferState.NONE) { transfer_cycle(); }
     }
 
-    public void shoot() {}
 
-
-    boolean transfer_cycle() {
-
+    public void transfer_cycle() {
 
         if (mTransferState == TransferState.NONE) {
             mTransferState = TransferState.WAITING;
@@ -312,16 +304,21 @@ public class Robot {
             }
         }
         else if(mTransferState == TransferState.DOWN && !mTransfer.isMoving()) {
-            mTransfer.setPosition(Transfer.Position.LET);
+            mTransfer.setPosition(Transfer.Position.LET,3000);
             if (mTransfer.getPosition() == Transfer.Position.LET)  {
                 mTransferState = TransferState.LET;
             }
         }
-        else if (mTransferState == TransferState.LET && !mTransfer.isMoving()) {
+        else if(mTransferState == TransferState.LET && !mTransfer.isMoving()) {
+            mTransfer.setPosition(Transfer.Position.BLOCK);
+            if (mTransfer.getPosition() == Transfer.Position.BLOCK)  {
+                mTransferState = TransferState.BLOCK;
+            }
+        }
+        else if (mTransferState == TransferState.BLOCK && !mTransfer.isMoving()) {
             mTransferState = TransferState.NONE;
         }
 
-        return mTransferState != TransferState.NONE;
     }
 
 }
