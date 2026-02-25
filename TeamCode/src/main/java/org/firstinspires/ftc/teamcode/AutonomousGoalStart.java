@@ -134,7 +134,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         };
 
         Action engageAction = p -> {
-            mRobot.start_stop_shooting();
+            mRobot.start_stop_flywheel();
             return false;
         };
 

@@ -9,7 +9,6 @@ package org.firstinspires.ftc.teamcode;
 /* Qualcomm includes */
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 /* Local includes */
 import org.firstinspires.ftc.teamcode.components.Controller;
@@ -194,7 +193,7 @@ public class Robot {
             if (mGamepadChassis.buttons.x.pressedOnce()) { start_stop_intake();   }
             if (mGamepadChassis.buttons.y.pressedOnce()) { reverse_stop_intake(); }
             if (mGamepadChassis.buttons.b.pressedOnce()) { transfer_cycle();      }
-            if (mGamepadChassis.buttons.right_bumper.pressedOnce()) { start_stop_shooting(); }
+            if (mGamepadChassis.buttons.right_bumper.pressedOnce()) { start_stop_flywheel(); }
         }
     }
 
@@ -278,7 +277,7 @@ public class Robot {
     }
 
 
-    public void start_stop_shooting() {
+    public void start_stop_flywheel() {
         mLogger.info("==> SHOOT");
         if(mTurret.isShooting()) {
             mTurret.stop();
