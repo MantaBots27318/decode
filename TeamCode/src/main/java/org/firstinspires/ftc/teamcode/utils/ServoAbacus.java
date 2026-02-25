@@ -3,23 +3,22 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-public class AngleAbacus {
-
-    public static double MULTIPLIER = 1.0;
+public class ServoAbacus {
 
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {45,2.6},
-            {59.8, 2.7},
-            {70, 2.72},
-            {80,2.75},
-            {90, 2.9},
-            {100,  3.1},
-            {111,  3.2},
-            {122, 3.3},
-            {133, 3.4},
-            {500, 3.75}
+            {0,0},
+            {45,0},
+            {59.8, 0},
+            {70, 0},
+            {80,0},
+            {90, 0},
+            {100,  0},
+            {111,  0},
+            {122, 0},
+            {133, 0},
+            {500, 0}
     };
 
     /**
@@ -28,7 +27,7 @@ public class AngleAbacus {
      * @param distance Distance to the target
      * @return Interpolated power value
      */
-    public static double getAngle(double distance) {
+    public static double getPosition(double distance) {
 
         double result = 0;
 
@@ -55,6 +54,6 @@ public class AngleAbacus {
             }
         }
 
-        return result * MULTIPLIER;
+        return result;
     }
 }

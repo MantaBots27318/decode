@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-import java.util.Map;
 
 public abstract class ServoComponent {
 
@@ -26,7 +25,8 @@ public abstract class ServoComponent {
     public static ServoComponent factory(ConfServo config, HardwareMap hwm, String name, Logger logger) {
 
         ServoComponent result = null;
-        // Build motor based on configuration
+
+        // Build servo based on configuration
         if (config.shallMock()) { result = new ServoMock(name); }
         else if (config.getHw().size() == 1) { result = new ServoSingle(config, hwm, name, logger); }
         else if (config.getHw().size() == 2) { result = new ServoCoupled(config, hwm, name, logger); }

@@ -32,7 +32,7 @@ public abstract class MotorComponent {
         else if (config.getHw().size() == 2) { result = new MotorCoupled(config, hwm, name, logger); }
 
         // Default configuration
-        if (result.isReady()) {
+        if (result != null && result.isReady()) {
             // Initialize motor
             result.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             result.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

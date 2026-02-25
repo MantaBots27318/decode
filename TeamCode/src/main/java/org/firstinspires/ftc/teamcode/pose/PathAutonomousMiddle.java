@@ -92,20 +92,21 @@ public class PathAutonomousMiddle extends Path {
                         Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
                         ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED));
 
-
             for (Pattern pattern : Pattern.values()) {
-
-                mEndIntake.put(pattern, new Pose2d(
-                        Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                        Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED,
-                        Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                if (pattern != Pattern.NONE) {
+                    mEndIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
             for (Pattern pattern : Pattern.values()) {
-
-                mBackIntake.put(pattern, new Pose2d(
-                        Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                        Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
-                        Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                if (pattern != Pattern.NONE) {
+                    mBackIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
 
             mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_RED + ANGLE_START_RADIANS;

@@ -49,8 +49,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
     MecanumDrive            mDrive;
     Robot                   mRobot;
 
-    Pose2d                  mLimelightPositionInRR;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -63,7 +61,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mVision.initialize();
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mLimelightPositionInRR = Configuration.s_Current.getPosition("turret");
 
         mDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 

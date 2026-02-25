@@ -24,13 +24,11 @@ public enum AutonomousStep {
         if(mIdentifier == AutonomousStep.NONE.mIdentifier ) { return AutonomousStep.GPP; }
         if(mIdentifier == AutonomousStep.GPP.mIdentifier ) { return AutonomousStep.PPG; }
         if(mIdentifier == AutonomousStep.PPG.mIdentifier ) { return AutonomousStep.PGP; }
-        if(mIdentifier == AutonomousStep.PGP.mIdentifier ) { return AutonomousStep.NONE; }
         return AutonomousStep.NONE;
     }
 
     public AutonomousStep previous() {
         if(mIdentifier == AutonomousStep.NONE.mIdentifier ) { return AutonomousStep.PGP; }
-        if(mIdentifier == AutonomousStep.GPP.mIdentifier ) { return AutonomousStep.NONE; }
         if(mIdentifier == AutonomousStep.PPG.mIdentifier ) { return AutonomousStep.GPP; }
         if(mIdentifier == AutonomousStep.PGP.mIdentifier ) { return AutonomousStep.PPG; }
         return AutonomousStep.NONE;

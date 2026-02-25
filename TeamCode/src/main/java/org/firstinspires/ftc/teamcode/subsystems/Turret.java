@@ -31,13 +31,28 @@ import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.Posable;
 
 /* Utils includes */
+import org.firstinspires.ftc.teamcode.utils.ServoAbacus;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 /* Vision includes */
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class Turret implements Posable{
+
+
+    public enum Position {
+        MIN,
+        MAX
+    }
+
+    private static final Map<String, Position> sConfToPosition = Map.of(
+            "min", Position.MIN,
+            "max", Position.MAX
+    );
 
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 1000;
@@ -67,11 +82,13 @@ public class Turret implements Posable{
 
     double                  mInitialEncoderPosition;
     double                  mInitialServoPosition;
+    Map<Position, Double>   mPositions;   // Link between positions enumerated and servos positions
 
-    boolean                 mFirstLoop;
+
+    boolean                mFirstLoop;
 
     // Initialize component from configuration
-    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path, Pose2d initial_position) {
+    public void setHW(Configuration config, HardwareMap hwm, Logger logger, Path path) {
         mLogger      = logger;
         mReady       = true;
         mFirstLoop   = true;
@@ -111,11 +128,22 @@ public class Turret implements Posable{
             if (!mRotationEncoder.isReady()) { mReady = false; status += " HW ROT EN";}
         }
 
+        mPositions   = new LinkedHashMap<>();
         ConfServo hood = config.getServo("turret-hood");
         if(hood == null)  { mReady = false; status += " CONF HD";}
         else {
             mHood = ServoComponent.factory(hood, hwm, "turret-hood", logger);
             if (!mHood.isReady()) { mReady = false; status += " HW HD";}
+
+            mPositions.clear();
+            Map<String, Double> confPosition = hood.getPositions();
+            for (Map.Entry<String, Double> pos : confPosition.entrySet()) {
+                if(sConfToPosition.containsKey(pos.getKey())) {
+                    mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
+                }  else {
+                    mLogger.info("Found unmanaged intake lever arm position : " + pos.getKey());
+                }
+            }
         }
 
         Pose2d radius = config.getPosition("limelight-rotation-radius");
@@ -130,7 +158,6 @@ public class Turret implements Posable{
         else        { logger.warning("==>  TURRET : KO : " + status); }
 
         if(mReady) {
-
             mRotation.setPosition(sStartPosition);
             mResetTimer.arm(3000);
         }
@@ -175,7 +202,7 @@ public class Turret implements Posable{
                 double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
                 mLogger.trace("DELTA ENCODER : " + delta_encoder);
                 double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
-                mLogger.trace("CURRENT SERVO POSITION : " + position);
+                mLogger.trace("CURRENT ROTATION SERVO POSITION : " + position);
                 Pose2d limelightTurret = this.calculerPoseLimelightInTurretReference(position, mDistanceCenterLimelight);
                 mLogger.trace("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
 
@@ -191,9 +218,12 @@ public class Turret implements Posable{
                 mLogger.trace("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
                 double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
                 mLogger.trace("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
-                double servo_position = this.calculateServoPosition(-deltaAngle, position, mShallReset);
-                mLogger.trace("NEXT SERVO POSITION : " + servo_position);
-                mRotation.setPosition(servo_position);
+                double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
+                mLogger.trace("NEXT ROTATION SERVO POSITION : " + rotation_servo_position);
+                mRotation.setPosition(rotation_servo_position);
+                double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
+                mLogger.trace("NEXT HOOD SERVO POSITION : " + hood_servo_position);
+                mHood.setPosition(hood_servo_position);
 
                 if (!mResetTimer.isArmed()) { mShallReset = false; }
                 mPeriodTimer.arm(sProcessingPeriodMs);
@@ -264,7 +294,7 @@ public class Turret implements Posable{
 
     }
 
-    private double calculateServoPosition(double delta_angle, double current_position, boolean shall_reset){
+    private double calculateRotationServoPosition(double delta_angle, double current_position, boolean shall_reset){
 
         double result;
 
@@ -289,10 +319,18 @@ public class Turret implements Posable{
 
     }
 
-    private void initialize_rotation(Pose2d initial){
-        double deltaAngle = this.angularError(mPath.target(), initial, 0, 0, 0);
-        double servo_position = this.calculateServoPosition(-deltaAngle, 0, false);
-        mLogger.info("SERVO POSITION : " + servo_position);
-        mRotation.setPosition(0);
+    private double calculateHoodServoPosition(Pose2d target, Pose2d center) {
+
+        double distance = Math.sqrt(
+                (target.position.x - center.position.x) *
+                (target.position.x - center.position.x) +
+                (target.position.y - center.position.y) *
+                (target.position.y - center.position.y));
+
+        double result = ServoAbacus.getPosition(distance);
+        if(result < mPositions.get(Position.MIN)) { result = mPositions.get(Position.MIN); }
+        if(result > mPositions.get(Position.MAX)) { result = mPositions.get(Position.MAX); }
+
+        return result;
     }
 }

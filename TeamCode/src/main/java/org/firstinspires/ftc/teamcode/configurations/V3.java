@@ -36,9 +36,9 @@ public class V3 extends Configuration {
 
         /* Transfer configuration */
         mServos.put("transfer-servo", new ConfServo("transferServo", false));
-        mServos.get("transfer-servo").addPosition("block", 0.58);
-        mServos.get("transfer-servo").addPosition("let", 0.55);
-        mServos.get("transfer-servo").addPosition("down", 0.6);
+        mServos.get("transfer-servo").addPosition("block", 0.6);
+        mServos.get("transfer-servo").addPosition("let", 0.5);
+        mServos.get("transfer-servo").addPosition("down", 0.62);
 
         /* Limelight configuration */
         mLimelights.put("limelight", new ConfLimelight("limelight"));
@@ -54,6 +54,8 @@ public class V3 extends Configuration {
                 "turretRotationLeft", false,
                 "turretRotationRight", false));
         mServos.put("turret-hood", new ConfServo("turretHood", false));
+        mServos.get("turret-hood").addPosition("min", 0.2);
+        mServos.get("turret-hood").addPosition("max", 0.8);
 
         // Turntable encoder is plugged on the intake wheels motor
         mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",false));

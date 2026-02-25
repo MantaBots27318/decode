@@ -27,7 +27,6 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
 
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import java.util.List;
 public class AutonomousGoalStart extends LinearOpMode {
 
     Logger mLogger;
-    SmartTimer mTimer;
 
     Controller mGamepad1;
     MecanumDrive mDrive;
@@ -54,7 +52,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
-        mTimer = new SmartTimer(mLogger);
 
         mGamepad1 = new Controller(gamepad1, mLogger);
 

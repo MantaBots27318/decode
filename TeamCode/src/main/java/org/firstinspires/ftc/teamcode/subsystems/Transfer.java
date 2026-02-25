@@ -24,9 +24,6 @@ import java.util.Map;
 public class Transfer {
 
 
-    public static double sBLOCK = 0.6;
-    public static double sLET = 0.5;
-    public static double sDOWN = 0.62;
     public enum Position {
         BLOCK,
         LET,
@@ -83,10 +80,6 @@ public class Transfer {
                     mLogger.info("Found unmanaged intake lever arm position : " + pos.getKey());
                 }
             }
-
-            mPositions.put(Position.LET,sLET);
-            mPositions.put(Position.BLOCK,sBLOCK);
-            mPositions.put(Position.DOWN,sDOWN);
 
             if (!mServo.isReady()) { mReady = false; status += " HW";}
         }

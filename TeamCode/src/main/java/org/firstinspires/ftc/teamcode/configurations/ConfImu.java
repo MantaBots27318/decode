@@ -13,7 +13,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 public class ConfImu {
 
     // Name
-    private String                                          m_name = "";
+    private String                                          m_name;
 
     // Orientation
     private RevHubOrientationOnRobot.LogoFacingDirection    m_logo = RevHubOrientationOnRobot.LogoFacingDirection.UP;

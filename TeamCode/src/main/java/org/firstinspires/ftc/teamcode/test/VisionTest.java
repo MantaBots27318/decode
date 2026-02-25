@@ -24,11 +24,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+
+/* Pose includes */
+import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.Posable;
 
 /* Utils includes */
-import org.firstinspires.ftc.teamcode.pose.Path;
-import org.firstinspires.ftc.teamcode.pose.Posable;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
 /* Vision includes */

@@ -176,7 +176,7 @@ public class LockQRCode {
 
             mLocalizer.update();
 
-            Pose3D output = null;
+            Pose3D output;
             output = mVision.getPosition();
             if (output != null) {
 

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.Posable;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeWheels;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.utils.Logger;
@@ -57,7 +57,7 @@ public class Robot {
 
     // Subsystems
     Chassis                 mChassis;
-    IntakeWheels            mIntake;
+    Intake mIntake;
     Turret                  mTurret;
     Transfer                mTransfer;
 
@@ -91,9 +91,8 @@ public class Robot {
             mTurretPositionInRR = config.getPosition("turret");
             if(mTurretPositionInRR == null) { mReady = false; }
         }
-        if(mReady) { mReady = this.initialize_drive(config, hwm);      }
-        if(mReady) { mReady = this.initialize_collecting(config, hwm, mChassis.getFTCPosition()); }
-
+        if(mReady) { this.initialize_drive(config, hwm);      }
+        if(mReady) { this.initialize_collecting(config, hwm); }
 
         if(mReady && mGamepadChassis != null) {
             mGamepadChassis.axes.left_stick_x.deadzone(sGamepadChassisDeadZone);
@@ -215,43 +214,30 @@ public class Robot {
         }
     }
 
-    boolean initialize_collecting(Configuration config, HardwareMap hwm, Pose2d chassis) {
+    void initialize_collecting(Configuration config, HardwareMap hwm) {
 
         mLogger.info("======= COLLECTING =======");
 
-        if(mReady) {
+        mTurret = new Turret();
+        mTurret.setHW(config, hwm, mLogger, mPath);
 
-            mTurret = new Turret();
-            Pose2d turret_position = Posable.derivePose(
-                    chassis,
-                    new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
+        mIntake = new Intake();
+        mIntake.setHW(config, hwm, mLogger);
 
-            mTurret.setHW(config, hwm, mLogger, mPath, turret_position);
-
-            mIntake = new IntakeWheels();
-            mIntake.setHW(config, hwm, mLogger);
-
-            mTransfer = new Transfer();
-            mTransfer.setHW(config, hwm, mLogger);
-        }
-
-        return true;
+        mTransfer = new Transfer();
+        mTransfer.setHW(config, hwm, mLogger);
 
     }
 
-    boolean initialize_drive(Configuration config, HardwareMap hwm) {
+    void initialize_drive(Configuration config, HardwareMap hwm) {
 
         mLogger.info("======== DRIVING =========");
 
         if (mMode == Mode.FIELD_CENTRIC)      { mLogger.info("==>  FIELD CENTRIC"); }
         else if (mMode == Mode.ROBOT_CENTRIC) { mLogger.info("==>  ROBOT CENTRIC"); }
 
-        if(mReady) {
-            mChassis = new Chassis();
-            mChassis.setHW(config, hwm, mLogger);
-        }
-
-        return true;
+        mChassis = new Chassis();
+        mChassis.setHW(config, hwm, mLogger);
 
     }
 

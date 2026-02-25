@@ -219,19 +219,4 @@ public class AutonomousGatePickup extends LinearOpMode {
 
     }
 
-    @NonNull
-    private static StringBuilder getStringBuilder(int current_step, List<AutonomousStep> mSteps) {
-        StringBuilder steps = new StringBuilder("[");
-        for (int i_step = 0; i_step < mSteps.size(); i_step++) {
-            if (i_step == current_step) {
-                steps.append(mSteps.get(i_step).text().toUpperCase());
-            } else {
-                steps.append(mSteps.get(i_step).text().toLowerCase());
-            }
-            if (i_step < (mSteps.size() - 1)) { steps.append(" , "); }
-        }
-
-        steps.append("]");
-        return steps;
-    }
 }

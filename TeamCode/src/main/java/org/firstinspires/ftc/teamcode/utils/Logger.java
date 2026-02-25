@@ -543,54 +543,49 @@ public class Logger {
             mDriverStation.addLine(Objects.requireNonNull(mTraces.get(Target.DRIVER_STATION)).toString());
 
         } else if (target == Target.DASHBOARD && mDashboard != null) {
-            StringBuilder persistent = new StringBuilder();
 
-            persistent.append("<details open>\n");
-            persistent.append("<summary style=\"font-size:");
-            persistent.append(sEntryFontSize);
-            persistent.append("px; font-weight: 500\"> ERRORS </summary>\n");
-            persistent.append("<ul>\n");
-            persistent.append(Objects.requireNonNull(mErrors.get(Target.DASHBOARD)));
-            persistent.append("</ul>\n");
-            persistent.append("</details>\n");
+            String persistent = "<details open>\n" +
+                    "<summary style=\"font-size:" +
+                    sEntryFontSize +
+                    "px; font-weight: 500\"> ERRORS </summary>\n" +
+                    "<ul>\n" +
+                    Objects.requireNonNull(mErrors.get(Target.DASHBOARD)) +
+                    "</ul>\n" +
+                    "</details>\n" +
+                    "<details open>\n" +
+                    "<summary style=\"font-size:" +
+                    sEntryFontSize +
+                    "px; font-weight: 500\"> WARNINGS </summary>\n" +
+                    "<ul>\n" +
+                    Objects.requireNonNull(mWarnings.get(Target.DASHBOARD)) +
+                    "</ul>\n" +
+                    "</details>\n" +
+                    "<details open>\n" +
+                    "<summary style=\"font-size:" +
+                    sEntryFontSize +
+                    "px; font-weight: 500\"> INFOS </summary>\n" +
+                    "<ul>\n" +
+                    Objects.requireNonNull(mInfos.get(Target.DASHBOARD)) +
+                    "</ul>\n" +
+                    "</details>\n" +
+                    "<details open>\n" +
+                    "<summary style=\"font-size:" +
+                    sEntryFontSize +
+                    "px; font-weight: 500\"> DEBUG </summary>\n" +
+                    "<ul>\n" +
+                    Objects.requireNonNull(mDebugs.get(Target.DASHBOARD)) +
+                    "</ul>\n" +
+                    "</details>\n" +
+                    "<details open>\n" +
+                    "<summary style=\"font-size:" +
+                    sEntryFontSize +
+                    "px; font-weight: 500\"> TRACES </summary>\n" +
+                    "<ul>\n" +
+                    Objects.requireNonNull(mTraces.get(Target.DASHBOARD)) +
+                    "</ul>\n" +
+                    "</details>\n";
 
-            persistent.append("<details open>\n");
-            persistent.append("<summary style=\"font-size:");
-            persistent.append(sEntryFontSize);
-            persistent.append("px; font-weight: 500\"> WARNINGS </summary>\n");
-            persistent.append("<ul>\n");
-            persistent.append(Objects.requireNonNull(mWarnings.get(Target.DASHBOARD)));
-            persistent.append("</ul>\n");
-            persistent.append("</details>\n");
-
-            persistent.append("<details open>\n");
-            persistent.append("<summary style=\"font-size:");
-            persistent.append(sEntryFontSize);
-            persistent.append("px; font-weight: 500\"> INFOS </summary>\n");
-            persistent.append("<ul>\n");
-            persistent.append(Objects.requireNonNull(mInfos.get(Target.DASHBOARD)));
-            persistent.append("</ul>\n");
-            persistent.append("</details>\n");
-
-            persistent.append("<details open>\n");
-            persistent.append("<summary style=\"font-size:");
-            persistent.append(sEntryFontSize);
-            persistent.append("px; font-weight: 500\"> DEBUG </summary>\n");
-            persistent.append("<ul>\n");
-            persistent.append(Objects.requireNonNull(mDebugs.get(Target.DASHBOARD)));
-            persistent.append("</ul>\n");
-            persistent.append("</details>\n");
-
-            persistent.append("<details open>\n");
-            persistent.append("<summary style=\"font-size:");
-            persistent.append(sEntryFontSize);
-            persistent.append("px; font-weight: 500\"> TRACES </summary>\n");
-            persistent.append("<ul>\n");
-            persistent.append(Objects.requireNonNull(mTraces.get(Target.DASHBOARD)));
-            persistent.append("</ul>\n");
-            persistent.append("</details>\n");
-
-            mDashboard.getTelemetry().addLine(persistent.toString());
+            mDashboard.getTelemetry().addLine(persistent);
         }
         else if(target == Target.FILE && mFile != null) {
             try {
@@ -723,6 +718,7 @@ public class Logger {
         Integer filterPriority = sLevelToPriority.get(mLevel);
         if( filterPriority != null && errorPriority != null && filterPriority >= errorPriority) {
 
+            final String number = line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "";
             switch (target) {
                 case DASHBOARD:
                     if (mDashboard != null) {
@@ -734,7 +730,7 @@ public class Logger {
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                                .append(number).append(line) // Avoid String.format()
                                 .append(" - ")
                                 .append(message)
                                 .append("</li>\n");
@@ -747,7 +743,7 @@ public class Logger {
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                                .append(number).append(line) // Avoid String.format()
                                 .append(" - ")
                                 .append(message)
                                 .append("\n");
@@ -764,7 +760,7 @@ public class Logger {
                             .append("] [ERROR] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(number).append(line) // Avoid String.format()
                             .append(" - ")
                             .append(message)
                             .append('\n');

@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class IntakeWheels {
+public class Intake {
 
     Logger                  mLogger;      // Local logger
     boolean                 mReady;       // True if component is able to fulfil its mission

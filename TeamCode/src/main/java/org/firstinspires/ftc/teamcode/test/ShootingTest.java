@@ -13,11 +13,10 @@ import java.io.FileWriter;
 /* Qualcomm includes */
 import android.os.Environment;
 
-import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /* Acmerobotics includes */
@@ -25,29 +24,20 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* Components includes */
-import org.firstinspires.ftc.teamcode.components.LedComponent;
-import org.firstinspires.ftc.teamcode.components.LedCoupled;
-import org.firstinspires.ftc.teamcode.components.LedMock;
-import org.firstinspires.ftc.teamcode.components.LedSingle;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
-import org.firstinspires.ftc.teamcode.components.MotorCoupled;
-import org.firstinspires.ftc.teamcode.components.MotorMock;
-import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
-import org.firstinspires.ftc.teamcode.components.ServoCoupled;
-import org.firstinspires.ftc.teamcode.components.ServoMock;
-import org.firstinspires.ftc.teamcode.components.ServoSingle;
+import org.firstinspires.ftc.teamcode.components.EncoderComponent;
 
 /*  Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
-import org.firstinspires.ftc.teamcode.configurations.ConfLed;
+import org.firstinspires.ftc.teamcode.configurations.ConfEncoder;
 import org.firstinspires.ftc.teamcode.configurations.ConfLimelight;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 
 /* Utils includes */
-import org.firstinspires.ftc.teamcode.pose.LockQRCode;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
 import org.firstinspires.ftc.teamcode.utils.Logger;
@@ -60,28 +50,41 @@ public class ShootingTest extends OpMode {
 
     public static String MOTOR_OUTTAKE="outtake-wheels";
     public static double VELOCITY_OUTTAKE;
-    public static String MOTOR_INTAKE="intake-belts";
-    public static double VELOCITY_INTAKE;
-    public static String SERVO_OUTTAKE="transfer-servo";
-    public static double POSITION_OUTTAKE;
+    public static String MOTOR_INTAKE="intake-wheels";
+    public static double POWER_INTAKE;
+    public static String MOTOR_GUIDING="guiding-wheels";
+    public static double POWER_GUIDING;
+    public static String SERVO_TRANSFER="transfer-servo";
+    public static double POSITION_TRANSFER;
+    public static String SERVO_HOOD="turret-hood";
+    public static double POSITION_HOOD;
+    public static String SERVO_ROTATION="turret-rotation";
+    public static double POSITION_ROTATION = 0.5;
+    public static String ENCODER_ROTATION="turret-rotation";
 
-    MotorComponent  mMotorOuttake = null;
-    LedComponent mLed;
-    MotorComponent  mMotorIntake = null;
-    ServoComponent  mServoOuttake = null;
-    Logger          mLogger;
+    MotorComponent      mMotorOuttake = null;
+    MotorComponent      mMotorIntake = null;
+    MotorComponent      mMotorGuiding = null;
+    ServoComponent      mServoRotation = null;
+    ServoComponent      mServoHood = null;
+    ServoComponent      mServoTransfer = null;
+    EncoderComponent    mEncoderRotation = null;
+    Logger              mLogger;
+    double              mInitialEncoderPosition;
 
-    double          mSpeedOuttake = 0;
-    double          mSpeedIntake = 0;
-    double          mCurrentSpeedOuttake = 0;
-    double          mCurrentSpeedIntake = 0;
-    double          mPositionOuttake = 0;
+    double              mSpeedOuttake = 0;
+    double              mPowerIntake = 0;
+    double              mPowerGuiding = 0;
+    double              mCurrentSpeedOuttake = 0;
+    double              mPositionTransfer = 0;
+    double              mPositionRotation = 0.5;
+    double              mPositionHood = 0;
+    double              mEncoderPosition = 0;
+    double              mDistance;
 
-    LockQRCode      mLocker;
+    Path                mPath;
 
-    Path            mPath;
-
-    Vision          mVision;
+    Vision              mVision;
 
     PIDFController.PIDFProvider    mP;
     PIDFController.PIDFProvider    mI;
@@ -89,12 +92,12 @@ public class ShootingTest extends OpMode {
     PIDFController.PIDFProvider    mF;
     PIDFCoefficients               mCoef;
 
-    double          mPCurrent;
-    double          mICurrent;
-    double          mDCurrent;
-    double          mFCurrent;
+    double              mPCurrent;
+    double              mICurrent;
+    double              mDCurrent;
+    double              mFCurrent;
 
-    FileWriter      mFile;
+    FileWriter          mFile;
 
     @Override
     public void init() {
@@ -103,10 +106,7 @@ public class ShootingTest extends OpMode {
 
         ConfMotor confmo = Configuration.s_Current.getMotor(MOTOR_OUTTAKE);
         if(confmo != null) {
-            if (confmo.shallMock()) { mMotorOuttake = new MotorMock(MOTOR_OUTTAKE); }
-            else if (confmo.getHw().size() == 1) { mMotorOuttake = new MotorSingle(confmo, hardwareMap, MOTOR_OUTTAKE, mLogger); }
-            else if (confmo.getHw().size() == 2) { mMotorOuttake = new MotorCoupled(confmo, hardwareMap, MOTOR_OUTTAKE, mLogger); }
-
+            mMotorOuttake = MotorComponent.factory(confmo,hardwareMap,MOTOR_OUTTAKE,mLogger);
             if(mMotorOuttake != null) {
                 mCoef = new PIDFCoefficients(300,3,0,0);
 
@@ -127,79 +127,76 @@ public class ShootingTest extends OpMode {
 
                 FtcDashboard.getInstance().updateConfig();
             }
-
-
         }
-
-
         if(confmo == null) { mLogger.warning("Could not find motor named " + MOTOR_OUTTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
         if(mMotorOuttake== null) { mLogger.warning("Motor outtake not initialized"); }
 
-        mLed = null;
-        ConfLed led = Configuration.s_Current.getLed("tracking");
-        if (led != null) {
-
-            if (led.shallMock()) { mLed = new LedMock("tracking"); }
-            else if (led.getHw().size() == 1) { mLed = new LedSingle(led, hardwareMap, "tracking", mLogger); }
-            else if (led.getHw().size() == 2) { mLed = new LedCoupled(led, hardwareMap, "tracking", mLogger); }
-
+        confmo = Configuration.s_Current.getMotor(MOTOR_INTAKE);
+        if(confmo != null) {
+            mMotorIntake = MotorComponent.factory(confmo, hardwareMap, MOTOR_INTAKE, mLogger);
         }
-        if(led == null) { mLogger.warning("Could not find led named intake in configuration " + Configuration.s_Current.getVersion()); }
-        if(mLed == null) { mLogger.warning("Led not initialized"); }
+        if(confmo == null) { mLogger.warning("Could not find motor named " + MOTOR_INTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mMotorIntake== null) { mLogger.warning("Motor intake not initialized"); }
 
-
+        confmo = Configuration.s_Current.getMotor(MOTOR_GUIDING);
+        if(confmo != null) {
+            mMotorGuiding = MotorComponent.factory(confmo, hardwareMap, MOTOR_GUIDING, mLogger);
+        }
+        if(confmo == null) { mLogger.warning("Could not find motor named " + MOTOR_GUIDING + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mMotorGuiding== null) { mLogger.warning("Motor guiding not initialized"); }
 
         ConfLimelight confli = Configuration.s_Current.getLimelight("limelight");
         if(confli != null) {
-
             mVision = new Vision(confli,hardwareMap,"vision",mLogger);
             if(mVision != null) { mVision.initialize(); }
             mPath = new PathAutonomousGoal(mLogger);
             mPath.initialize(Alliance.RED);
-            mLocker = new LockQRCode();
-            mLocker.setHW(Configuration.s_Current,hardwareMap,mLogger,mPath,mVision,mLed, null);
-
         }
-
-
         if(confli == null) { mLogger.warning("Could not find limelight named limelight in configuration " + Configuration.s_Current.getVersion()); }
         if(mVision == null) { mLogger.warning("Vision not initialized"); }
-        if(mLocker == null) { mLogger.warning("Locker not initialized"); }
 
-
-        ConfMotor confmi = Configuration.s_Current.getMotor(MOTOR_INTAKE);
-        if(confmi != null) {
-            if (confmi.shallMock()) { mMotorIntake = new MotorMock(MOTOR_INTAKE); }
-            else if (confmi.getHw().size() == 1) { mMotorIntake = new MotorSingle(confmi, hardwareMap, MOTOR_INTAKE, mLogger); }
-            else if (confmi.getHw().size() == 2) { mMotorIntake = new MotorCoupled(confmi, hardwareMap, MOTOR_INTAKE, mLogger); }
+        ConfServo confs = Configuration.s_Current.getServo(SERVO_TRANSFER);
+        if(confs != null) {
+            mServoTransfer = ServoComponent.factory(confs,hardwareMap,SERVO_TRANSFER,mLogger);
+            if(mServoTransfer != null) { mServoTransfer.setPosition(POSITION_TRANSFER); }
 
         }
+        if(confs == null) { mLogger.warning("Could not find servo named " + SERVO_TRANSFER + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mServoTransfer== null) { mLogger.warning("Servo transfer not initialized"); }
 
-        if(confmi == null) { mLogger.warning("Could not find motor named " + MOTOR_INTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
-        if(mMotorIntake== null) { mLogger.warning("Motor intake not initialized"); }
+        confs = Configuration.s_Current.getServo(SERVO_HOOD);
+        if(confs != null) {
+            mServoHood = ServoComponent.factory(confs,hardwareMap,SERVO_HOOD,mLogger);
+            if(mServoHood != null) { mServoHood.setPosition(POSITION_HOOD); }
+        }
+        if(confs == null) { mLogger.warning("Could not find servo named " + SERVO_HOOD + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mServoHood== null) { mLogger.warning("Servo transfer not initialized"); }
 
+        confs = Configuration.s_Current.getServo(SERVO_ROTATION);
+        if(confs != null) {
+            mServoRotation = ServoComponent.factory(confs,hardwareMap,SERVO_ROTATION,mLogger);
+            if(mServoRotation != null) { mServoRotation.setPosition(POSITION_ROTATION); }
+        }
+        if(confs == null) { mLogger.warning("Could not find servo named " + SERVO_ROTATION + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mServoRotation== null) { mLogger.warning("Servo transfer not initialized"); }
+
+        ConfEncoder confe = Configuration.s_Current.getEncoder(ENCODER_ROTATION);
+        if(confe != null) {
+            mEncoderRotation = EncoderComponent.factory(confe,hardwareMap,ENCODER_ROTATION,mLogger);
+            if(mEncoderRotation != null) { mInitialEncoderPosition = mEncoderRotation.getCurrentPosition(); }
+        }
+        if(confe == null) { mLogger.warning("Could not find encoder named " + ENCODER_ROTATION + " in configuration " + Configuration.s_Current.getVersion()); }
+        if(mEncoderRotation== null) { mLogger.warning("Encoder rotation not initialized"); }
 
         String filepath = Environment.getExternalStorageDirectory().getPath()
                 + "/FIRST/shooting-test.csv";
         mFile = null;
         try {
             mFile = new FileWriter(filepath);
-            mFile.append("time,command,speed,p,i,d,f,position\n");
+            mFile.append("time,outtake command,outtake speed,p,i,d,f,intake power, guiding power, transfer position, hood position, rotation position, encoder position, encoder, delta, distance\n");
         } catch (IOException e) {
             mLogger.warning(e.getMessage());
         }
-
-        ConfServo confs = Configuration.s_Current.getServo(SERVO_OUTTAKE);
-        if(confs != null) {
-            if (confs.shallMock()) { mServoOuttake = new ServoMock(SERVO_OUTTAKE); }
-            else if (confs.getHw().size() == 1) { mServoOuttake = new ServoSingle(confs, hardwareMap, SERVO_OUTTAKE, mLogger); }
-            else if (confs.getHw().size() == 2) { mServoOuttake = new ServoCoupled(confs, hardwareMap, SERVO_OUTTAKE, mLogger); }
-
-            if(mServoOuttake != null) { mServoOuttake.setPosition(POSITION_OUTTAKE); }
-        }
-
-        if(confs == null) { mLogger.warning("Could not find servo named " + SERVO_OUTTAKE + " in configuration " + Configuration.s_Current.getVersion()); }
-        if(mServoOuttake== null) { mLogger.warning("Servo not initialized"); }
 
         mLogger.update();
 
@@ -215,9 +212,7 @@ public class ShootingTest extends OpMode {
                 mMotorOuttake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoef);
                 mMotorOuttake.setVelocity(VELOCITY_OUTTAKE);
                 mSpeedOuttake = VELOCITY_OUTTAKE;
-
-
-                mLogger.info("Changing Speed");
+                mLogger.info("Changing Outtake Speed");
             }
 
             mCurrentSpeedOuttake = mMotorOuttake.getVelocity();
@@ -226,32 +221,28 @@ public class ShootingTest extends OpMode {
 
         }
 
-        if (mLocker != null) {
+        if(mMotorIntake != null) {
 
-            mLogger.trace("here");
-            mLocker.loop();
-            Vector2d direction = mLocker.getDirection();
-            if(direction != null) {
-                mLogger.metric("DISTANCE", ""+ direction.norm());
+            if(Math.abs(mPowerIntake - POWER_INTAKE) > 0.01) {
+                mMotorIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                mMotorIntake.setPower(POWER_INTAKE);
+                mPowerIntake = POWER_INTAKE;
+
+                mLogger.info("Changing Intake Power");
             }
+            mLogger.metric("POWER_INTAKE",""+mPowerIntake);
 
         }
 
-        if(mMotorIntake != null) {
+        if(mMotorGuiding != null) {
 
-            if(Math.abs(mSpeedIntake - VELOCITY_INTAKE) > 0.01) {
-                mMotorIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                mMotorIntake.setPower(VELOCITY_INTAKE);
-                mSpeedIntake = VELOCITY_INTAKE;
-
-                mLogger.info("Changing Speed");
+            if(Math.abs(mPowerGuiding - POWER_GUIDING) > 0.01) {
+                mMotorGuiding.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                mMotorGuiding.setPower(POWER_GUIDING);
+                mPowerGuiding = POWER_GUIDING;
+                mLogger.info("Changing Guiding Power");
             }
-
-            mCurrentSpeedIntake = mMotorIntake.getVelocity();
-
-            mLogger.metric("COMMAND_INTAKE",""+mSpeedIntake);
-            mLogger.metric("VELOCITY_INTAKE", ""+mCurrentSpeedIntake);
-
+            mLogger.metric("POWER_GUIDING",""+mPowerGuiding);
         }
 
         if(mMotorOuttake != null) {
@@ -271,19 +262,81 @@ public class ShootingTest extends OpMode {
 
         }
 
-        if(mServoOuttake != null) {
+        if(mServoTransfer != null) {
 
-            if(Math.abs(mPositionOuttake - POSITION_OUTTAKE) > 0.01) {
-                mServoOuttake.setPosition(POSITION_OUTTAKE);
-                mPositionOuttake = POSITION_OUTTAKE;
-                mLogger.info("Changing servo position");
+            if(Math.abs(mPositionTransfer - POSITION_TRANSFER) > 0.01) {
+                mServoTransfer.setPosition(POSITION_TRANSFER);
+                mPositionTransfer = POSITION_TRANSFER;
+                mLogger.info("Changing transfer servo position");
             }
+            mLogger.metric("POSITION_TRANSFER",""+mPositionTransfer);
+
+        }
+
+        if(mServoHood != null) {
+
+            if(Math.abs(mPositionHood - POSITION_HOOD) > 0.01) {
+                mServoHood.setPosition(POSITION_HOOD);
+                mPositionHood = POSITION_HOOD;
+                mLogger.info("Changing hood servo position");
+            }
+            mLogger.metric("POSITION_HOOD",""+mPositionHood);
+
+        }
+
+        if(mServoRotation != null) {
+
+            if(Math.abs(mPositionRotation - POSITION_ROTATION) > 0.0001) {
+                mServoRotation.setPosition(POSITION_ROTATION);
+                mPositionRotation = POSITION_ROTATION;
+                mLogger.info("Changing rotation servo position");
+            }
+            mLogger.metric("POSITION_ROTATION",""+mPositionRotation);
+
+        }
+
+        if(mEncoderRotation != null) {
+            mEncoderPosition = mEncoderRotation.getCurrentPosition();
+            mLogger.metric("ENCODER_POSITION",""+mEncoderPosition);
+        }
+
+        if(mVision != null) {
+            Pose3D limelight = mVision.getPosition();
+            if(limelight != null) {
+                Pose2d ftc = new Pose2d(
+                        -limelight.getPosition().x * Path.M_TO_INCHES,
+                        -limelight.getPosition().y * Path.M_TO_INCHES,
+                        (limelight.getOrientation().getYaw() + 180) * Math.PI / 180);
+                mDistance = Math.sqrt(
+                        (mPath.target().position.x - ftc.position.x) *
+                                (mPath.target().position.x - ftc.position.x) +
+                                (mPath.target().position.y - ftc.position.y) *
+                                        (mPath.target().position.y - ftc.position.y));
+                mLogger.metric("DISTANCE", "" + mDistance);
+            }
+
+
 
         }
 
         if(mFile != null) {
             try {
-                mFile.append("" + System.currentTimeMillis() + "," + mSpeedOuttake + "," + mCurrentSpeedOuttake + "," + mPCurrent + "," + mICurrent + "," + mDCurrent + "," + mFCurrent + "," + mPositionOuttake + "\n");
+                mFile.append(String.valueOf(System.currentTimeMillis()))
+                        .append(",").append(String.valueOf(mSpeedOuttake))
+                        .append(",").append(String.valueOf(mCurrentSpeedOuttake))
+                        .append(",").append(String.valueOf(mPCurrent))
+                        .append(",").append(String.valueOf(mICurrent))
+                        .append(",").append(String.valueOf(mDCurrent))
+                        .append(",").append(String.valueOf(mFCurrent))
+                        .append(",").append(String.valueOf(mPowerIntake))
+                        .append(",").append(String.valueOf(mPowerGuiding))
+                        .append(",").append(String.valueOf(mPositionTransfer))
+                        .append(",").append(String.valueOf(mPositionHood))
+                        .append(",").append(String.valueOf(mPositionRotation))
+                        .append(",").append(String.valueOf(mEncoderPosition))
+                        .append(",").append(String.valueOf(mEncoderPosition - mInitialEncoderPosition))
+                        .append(",").append(String.valueOf(mDistance))
+                        .append("\n");
             } catch (IOException e) {
                 mLogger.warning(e.getMessage());
             }

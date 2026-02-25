@@ -17,7 +17,6 @@ abstract public class Configuration {
 
     public enum Version {
         V1,
-        INTAKE,
         V2,
         V3,
         NONE

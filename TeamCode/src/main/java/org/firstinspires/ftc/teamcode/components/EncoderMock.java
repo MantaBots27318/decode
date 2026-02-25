@@ -6,8 +6,6 @@
    ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.components;
 
-/* Qualcomm includes */
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class EncoderMock extends EncoderComponent {
 
