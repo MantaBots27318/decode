@@ -103,19 +103,19 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mPath.initialize(mAlliance);
             }
 
-            mLogger.info("=========== MENU ============");
-            mLogger.info("Choose Alliance : TRIGGER LEFT/RIGHT");
-            mLogger.info("Add a step      : DPAD LEFT/RIGHT");
-            mLogger.info("Modify step     : DPAD UP/DOWN");
-            mLogger.info("Clear all steps : Y");
-            mLogger.info("");
+            mLogger.info(Logger.Target.DRIVER_STATION,"=========== MENU ============");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Choose Alliance : TRIGGER LEFT/RIGHT");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Add a step      : DPAD LEFT/RIGHT");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Modify step     : DPAD UP/DOWN");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Clear all steps : Y");
+            mLogger.info(Logger.Target.DRIVER_STATION,"");
 
-            mLogger.info("======= CONFIGURATION =======");
-            mLogger.info("==> ALLIANCE : " + mAlliance.name());
+            mLogger.info(Logger.Target.DRIVER_STATION,"======= CONFIGURATION =======");
+            mLogger.info(Logger.Target.DRIVER_STATION,"==> ALLIANCE : " + mAlliance.name());
             StringBuilder steps = getStringBuilder(current_step, mSteps);
-            mLogger.info("==> STEPS : " + steps);
+            mLogger.info(Logger.Target.DRIVER_STATION,"==> STEPS : " + steps);
 
-            mPath.log();
+            //mPath.log();
             mLogger.update();
 
         }
@@ -137,6 +137,9 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Action loopAction = p -> {
             mRobot.loop();
+            mLogger.metric("RR","" + mDrive.localizer.getPose().position + " " + mDrive.localizer.getPose().heading.toDouble() / Math.PI * 180);
+            //Pose2d posftc = mRobot.getFTCPosition();
+            //mDrive.localizer.setPose(posftc);
             return true;
         };
 
@@ -157,6 +160,7 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mRobot.shoot();
         mRobot.loop();
+        mLogger.update();
 
         for (AutonomousStep step : mSteps) {
 
@@ -182,7 +186,6 @@ public class AutonomousGoalStart extends LinearOpMode {
                                         .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                         .setTangent(start_intake.heading.toDouble())
                                         .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                        .afterTime(2, startStopIntakeAction)
                                         .setTangent(-end_intake.heading.toDouble())
                                         .splineToLinearHeading(back_intake, -back_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                         .afterTime(0.01, engageAction)
@@ -197,6 +200,7 @@ public class AutonomousGoalStart extends LinearOpMode {
 
                 mRobot.shoot();
                 mRobot.loop();
+                mLogger.update();
 
             }
 

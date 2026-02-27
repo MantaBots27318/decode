@@ -29,7 +29,7 @@ public class ManualOpMode extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
+        mLogger   = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
         mLogger.level(Logger.Severity.TRACE);
 
         mGamepad1 = new Controller(gamepad1,mLogger);

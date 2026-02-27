@@ -149,23 +149,25 @@ public class Robot {
             if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
             Pose2d chassis_ftc_position = mChassis.getFTCPosition();
             if(chassis_ftc_position != null) {
-                mLogger.info("ROBOT FTC POSITION FROM PINPOINT : " + chassis_ftc_position.position + " " + chassis_ftc_position.heading.toDouble() / Math.PI * 180);
+                mLogger.metric("ROBOT FTC POSITION FROM PINPOINT : " ,""+ chassis_ftc_position.position + " " + chassis_ftc_position.heading.toDouble() / Math.PI * 180);
                 Pose2d turret_ftc_position = Posable.derivePose(chassis_ftc_position, new Pose2d(-mTurretPositionInRR.position.x, -mTurretPositionInRR.position.y, -mTurretPositionInRR.heading.toDouble()));
-                mLogger.info("TURRET FTC POSITION FROM PINPOINT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+                mLogger.metric("TURRET FTC POSITION FROM PINPOINT : " ,""+ turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
                 mTurret.setFTCPosition(turret_ftc_position);
             }
-            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
+            //mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
             Pose2d turret_ftc_position = mTurret.getFTCPosition();
             if (turret_ftc_position != null) {
-                mLogger.info("TURRET FTC POSITION FROM LIMELIGHT : " + turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
+                mLogger.metric("TURRET FTC POSITION FROM LIMELIGHT : " , ""+ turret_ftc_position.position + " " + turret_ftc_position.heading.toDouble() / Math.PI * 180);
                 Pose2d robot_ftc_position = Posable.derivePose(turret_ftc_position, mTurretPositionInRR);
-                mLogger.info("ROBOT FTC POSITION FROM LIMELIGHT : " + robot_ftc_position.position + " " + robot_ftc_position.heading.toDouble() / Math.PI * 180);
+                mLogger.metric("ROBOT FTC POSITION FROM LIMELIGHT : " ,""+ robot_ftc_position.position + " " + robot_ftc_position.heading.toDouble() / Math.PI * 180);
                 mChassis.setFTCPosition(robot_ftc_position);
             }
             if(mTransferState != TransferState.NONE) { transfer_cycle(); }
         }
 
     }
+
+    public Pose2d getFTCPosition() { return mChassis.getFTCPosition(); }
 
     void control_chassis() {
 

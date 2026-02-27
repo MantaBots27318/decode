@@ -57,7 +57,6 @@ public class Turret implements Posable{
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 1000;
     static final int        sRotationEncoderAmplitude = 20798;
-    static final int        sProcessingPeriodMs = 0;
     static final double     sMaxSpeed = 1000;
     static final double     sStartPosition = 0.5;
 
@@ -66,7 +65,7 @@ public class Turret implements Posable{
     boolean                 mShallReset;
     boolean                 mIsShooting;
     SmartTimer              mResetTimer;
-    SmartTimer              mPeriodTimer;
+    SmartTimer              mInitTimer;
 
     double                  mDistanceCenterLimelight;
     Pose2d                  mCenterPositionFTC;
@@ -95,7 +94,7 @@ public class Turret implements Posable{
         mIsShooting  = false;
         mShallReset  = false;
         mResetTimer  = new SmartTimer(logger);
-        mPeriodTimer = new SmartTimer(logger);
+        mInitTimer   = new SmartTimer(logger);
         mPath        = path;
 
         String status = "";
@@ -159,7 +158,7 @@ public class Turret implements Posable{
 
         if(mReady) {
             mRotation.setPosition(sStartPosition);
-            mResetTimer.arm(3000);
+            mInitTimer.arm(3000);
         }
 
     }
@@ -188,46 +187,43 @@ public class Turret implements Posable{
 
     public void loop(double velocityX, double velocityY, double deltaTime) {
 
-        if(mReady && !mPeriodTimer.isArmed()) {
+        if(mReady && !mInitTimer.isArmed()) {
 
-            if(mFirstLoop && !(mResetTimer.isArmed())) {
+            if(mFirstLoop) {
                 mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
-                mLogger.info("INITIAL ENCODER : " + mInitialEncoderPosition);
+                mLogger.metric("INITIAL ENCODER : ","" + mInitialEncoderPosition);
                 mInitialServoPosition = mRotation.getPosition();
-                mLogger.info("INITIAL SERVO : " + mInitialServoPosition);
+                mLogger.metric("INITIAL SERVO : ","" + mInitialServoPosition);
                 mFirstLoop = false;
             }
-            if(!mFirstLoop) {
 
-                double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
-                mLogger.trace("DELTA ENCODER : " + delta_encoder);
-                double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
-                mLogger.trace("CURRENT ROTATION SERVO POSITION : " + position);
-                Pose2d limelightTurret = this.calculerPoseLimelightInTurretReference(position, mDistanceCenterLimelight);
-                mLogger.trace("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
+            double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
+            mLogger.metric("DELTA ENCODER : ",""+ delta_encoder);
+            double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
+            mLogger.metric("CURRENT ROTATION SERVO POSITION : " , ""+ position);
+            Pose2d limelightTurret = this.calculerPoseLimelightInTurretReference(position, mDistanceCenterLimelight);
+            mLogger.metric("LIMELIGHT TURRET : " ,""+ limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
 
-                Pose3D output = mVision.getPosition();
-                if (output != null) {
-                    Pose2d  limelightFTC = this.convertLimelightPoseToFTC(output);
-                    mLogger.trace("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
-                    mCenterPositionFTC = Posable.derivePose(limelightFTC, limelightTurret);
-                    mLogger.trace("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
-                }
-
-                Pose2d turret_orient = new Pose2d(mCenterPositionFTC.position.x, mCenterPositionFTC.position.y, mCenterPositionFTC.heading.toDouble() + limelightTurret.heading.toDouble());
-                mLogger.trace("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
-                double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
-                mLogger.trace("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
-                double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
-                mLogger.trace("NEXT ROTATION SERVO POSITION : " + rotation_servo_position);
-                mRotation.setPosition(rotation_servo_position);
-                double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
-                mLogger.trace("NEXT HOOD SERVO POSITION : " + hood_servo_position);
-                mHood.setPosition(hood_servo_position);
-
-                if (!mResetTimer.isArmed()) { mShallReset = false; }
-                mPeriodTimer.arm(sProcessingPeriodMs);
+            Pose3D output = mVision.getPosition();
+            if (output != null) {
+                Pose2d  limelightFTC = this.convertLimelightPoseToFTC(output);
+                mLogger.metric("LIMELIGHT FTC : " , limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
+                mCenterPositionFTC = Posable.derivePose(limelightFTC, limelightTurret);
+                mLogger.metric("TURRET FTC : " , mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
             }
+
+            Pose2d turret_orient = new Pose2d(mCenterPositionFTC.position.x, mCenterPositionFTC.position.y, mCenterPositionFTC.heading.toDouble() + limelightTurret.heading.toDouble());
+            mLogger.metric("TURRET FTC : " , turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
+            double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
+            mLogger.metric("ANGULAR ERROR : " , "" + deltaAngle / Math.PI * 180);
+            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
+            mLogger.metric("NEXT ROTATION SERVO POSITION : " , ""+rotation_servo_position);
+            mRotation.setPosition(rotation_servo_position);
+            double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
+            mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
+            mHood.setPosition(hood_servo_position);
+
+            if(!mResetTimer.isArmed()) { mShallReset = false; }
         }
     }
 
@@ -248,6 +244,46 @@ public class Turret implements Posable{
     public void reset() {
         mShallReset = true;
         mResetTimer.arm(sResetTimeMs);
+    }
+
+    public void orient(double heading) {
+
+        if(mReady && !(mInitTimer.isArmed())) {
+
+            if(mFirstLoop ) {
+                mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
+                mLogger.info("INITIAL ENCODER : " + mInitialEncoderPosition);
+                mInitialServoPosition = mRotation.getPosition();
+                mLogger.info("INITIAL SERVO : " + mInitialServoPosition);
+                mFirstLoop = false;
+            }
+
+            double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
+            mLogger.trace("DELTA ENCODER : " + delta_encoder);
+            double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
+            mLogger.trace("CURRENT ROTATION SERVO POSITION : " + position);
+            Pose2d limelightTurret = this.calculerPoseLimelightInTurretReference(position, mDistanceCenterLimelight);
+            mLogger.trace("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
+
+            Pose3D output = mVision.getPosition();
+            if (output != null) {
+                Pose2d  limelightFTC = this.convertLimelightPoseToFTC(output);
+                mLogger.trace("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
+                mCenterPositionFTC = Posable.derivePose(limelightFTC, limelightTurret);
+                mLogger.trace("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
+            }
+
+            Pose2d turret_orient = new Pose2d(mCenterPositionFTC.position.x, mCenterPositionFTC.position.y, mCenterPositionFTC.heading.toDouble() + limelightTurret.heading.toDouble());
+            mLogger.trace("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
+            double deltaAngle = heading - turret_orient.heading.toDouble();
+            mLogger.trace("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
+            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
+            mLogger.trace("NEXT ROTATION SERVO POSITION : " + rotation_servo_position);
+            mRotation.setPosition(rotation_servo_position);
+            double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
+            mLogger.trace("NEXT HOOD SERVO POSITION : " + hood_servo_position);
+            mHood.setPosition(hood_servo_position);
+        }
     }
 
     private Pose2d convertLimelightPoseToFTC(Pose3D limelight){

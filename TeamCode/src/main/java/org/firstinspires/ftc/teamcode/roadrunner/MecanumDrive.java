@@ -71,7 +71,7 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
-        public double inPerTick = 0.0019739926;
+        public double inPerTick = 0.0019602291;
         public double lateralInPerTick = 0.0012050204032937953; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
         public double trackWidthTicks = 6744.634907195088;
 
@@ -91,7 +91,7 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 4.0;
+        public double axialGain = 3.0;
         public double lateralGain = 4.0;
         public double headingGain = 6.0; // shared with turn
 
