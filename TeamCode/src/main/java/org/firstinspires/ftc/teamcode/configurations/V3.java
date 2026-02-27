@@ -19,10 +19,10 @@ public class V3 extends Configuration {
         mVersion = Version.V3;
 
         /* Moving configuration : Positive power makes wheel go forward */
-        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",true));
-        mMotors.put("back-left-wheel",new ConfMotor("backLeft",true));
-        mMotors.put("front-right-wheel",new ConfMotor("frontRight",false));
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
+        mMotors.put("front-left-wheel",new ConfMotor("frontLeft",false));
+        mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));
+        mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));
 
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
