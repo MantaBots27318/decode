@@ -27,7 +27,7 @@ public final class PinpointLocalizer implements Localizer {
     private Pose2d txWorldPinpoint;
     private Pose2d txPinpointRobot = new Pose2d(0, 0, 0);
     private boolean isReady;
-
+    public static PinpointLocalizer sLocalizer = null;
     public PinpointLocalizer(HardwareMap hardwareMap, String name, double inPerTick, boolean parReversed, boolean perpReversed, Pose2d initialPose) {
         // TODO: make sure your config has a Pinpoint device with this name
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -61,7 +61,13 @@ public final class PinpointLocalizer implements Localizer {
         txWorldPinpoint = initialPose;
     }
 
-    @Override
+    public static PinpointLocalizer build(HardwareMap hardwareMap, String name, double inPerTick, boolean parReversed, boolean perpReversed, Pose2d initialPose) {
+        {
+            if (sLocalizer == null) { sLocalizer = new PinpointLocalizer(hardwareMap,name,inPerTick,parReversed,perpReversed,initialPose); }
+            return sLocalizer;
+        }}
+
+        @Override
     public void setPose(Pose2d pose) {
         if (isReady) {
             txWorldPinpoint = pose.times(txPinpointRobot.inverse());

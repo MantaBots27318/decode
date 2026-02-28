@@ -143,7 +143,7 @@ public class LockQRCode {
                     initial_yaw = initialHeading;
                 }
                 mRobotPosition = new Pose2d(0,0,initial_yaw);
-                mLocalizer = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), mRobotPosition);
+                mLocalizer = PinpointLocalizer.build(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), mRobotPosition);
             }
         }
 

@@ -158,7 +158,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
 
-        mRobot.shoot();
+        //mRobot.shoot();
         mRobot.loop();
         mLogger.update();
 

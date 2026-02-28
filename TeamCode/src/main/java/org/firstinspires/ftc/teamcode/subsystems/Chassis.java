@@ -73,7 +73,7 @@ public class Chassis implements Posable {
             mBackLeftMotor   = new MotorSingle(backLeftWheel, hwm, "back-left-wheel", mLogger);
             mFrontRightMotor = new MotorSingle(frontRightWheel, hwm, "front-right-wheel", mLogger);
             mBackRightMotor  = new MotorSingle(backRightWheel, hwm, "back-right-wheel", mLogger);
-            mLocalizer       = new PinpointLocalizer(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), new Pose2d(0,0,0));
+            mLocalizer       = PinpointLocalizer.build(hwm, pinpoint.getName(), MecanumDrive.PARAMS.inPerTick, pinpoint.getParReversed(), pinpoint.getPerpReversed(), new Pose2d(0,0,0));
 
             if (!mFrontLeftMotor.isReady()) { status += " FL"; mReady = false; }
             if (!mFrontRightMotor.isReady()) { status += " FR"; mReady = false; }
