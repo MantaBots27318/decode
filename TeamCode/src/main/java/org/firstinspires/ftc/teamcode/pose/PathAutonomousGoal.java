@@ -25,9 +25,9 @@ import java.util.Objects;
 
 public class PathAutonomousGoal extends Path {
 
-    public static final double X_START_INCHES =                     53.5;
-    public static final double Y_START_INCHES_BLUE =                61;
-    public static final double Y_START_INCHES_RED =                 - 61;
+    public static final double X_START_INCHES =                     51.5;
+    public static final double Y_START_INCHES_BLUE =                51.5;
+    public static final double Y_START_INCHES_RED =                 - 51.5;
     public static final double ANGLE_START_RADIANS_RED =            - Math.PI / 180 * 51;
     public static final double ANGLE_START_RADIANS_BLUE =           Math.PI / 180 * 51;
 
@@ -35,12 +35,12 @@ public class PathAutonomousGoal extends Path {
     protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      32;
     protected static final double Y_DELTA_INTAKE_INCHES_RED =       -32;
 
-    public static final double X_GPP_PATTERN_INCHES_BLUE =          -FIELD_SIZE_INCHES / 2 + 9 + 25 + 7;
-    public static final double X_PGP_PATTERN_INCHES_BLUE =          -FIELD_SIZE_INCHES / 2 + 9 + 48-3+11.5;
-    public static final double X_PPG_PATTERN_INCHES_BLUE =          -FIELD_SIZE_INCHES / 2 + 9 + 72 + 3;
-    public static final double X_GPP_PATTERN_INCHES_RED =           -FIELD_SIZE_INCHES / 2 + 9 + 30;
-    public static final double X_PGP_PATTERN_INCHES_RED =           -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
-    public static final double X_PPG_PATTERN_INCHES_RED =           -FIELD_SIZE_INCHES / 2 + 9 + 75 + 8;
+    public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =          -13;
+    public static final double X_PPG_PATTERN_INCHES_BLUE =          11.25;
+    public static final double X_GPP_PATTERN_INCHES_RED =           -36.25;
+    public static final double X_PGP_PATTERN_INCHES_RED =           -13;
+    public static final double X_PPG_PATTERN_INCHES_RED =           11.25;
 
 
     public static final double Y_PATTERN_INCHES_BLUE =              35;
@@ -137,24 +137,24 @@ public class PathAutonomousGoal extends Path {
 
     public void log() {
 
-        mLogger.info("START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
 
         if(mStartIntake.get(Pattern.GPP) != null) {
-            mLogger.info("START INTAKE GPP X : " + mStartIntake.get(Pattern.GPP).position.x + " Y: " + mStartIntake.get(Pattern.GPP).position.y + " H: " + mStartIntake.get(Pattern.GPP).heading.toDouble());
-            mLogger.info("END INTAKE GPP X : " + mEndIntake.get(Pattern.GPP).position.x + " Y: " + mEndIntake.get(Pattern.GPP).position.y + " H: " + mEndIntake.get(Pattern.GPP).heading.toDouble());
-            mLogger.info("BACK INTAKE GPP X : " + mBackIntake.get(Pattern.GPP).position.x + " Y: " + mBackIntake.get(Pattern.GPP).position.y + " H: " + mBackIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE GPP X : " + mStartIntake.get(Pattern.GPP).position.x + " Y: " + mStartIntake.get(Pattern.GPP).position.y + " H: " + mStartIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE GPP X : " + mEndIntake.get(Pattern.GPP).position.x + " Y: " + mEndIntake.get(Pattern.GPP).position.y + " H: " + mEndIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE GPP X : " + mBackIntake.get(Pattern.GPP).position.x + " Y: " + mBackIntake.get(Pattern.GPP).position.y + " H: " + mBackIntake.get(Pattern.GPP).heading.toDouble());
         }
         if(mStartIntake.get(Pattern.PGP) != null) {
-            mLogger.info("START INTAKE PGP X : " + mStartIntake.get(Pattern.PGP).position.x + " Y: " + mStartIntake.get(Pattern.PGP).position.y + " H: " + mStartIntake.get(Pattern.PGP).heading.toDouble());
-            mLogger.info("END INTAKE PGP X : " + mEndIntake.get(Pattern.PGP).position.x + " Y: " + mEndIntake.get(Pattern.PGP).position.y + " H: " + mEndIntake.get(Pattern.PGP).heading.toDouble());
-            mLogger.info("BACK INTAKE PGP X : " + mBackIntake.get(Pattern.PGP).position.x + " Y: " + mBackIntake.get(Pattern.PGP).position.y + " H: " + mBackIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE PGP X : " + mStartIntake.get(Pattern.PGP).position.x + " Y: " + mStartIntake.get(Pattern.PGP).position.y + " H: " + mStartIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE PGP X : " + mEndIntake.get(Pattern.PGP).position.x + " Y: " + mEndIntake.get(Pattern.PGP).position.y + " H: " + mEndIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PGP X : " + mBackIntake.get(Pattern.PGP).position.x + " Y: " + mBackIntake.get(Pattern.PGP).position.y + " H: " + mBackIntake.get(Pattern.PGP).heading.toDouble());
         }
         if(mStartIntake.get(Pattern.PPG) != null) {
-            mLogger.info("START INTAKE PPG X : " + mStartIntake.get(Pattern.PPG).position.x + " Y: " + mStartIntake.get(Pattern.PPG).position.y + " H: " + mStartIntake.get(Pattern.PPG).heading.toDouble());
-            mLogger.info("END INTAKE PPG X : " + mEndIntake.get(Pattern.PPG).position.x + " Y: " + mEndIntake.get(Pattern.PPG).position.y + " H: " + mEndIntake.get(Pattern.PPG).heading.toDouble());
-            mLogger.info("BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE PPG X : " + mStartIntake.get(Pattern.PPG).position.x + " Y: " + mStartIntake.get(Pattern.PPG).position.y + " H: " + mStartIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE PPG X : " + mEndIntake.get(Pattern.PPG).position.x + " Y: " + mEndIntake.get(Pattern.PPG).position.y + " H: " + mEndIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
         }
-        mLogger.info("TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
+        mLogger.info(Logger.Target.DRIVER_STATION,"TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
         super.log();
 
     }

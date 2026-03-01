@@ -71,10 +71,16 @@ public class Path {
     private static final double ANGLE_TARGET_RADIANS_BLUE                        = 45 * Math.PI / 180;
     private static final double ANGLE_TARGET_RADIANS_RED                         = -45 * Math.PI / 180;
 
+    private static final double ANGLE_FC_TO_FTC_BLUE                             = Math.PI / 2;
+    private static final double ANGLE_FC_TO_FTC_RED                              = -Math.PI/2;
+
+
+
 
     Logger          mLogger;
 
     double          mYDeltaIntakeInches         = 0;
+    double          mFC2FTC                     = 0;
 
     Pose2d          mShootingClose              = new Pose2d(0,0,0);
     Pose2d          mShootingFar                = new Pose2d(0,0,0);
@@ -101,6 +107,8 @@ public class Path {
             mReady = new Pose2d(X_READY_INCHES,Y_READY_INCHES_RED,ANGLE_READY_RADIANS_RED);
             mLeave = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_RED,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_RED);
             mPark = new Pose2d(X_PARK_INCHES_RED,Y_PARK_INCHES_RED,ANGLE_PARK_RADIANS_RED);
+
+            mFC2FTC = ANGLE_FC_TO_FTC_RED;
         }
 
         if (alliance == Alliance.BLUE) {
@@ -113,6 +121,8 @@ public class Path {
             mReady = new Pose2d(X_READY_INCHES,Y_READY_INCHES_BLUE,ANGLE_READY_RADIANS_BLUE);
             mPark = new Pose2d(X_PARK_INCHES_BLUE,Y_PARK_INCHES_BLUE,ANGLE_PARK_RADIANS_BLUE);
             mLeave = new Pose2d(X_PARKING_LAUNCH_ZONE_INCHES, Y_PARKING_LAUNCH_ZONE_INCHES_BLUE,ANGLE_PARKING_LAUNCH_ZONE_RADIANS_BLUE);
+
+            mFC2FTC = ANGLE_FC_TO_FTC_BLUE;
         }
     }
 
@@ -124,13 +134,15 @@ public class Path {
     public Pose2d   leave()                 { return mLeave;}
     public Pose2d   ready()                 { return mReady; }
 
+    public double   FC2FTC()                { return mFC2FTC; }
+
     public void log() {
-        mLogger.info("SHOOTING VERY FAR: " + mShootingVeryFar.position.x + " Y: " + mShootingVeryFar.position.y + " H: " + mShootingVeryFar.heading.toDouble());
-        mLogger.info("SHOOTING FAR: " + mShootingFar.position.x + " Y: " + mShootingFar.position.y + " H: " + mShootingFar.heading.toDouble());
-        mLogger.info("SHOOTING CLOSE: " + mShootingClose.position.x + " Y: " + mShootingClose.position.y + " H: " + mShootingClose.heading.toDouble());
-        mLogger.info("LEAVE: " + mLeave.position.x + " Y: " + mLeave.position.y + " H: " + mLeave.heading.toDouble());
-        mLogger.info("READY: " + mReady.position.x + " Y: " + mReady.position.y + " H: " + mReady.heading.toDouble());
-        mLogger.info("TARGET X: " + mTarget.position.x + " Y: " + mTarget.position.y + " H: " + mTarget.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"SHOOTING VERY FAR: " + mShootingVeryFar.position.x + " Y: " + mShootingVeryFar.position.y + " H: " + mShootingVeryFar.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"SHOOTING FAR: " + mShootingFar.position.x + " Y: " + mShootingFar.position.y + " H: " + mShootingFar.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"SHOOTING CLOSE: " + mShootingClose.position.x + " Y: " + mShootingClose.position.y + " H: " + mShootingClose.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"LEAVE: " + mLeave.position.x + " Y: " + mLeave.position.y + " H: " + mLeave.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"READY: " + mReady.position.x + " Y: " + mReady.position.y + " H: " + mReady.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"TARGET X: " + mTarget.position.x + " Y: " + mTarget.position.y + " H: " + mTarget.heading.toDouble());
     }
 
 }

@@ -64,6 +64,10 @@ public final class PinpointLocalizer implements Localizer {
     public static PinpointLocalizer build(HardwareMap hardwareMap, String name, double inPerTick, boolean parReversed, boolean perpReversed, Pose2d initialPose) {
         {
             if (sLocalizer == null) { sLocalizer = new PinpointLocalizer(hardwareMap,name,inPerTick,parReversed,perpReversed,initialPose); }
+            else {
+                sLocalizer.driver.resetPosAndIMU();
+                sLocalizer.txWorldPinpoint = initialPose;
+            }
             return sLocalizer;
         }}
 

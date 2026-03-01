@@ -91,7 +91,7 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 3.0;
+        public double axialGain = 4.0;
         public double lateralGain = 4.0;
         public double headingGain = 6.0; // shared with turn
 
@@ -266,9 +266,6 @@ public final class MecanumDrive {
 
         localizer = PinpointLocalizer.build(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
-    }
-    public void updatePose (Pose2d newPose ){
-        localizer.setPose(newPose);
     }
 
     public Pose2d getPose() { return localizer.getPose(); }

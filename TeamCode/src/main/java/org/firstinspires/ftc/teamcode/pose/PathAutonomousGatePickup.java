@@ -76,9 +76,9 @@ public class PathAutonomousGatePickup extends PathAutonomousGoal {
 
     public void log() {
 
-        mLogger.info("START GATE X : " + mStartGate.position.x + " Y: " + mStartGate.position.y + " H: " + mStartGate.heading.toDouble());
-        mLogger.info("END GATE X : " + mEndGate.position.x + " Y: " + mEndGate.position.y + " H: " + mEndGate.heading.toDouble());
-        mLogger.info("BACK GATE X : " + mBackGate.position.x + " Y: " + mBackGate.position.y + " H: " + mBackGate.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"START GATE X : " + mStartGate.position.x + " Y: " + mStartGate.position.y + " H: " + mStartGate.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"END GATE X : " + mEndGate.position.x + " Y: " + mEndGate.position.y + " H: " + mEndGate.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"BACK GATE X : " + mBackGate.position.x + " Y: " + mBackGate.position.y + " H: " + mBackGate.heading.toDouble());
 
         super.log();
 

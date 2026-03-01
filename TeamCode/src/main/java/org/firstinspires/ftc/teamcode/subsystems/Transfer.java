@@ -23,11 +23,18 @@ import java.util.Map;
 @Config
 public class Transfer {
 
-
     public enum Position {
         BLOCK,
         LET,
         DOWN
+    }
+
+    public enum State {
+        NONE,
+        WAITING,
+        DOWN,
+        LET,
+        BLOCK
     }
 
     private static final Map<String, Position> sConfToPosition = Map.of(
@@ -42,10 +49,14 @@ public class Transfer {
 
     boolean                     mReady;       // True if component is able to fulfil its mission
     SmartTimer                  mTimer;       // Timer for timeout management
+    boolean                     mOpen;        // True if component is able to fulfil its mission
+    boolean                     mOngoing;     // True if component is able to fulfil its mission
 
     Position                    mPosition;    // Current elbow position
     ServoComponent              mServo;       // Servos (coupled if specified by the configuration) driving the elbow
     Map<Position, Double>       mPositions;   // Link between positions enumerated and servos positions
+
+    State                       mState;
 
     // Return current reference position
     public boolean isMoving() { return mTimer.isArmed();}
@@ -58,6 +69,8 @@ public class Transfer {
 
         mLogger = logger;
         mReady = true;
+        mOngoing = false;
+        mState = State.NONE;
 
         mPositions   = new LinkedHashMap<>();
         mTimer = new SmartTimer(mLogger);
@@ -90,6 +103,7 @@ public class Transfer {
 
         // Initialize position
         this.setPosition(Position.BLOCK);
+        mOpen = false;
 
     }
 
@@ -111,6 +125,74 @@ public class Transfer {
             mTimer.arm(timeout);
         }
 
+    }
+
+    public void loop() {
+        if (mState != State.NONE) { open_loop(); }
+    }
+
+    public boolean open() { return mOpen; }
+    public boolean ongoing() { return mOngoing; }
+
+    public void close() {
+        this.setPosition(Position.BLOCK);
+    }
+
+    public void open_loop() {
+        if (mState == State.NONE) {
+            mState = State.WAITING;
+        }
+        else if (mState == State.WAITING) {
+            setPosition(Transfer.Position.DOWN);
+            if (mPosition == Transfer.Position.DOWN)  {
+                mState = State.DOWN;
+            }
+        }
+        else if(mState == State.DOWN && !isMoving()) {
+            setPosition(Transfer.Position.LET);
+            if (getPosition() == Transfer.Position.LET)  {
+                mState = State.LET;
+            }
+        }
+        else if (mState == State.LET && !isMoving()) {
+            mState = State.NONE;
+            mOpen = true;
+        }
+        mOngoing = mState != State.NONE;
+    }
+
+    public void open_and_close_loop() {
+
+        if (mState == State.NONE) {
+            mState = State.WAITING;
+        }
+        else if (mState == State.WAITING) {
+            setPosition(Transfer.Position.DOWN);
+            if (mPosition == Transfer.Position.DOWN)  {
+                mState = State.DOWN;
+            }
+        }
+        else if(mState == State.DOWN && !isMoving()) {
+            setPosition(Transfer.Position.LET, 3000);
+            if (getPosition() == Transfer.Position.LET)  {
+                mState = State.LET;
+            }
+        }
+        else if (mState == State.LET && !isMoving()) {
+            mState = State.NONE;
+            mOpen = true;
+        }
+        else if(mState == State.LET && !isMoving()) {
+            setPosition(Transfer.Position.BLOCK);
+            if (getPosition() == Transfer.Position.BLOCK)  {
+                mState = State.BLOCK;
+            }
+        }
+        else if (mState == State.BLOCK && !isMoving()) {
+            mState = State.NONE;
+        }
+
+        mOngoing = mState != State.NONE;
     }
 
 }

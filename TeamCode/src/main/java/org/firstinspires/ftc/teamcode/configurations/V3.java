@@ -36,9 +36,9 @@ public class V3 extends Configuration {
 
         /* Transfer configuration */
         mServos.put("transfer-servo", new ConfServo("transferServo", false));
-        mServos.get("transfer-servo").addPosition("block", 0.6);
+        mServos.get("transfer-servo").addPosition("block", 0.62);
         mServos.get("transfer-servo").addPosition("let", 0.5);
-        mServos.get("transfer-servo").addPosition("down", 0.62);
+        mServos.get("transfer-servo").addPosition("down", 0.64);
 
         /* Limelight configuration */
         mLimelights.put("limelight", new ConfLimelight("limelight"));
@@ -48,7 +48,7 @@ public class V3 extends Configuration {
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(
                 "outtakeWheelsLeft",false, false,
-                "outtakeWheelsRight",false, false));
+                "outtakeWheelsRight",true, false));
 
         mServos.put("turret-rotation", new ConfServo(
                 "turretRotationLeft", false,

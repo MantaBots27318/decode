@@ -56,8 +56,8 @@ public class Turret implements Posable{
 
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sResetTimeMs = 1000;
-    static final int        sRotationEncoderAmplitude = 20798;
-    static final double     sMaxSpeed = 1000;
+    static final int        sRotationEncoderAmplitude = 20370;
+    static final double     sMaxSpeed = 10000;
     static final double     sStartPosition = 0.5;
 
     Logger                  mLogger;
@@ -69,6 +69,7 @@ public class Turret implements Posable{
 
     double                  mDistanceCenterLimelight;
     Pose2d                  mCenterPositionFTC;
+    Pose2d                  mUpdatedPositionFTC;
     Path                    mPath;     // True if component is able to fulfil its mission
 
     Vision                  mVision;
@@ -158,6 +159,7 @@ public class Turret implements Posable{
 
         if(mReady) {
             mRotation.setPosition(sStartPosition);
+            mHood.setPosition(0.46);
             mInitTimer.arm(3000);
         }
 
@@ -173,8 +175,8 @@ public class Turret implements Posable{
 
     @Override
     public Pose2d getFTCPosition() {
-        Pose2d result = mCenterPositionFTC;
-        mCenterPositionFTC = null; /* Consumed */
+        Pose2d result = mUpdatedPositionFTC;
+        mUpdatedPositionFTC = null; /* Consumed */
         return result;
     }
 
@@ -209,6 +211,7 @@ public class Turret implements Posable{
                 Pose2d  limelightFTC = this.convertLimelightPoseToFTC(output);
                 mLogger.metric("LIMELIGHT FTC : " , limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
                 mCenterPositionFTC = Posable.derivePose(limelightFTC, limelightTurret);
+                mUpdatedPositionFTC = mCenterPositionFTC;
                 mLogger.metric("TURRET FTC : " , mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
             }
 
