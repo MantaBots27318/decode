@@ -65,16 +65,16 @@ public class Intake {
     public boolean isReversed() { return mIsReversed; }
 
     // Start the wheels with a given power
-    public void start(double power)   {
+    public void start(double power1,double power2)   {
 
         if(mReady)
         {
             mIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mIntake.setPower(power);
+            mIntake.setPower(power1);
             mGuiding.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mGuiding.setPower(power);
+            mGuiding.setPower(power2);
             mIsStarted = true;
-            mIsReversed = power < 0;
+            mIsReversed = power1 < 0;
         }
 
     }

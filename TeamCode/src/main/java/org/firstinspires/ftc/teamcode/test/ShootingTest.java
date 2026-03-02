@@ -40,6 +40,7 @@ import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
+import org.firstinspires.ftc.teamcode.pose.Posable;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.PIDFController;
 import org.firstinspires.ftc.teamcode.vision.Vision;
@@ -55,9 +56,9 @@ public class ShootingTest extends OpMode {
     public static String MOTOR_GUIDING="guiding-wheels";
     public static double POWER_GUIDING;
     public static String SERVO_TRANSFER="transfer-servo";
-    public static double POSITION_TRANSFER;
+    public static double POSITION_TRANSFER = 0.58;
     public static String SERVO_HOOD="turret-hood";
-    public static double POSITION_HOOD;
+    public static double POSITION_HOOD = 0.5;
     public static String SERVO_ROTATION="turret-rotation";
     public static double POSITION_ROTATION = 0.5;
     public static String ENCODER_ROTATION="turret-rotation";
@@ -78,7 +79,7 @@ public class ShootingTest extends OpMode {
     double              mCurrentSpeedOuttake = 0;
     double              mPositionTransfer = 0;
     double              mPositionRotation = 0.5;
-    double              mPositionHood = 0;
+    double              mPositionHood = 0.5;
     double              mEncoderPosition = 0;
     double              mDistance;
 
@@ -150,7 +151,7 @@ public class ShootingTest extends OpMode {
             mVision = new Vision(confli,hardwareMap,"vision",mLogger);
             if(mVision != null) { mVision.initialize(); }
             mPath = new PathAutonomousGoal(mLogger);
-            mPath.initialize(Alliance.RED);
+            mPath.initialize(Alliance.BLUE);
         }
         if(confli == null) { mLogger.warning("Could not find limelight named limelight in configuration " + Configuration.s_Current.getVersion()); }
         if(mVision == null) { mLogger.warning("Vision not initialized"); }
@@ -307,6 +308,11 @@ public class ShootingTest extends OpMode {
                         -limelight.getPosition().x * Path.M_TO_INCHES,
                         -limelight.getPosition().y * Path.M_TO_INCHES,
                         (limelight.getOrientation().getYaw() + 180) * Math.PI / 180);
+                mLogger.info(""+ftc.position + " " + ftc.heading.toDouble() / Math.PI * 180);
+                ftc = Posable.derivePose(
+                       ftc,
+                        new Pose2d(6,0,0)
+                );
                 mDistance = Math.sqrt(
                         (mPath.target().position.x - ftc.position.x) *
                                 (mPath.target().position.x - ftc.position.x) +

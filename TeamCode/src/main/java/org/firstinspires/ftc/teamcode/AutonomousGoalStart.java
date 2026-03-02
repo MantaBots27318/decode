@@ -145,14 +145,14 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mLogger.metric("STEP", "GO TO SHOOTING");
         mLogger.update();
-//
-//        Actions.runBlocking(
-//                new RaceAction(
-//                        mDrive.actionBuilder(start)
-//                                .lineToXConstantHeading(shoot.position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
-//                                .build(),
-//                        loopAction
-//                ));
+
+        Actions.runBlocking(
+                new RaceAction(
+                        mDrive.actionBuilder(start)
+                                .lineToXConstantHeading(shoot.position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
+                                .build(),
+                        loopAction
+                ));
 
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
@@ -208,14 +208,14 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.metric("STEP", "LEAVE" );
         mLogger.update();
 
-//        Actions.runBlocking(
-//                new RaceAction(
-//                        mDrive.actionBuilder(shoot)
-//                                .setTangent(shoot.heading.toDouble() + Math.PI)
-//                                .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-//                                .build(),
-//                        loopAction
-//                ));
+        Actions.runBlocking(
+                new RaceAction(
+                        mDrive.actionBuilder(shoot)
+                                .setTangent(shoot.heading.toDouble() + Math.PI)
+                                .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                .build(),
+                        loopAction
+                ));
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
         Configuration.s_Current.persist("x", mDrive.getPose().position.x);

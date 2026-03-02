@@ -5,9 +5,10 @@
         <LynxModule name="Expansion Hub 4" port="4">
             <goBILDA5202SeriesMotor name="backLeft" port="0" />
             <goBILDA5202SeriesMotor name="frontLeft" port="1" />
-            <goBILDA5202SeriesMotor name="outtakeWheelsLeft" port="2" />
-            <goBILDA5202SeriesMotor name="outtakeWheelsRight" port="3" />
+            <goBILDA5202SeriesMotor name="outtakeWheelsLeft" port="2" /> M1
+            <goBILDA5202SeriesMotor name="outtakeWheelsRight" port="3" /> M2
             <Servo name="turretRotationLeft" port="0" />
+            <Servo name="turretHood" port="1" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="intakeWheels" port="0" />
@@ -16,7 +17,6 @@
             <goBILDA5202SeriesMotor name="backRight" port="3" />
             <Servo name="transferServo" port="0" />
             <Servo name="turretRotationRight" port="1" />
-            <Servo name="turretHood" port="2" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
             <goBILDAPinpoint name="pinpoint" port="0" bus="3" />
         </LynxModule>

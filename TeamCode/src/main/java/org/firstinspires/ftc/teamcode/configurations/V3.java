@@ -36,9 +36,9 @@ public class V3 extends Configuration {
 
         /* Transfer configuration */
         mServos.put("transfer-servo", new ConfServo("transferServo", false));
-        mServos.get("transfer-servo").addPosition("block", 0.62);
+        mServos.get("transfer-servo").addPosition("block", 0.58);
         mServos.get("transfer-servo").addPosition("let", 0.5);
-        mServos.get("transfer-servo").addPosition("down", 0.64);
+        mServos.get("transfer-servo").addPosition("down", 0.61);
 
         /* Limelight configuration */
         mLimelights.put("limelight", new ConfLimelight("limelight"));
@@ -47,15 +47,17 @@ public class V3 extends Configuration {
 
         /* Outtake configuration */
         mMotors.put("outtake-wheels",new ConfMotor(
-                "outtakeWheelsLeft",false, false,
-                "outtakeWheelsRight",true, false));
+                "outtakeWheelsLeft",true, false,
+                "outtakeWheelsRight",false, false));
 
         mServos.put("turret-rotation", new ConfServo(
                 "turretRotationLeft", false,
                 "turretRotationRight", false));
+        mServos.get("turret-rotation").addPosition("min", 0.35);
+        mServos.get("turret-rotation").addPosition("max", 0.63);
         mServos.put("turret-hood", new ConfServo("turretHood", false));
-        mServos.get("turret-hood").addPosition("min", 0.2);
-        mServos.get("turret-hood").addPosition("max", 0.8);
+        mServos.get("turret-hood").addPosition("min", 0.454);
+        mServos.get("turret-hood").addPosition("max", 0.58);
 
         // Turntable encoder is plugged on the intake wheels motor
         mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",false));

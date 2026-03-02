@@ -256,11 +256,11 @@ public class Robot {
     public void start_stop_intake() {
         mLogger.info("==> STR INTAKE");
         if(mIntake.isMoving()) {
-            if(mIntake.isReversed()) { mIntake.start(1.0); }
+            if(mIntake.isReversed()) { mIntake.start(0.85,0.65); }
             else { mIntake.stop(); }
         }
         else {
-            mIntake.start(1.0);
+            mIntake.start(0.85,0.65);
             //mTurret.reset();
         }
     }
@@ -268,10 +268,10 @@ public class Robot {
     public void reverse_stop_intake() {
         mLogger.info("==> RVS INTAKE");
         if(mIntake.isMoving()) {
-            if(!mIntake.isReversed()) { mIntake.start(-1.0); }
+            if(!mIntake.isReversed()) { mIntake.start(-0.85,-0.6); }
             else { mIntake.stop(); }
         }
-        else { mIntake.start(-1.0); }
+        else { mIntake.start(-0.85,0.65); }
     }
 
 

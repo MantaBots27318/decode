@@ -36,6 +36,7 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 /* Vision includes */
+import org.firstinspires.ftc.teamcode.utils.VelocityAbacus;
 import org.firstinspires.ftc.teamcode.vision.Vision;
 
 import java.util.LinkedHashMap;
@@ -55,16 +56,13 @@ public class Turret implements Posable{
     );
 
     static final double     sRotationAmplitude = 4 * Math.PI;
-    static final int        sResetTimeMs = 1000;
     static final int        sRotationEncoderAmplitude = 20370;
-    static final double     sMaxSpeed = 10000;
+    static final double     sMaxSpeed = 15000;
     static final double     sStartPosition = 0.5;
 
     Logger                  mLogger;
     boolean                 mReady;
-    boolean                 mShallReset;
     boolean                 mIsShooting;
-    SmartTimer              mResetTimer;
     SmartTimer              mInitTimer;
 
     double                  mDistanceCenterLimelight;
@@ -82,8 +80,8 @@ public class Turret implements Posable{
 
     double                  mInitialEncoderPosition;
     double                  mInitialServoPosition;
-    Map<Position, Double>   mPositions;   // Link between positions enumerated and servos positions
-
+    Map<Position, Double>   mHoodPositions;   // Link between positions enumerated and servos positions
+    Map<Position, Double>   mRotationPositions;   // Link between positions enumerated and servos positions
 
     boolean                mFirstLoop;
 
@@ -93,8 +91,6 @@ public class Turret implements Posable{
         mReady       = true;
         mFirstLoop   = true;
         mIsShooting  = false;
-        mShallReset  = false;
-        mResetTimer  = new SmartTimer(logger);
         mInitTimer   = new SmartTimer(logger);
         mPath        = path;
 
@@ -113,11 +109,23 @@ public class Turret implements Posable{
             if (!mFlywheel.isReady()) { mReady = false; status += " HW FLYWHEEL";}
         }
 
+        mRotationPositions   = new LinkedHashMap<>();
         ConfServo rotation = config.getServo("turret-rotation");
         if(rotation == null)  { mReady = false; status += " CONF ROT";}
         else {
             mRotation = ServoComponent.factory(rotation, hwm, "turret-rotation", logger);
             if (!mRotation.isReady()) { mReady = false; status += " HW ROT";}
+
+
+            mRotationPositions.clear();
+            Map<String, Double> confPosition = rotation.getPositions();
+            for (Map.Entry<String, Double> pos : confPosition.entrySet()) {
+                if(sConfToPosition.containsKey(pos.getKey())) {
+                    mRotationPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
+                }  else {
+                    mLogger.info("Found unmanaged turret rotation position : " + pos.getKey());
+                }
+            }
 
         }
 
@@ -128,20 +136,20 @@ public class Turret implements Posable{
             if (!mRotationEncoder.isReady()) { mReady = false; status += " HW ROT EN";}
         }
 
-        mPositions   = new LinkedHashMap<>();
+        mHoodPositions   = new LinkedHashMap<>();
         ConfServo hood = config.getServo("turret-hood");
         if(hood == null)  { mReady = false; status += " CONF HD";}
         else {
             mHood = ServoComponent.factory(hood, hwm, "turret-hood", logger);
             if (!mHood.isReady()) { mReady = false; status += " HW HD";}
 
-            mPositions.clear();
+            mHoodPositions.clear();
             Map<String, Double> confPosition = hood.getPositions();
             for (Map.Entry<String, Double> pos : confPosition.entrySet()) {
                 if(sConfToPosition.containsKey(pos.getKey())) {
-                    mPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
+                    mHoodPositions.put(sConfToPosition.get(pos.getKey()), pos.getValue());
                 }  else {
-                    mLogger.info("Found unmanaged intake lever arm position : " + pos.getKey());
+                    mLogger.info("Found unmanaged hood position : " + pos.getKey());
                 }
             }
         }
@@ -219,14 +227,16 @@ public class Turret implements Posable{
             mLogger.metric("TURRET FTC : " , turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
             double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
             mLogger.metric("ANGULAR ERROR : " , "" + deltaAngle / Math.PI * 180);
-            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
+            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position);
             mLogger.metric("NEXT ROTATION SERVO POSITION : " , ""+rotation_servo_position);
             mRotation.setPosition(rotation_servo_position);
             double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
             mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
             mHood.setPosition(hood_servo_position);
+            double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
+            mLogger.metric("FLYWHEEL SPEED : " , ""+flywheel_speed);
+            mFlywheel.setVelocity(flywheel_speed);
 
-            if(!mResetTimer.isArmed()) { mShallReset = false; }
         }
     }
 
@@ -242,11 +252,6 @@ public class Turret implements Posable{
             mFlywheel.setVelocity(0.0);
             mIsShooting = false;
         }
-    }
-
-    public void reset() {
-        mShallReset = true;
-        mResetTimer.arm(sResetTimeMs);
     }
 
     public void orient(double heading) {
@@ -280,7 +285,7 @@ public class Turret implements Posable{
             mLogger.trace("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
             double deltaAngle = heading - turret_orient.heading.toDouble();
             mLogger.trace("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
-            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position, mShallReset);
+            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position);
             mLogger.trace("NEXT ROTATION SERVO POSITION : " + rotation_servo_position);
             mRotation.setPosition(rotation_servo_position);
             double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
@@ -333,25 +338,29 @@ public class Turret implements Posable{
 
     }
 
-    private double calculateRotationServoPosition(double delta_angle, double current_position, boolean shall_reset){
+    private double calculateRotationServoPosition(double delta_angle, double current_position){
 
         double result;
 
         double angle = current_position * sRotationAmplitude;
         angle += delta_angle;
         result = angle / sRotationAmplitude;
-        result = Math.round(result * 100) * 1.0/ 100;
+        //result = Math.round(result * 100) * 1.0/ 100;
 
-        while(result > 1) { result -= 2 * Math.PI / sRotationAmplitude; }
-        while(result < 0) { result += 2 * Math.PI / sRotationAmplitude; }
+        double result1 = result + 2 * Math.PI / sRotationAmplitude;
+        double result2 = result - 2 * Math.PI / sRotationAmplitude;
 
-        if(shall_reset) {
-            if(Math.abs(1 - result) < Math.abs(result - 2 * Math.PI / sRotationAmplitude)) {
-                result -= 2 * Math.PI / sRotationAmplitude;
-            }
-            if(Math.abs(result) < Math.abs(1 - result - 2 * Math.PI / sRotationAmplitude)) {
-                result += 2 * Math.PI / sRotationAmplitude;
-            }
+        if((result1 >= mRotationPositions.get(Position.MIN)) &&  (result1 <= mRotationPositions.get(Position.MIN))){
+            result = result1;
+        }
+        if((result2 >= mRotationPositions.get(Position.MIN)) &&  (result2 <= mRotationPositions.get(Position.MIN))){
+            result = result2;
+        }
+        if(result > mRotationPositions.get(Position.MAX)) {
+            result = mRotationPositions.get(Position.MAX);
+        }
+        if(result < mRotationPositions.get(Position.MIN)) {
+            result = mRotationPositions.get(Position.MIN);
         }
 
         return result;
@@ -367,8 +376,22 @@ public class Turret implements Posable{
                 (target.position.y - center.position.y));
 
         double result = ServoAbacus.getPosition(distance);
-        if(result < mPositions.get(Position.MIN)) { result = mPositions.get(Position.MIN); }
-        if(result > mPositions.get(Position.MAX)) { result = mPositions.get(Position.MAX); }
+        if(result < mHoodPositions.get(Position.MIN)) { result = mHoodPositions.get(Position.MIN); }
+        if(result > mHoodPositions.get(Position.MAX)) { result = mHoodPositions.get(Position.MAX); }
+
+        return result;
+    }
+
+    private double calculateFlywheelSpeed(Pose2d target, Pose2d center) {
+
+        double distance = Math.sqrt(
+                (target.position.x - center.position.x) *
+                        (target.position.x - center.position.x) +
+                        (target.position.y - center.position.y) *
+                                (target.position.y - center.position.y));
+
+        double result = VelocityAbacus.getVelocity(distance);
+        result *= sMaxSpeed;
 
         return result;
     }

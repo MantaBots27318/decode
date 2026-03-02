@@ -136,6 +136,7 @@ public class Transfer {
 
     public void close() {
         this.setPosition(Position.BLOCK);
+        mOpen = false;
     }
 
     public void open_loop() {
