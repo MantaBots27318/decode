@@ -150,6 +150,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
 
+        mRobot.loop();
         mRobot.shoot();
         mRobot.loop();
         mLogger.update();
@@ -188,6 +189,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 mLogger.metric("STEP", "SHOOT" );
                 mLogger.update();
 
+                mRobot.loop();
                 mRobot.shoot();
                 mRobot.loop();
                 mLogger.update();

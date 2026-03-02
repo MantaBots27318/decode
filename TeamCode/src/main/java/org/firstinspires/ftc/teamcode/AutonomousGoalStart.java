@@ -140,7 +140,7 @@ public class AutonomousGoalStart extends LinearOpMode {
         Actions.runBlocking(
                 new RaceAction(
                         mDrive.actionBuilder(start)
-                                .lineToXConstantHeading(shoot.position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
+                                .lineToXConstantHeading(shoot.position.x, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
                                 .build(),
                         loopAction
                 ));
@@ -148,8 +148,10 @@ public class AutonomousGoalStart extends LinearOpMode {
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
 
+        mRobot.loop();
         mRobot.shoot();
         mRobot.loop();
+
         mLogger.update();
 
         for (AutonomousStep step : mSteps) {
@@ -186,8 +188,10 @@ public class AutonomousGoalStart extends LinearOpMode {
                 mLogger.metric("STEP", "SHOOT" );
                 mLogger.update();
 
+                mRobot.loop();
                 mRobot.shoot();
                 mRobot.loop();
+
                 mLogger.update();
 
             }
