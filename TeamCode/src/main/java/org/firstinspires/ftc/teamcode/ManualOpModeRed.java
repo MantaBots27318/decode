@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 /* Qualcomm includes */
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -29,19 +30,27 @@ public class ManualOpModeRed extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
+        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual-blue");
         mLogger.level(Logger.Severity.INFO);
-
-        mAlliance = Alliance.RED;
 
         mGamepad1 = new Controller(gamepad1,mLogger);
         mGamepad2 = new Controller(gamepad2,mLogger);
+
+        mAlliance = Alliance.RED;
 
         mPath = new Path(mLogger);
         mPath.initialize(mAlliance);
 
         mRobot = new Robot();
         mRobot.setHW(Configuration.s_Current,hardwareMap,mLogger, mGamepad1, mGamepad2, mPath);
+
+        Double initial_heading = Configuration.s_Current.retrieve("heading");
+        if (initial_heading == null) { initial_heading = 0.0; }
+        Double initial_x = Configuration.s_Current.retrieve("x");
+        if (initial_x == null) { initial_x = 0.0; }
+        Double initial_y = Configuration.s_Current.retrieve("y");
+        if (initial_y == null) { initial_y = 0.0; }
+        mRobot.initialize(new Pose2d(initial_x,initial_y,initial_heading),Robot.Mode.FIELD_CENTRIC);
 
         mLogger.info("ALL : " +  mAlliance);
         mLogger.update();

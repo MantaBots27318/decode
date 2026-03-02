@@ -96,16 +96,8 @@ public class AutonomousGatePickup extends LinearOpMode {
         Pose2d shoot = mPath.shootingFar();
         mRobot.initialize(start, Robot.Mode.AUTONOMOUS);
         mDrive = new MecanumDrive(hardwareMap, start);
-
-        Action startStopIntakeAction = p -> {
-            mRobot.start_stop_intake();
-            return false;
-        };
-
-        Action engageAction = p -> {
-            mRobot.start_stop_flywheel();
-            return false;
-        };
+        mRobot.start_stop_intake();
+        mRobot.start_stop_flywheel();
 
         Action loopAction = p -> {
             mRobot.loop();
@@ -118,7 +110,6 @@ public class AutonomousGatePickup extends LinearOpMode {
         Actions.runBlocking(
                 new RaceAction(
                         mDrive.actionBuilder(start)
-                                .afterTime(0.1, engageAction)
                                 .lineToXConstantHeading(shoot.position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
                                 .build(),
                         loopAction
@@ -129,6 +120,7 @@ public class AutonomousGatePickup extends LinearOpMode {
 
         mRobot.shoot();
         mRobot.loop();
+        mLogger.update();
 
         mLogger.metric("STEP", "GO TO PPG AND BACK" );
         mLogger.update();
@@ -140,15 +132,12 @@ public class AutonomousGatePickup extends LinearOpMode {
         Actions.runBlocking(
                 new RaceAction(
                         mDrive.actionBuilder(mDrive.getPose())
-                                .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(-Math.PI)
                                 .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(start_intake.heading.toDouble())
                                 .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                .afterTime(2, startStopIntakeAction)
                                 .setTangent(-end_intake.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -back_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-                                .afterTime(0.01, engageAction)
                                 .setTangent(mPath.tgtIntakeToShootRadians())
                                 .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                 .build(),
@@ -160,6 +149,7 @@ public class AutonomousGatePickup extends LinearOpMode {
 
         mRobot.shoot();
         mRobot.loop();
+        mLogger.update();
 
         for (int i_attempt = 0; i_attempt < sAttempts; i_attempt ++) {
 
@@ -173,15 +163,12 @@ public class AutonomousGatePickup extends LinearOpMode {
             Actions.runBlocking(
                     new RaceAction(
                             mDrive.actionBuilder(mDrive.getPose())
-                                    .afterTime(0.01, startStopIntakeAction)
                                     .setTangent(-Math.PI)
                                     .splineToLinearHeading(start_gate, start_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                     .setTangent(start_gate.heading.toDouble())
                                     .splineToLinearHeading(end_gate, end_gate.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                    .afterTime(2, startStopIntakeAction)
                                     .setTangent(-end_gate.heading.toDouble())
                                     .splineToLinearHeading(back_gate, -back_gate.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-                                    .afterTime(0.01, engageAction)
                                     .setTangent(mPath.tgtIntakeToShootRadians())
                                     .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                     .build(),

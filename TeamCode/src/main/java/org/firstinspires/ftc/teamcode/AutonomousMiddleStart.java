@@ -125,18 +125,10 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
         Pose2d start = mPath.start();
         Pose2d shoot = mPath.shootingVeryFar();
-        mDrive = new MecanumDrive(hardwareMap, start);
         mRobot.initialize(start, Robot.Mode.AUTONOMOUS);
-
-        Action startStopIntakeAction = p -> {
-            mRobot.start_stop_intake();
-            return false;
-        };
-
-        Action engageAction = p -> {
-            mRobot.start_stop_flywheel();
-            return false;
-        };
+        mDrive = new MecanumDrive(hardwareMap, start);
+        mRobot.start_stop_intake();
+        mRobot.start_stop_flywheel();
 
         Action loopAction = p -> {
             mRobot.loop();
@@ -149,19 +141,18 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Actions.runBlocking(
             new RaceAction(
                 mDrive.actionBuilder(start)
-                        .afterTime(0.01, engageAction)
                         .setTangent(start.heading.toDouble())
                         .splineToLinearHeading(new Pose2d(shoot.position.x, shoot.position.y, start.heading.toDouble()), start.heading.toDouble())
                         .turnTo(shoot.heading.toDouble())
                         .build(),
                 loopAction));
 
-
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
 
         mRobot.shoot();
         mRobot.loop();
+        mLogger.update();
 
         for (AutonomousStep step : mSteps) {
 
@@ -183,15 +174,12 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 Actions.runBlocking(
                     new RaceAction(
                         mDrive.actionBuilder(shoot)
-                                .afterTime(0.01, startStopIntakeAction)
                                 .setTangent(shoot.heading.toDouble())
                                 .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(start_intake.heading.toDouble())
                                 .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                .afterTime(2, startStopIntakeAction)
                                 .setTangent(-end_intake.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-                                .afterTime(0, engageAction)
                                 .setTangent(-back_intake.heading.toDouble())
                                 .splineToLinearHeading(shoot, Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
                                 .build(),
@@ -202,6 +190,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
 
                 mRobot.shoot();
                 mRobot.loop();
+                mLogger.update();
 
             }
         }

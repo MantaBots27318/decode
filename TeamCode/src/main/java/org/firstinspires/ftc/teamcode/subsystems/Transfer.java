@@ -174,14 +174,10 @@ public class Transfer {
             }
         }
         else if(mState == State.DOWN && !isMoving()) {
-            setPosition(Transfer.Position.LET, 3000);
+            setPosition(Transfer.Position.LET, 2000);
             if (getPosition() == Transfer.Position.LET)  {
                 mState = State.LET;
             }
-        }
-        else if (mState == State.LET && !isMoving()) {
-            mState = State.NONE;
-            mOpen = true;
         }
         else if(mState == State.LET && !isMoving()) {
             setPosition(Transfer.Position.BLOCK);

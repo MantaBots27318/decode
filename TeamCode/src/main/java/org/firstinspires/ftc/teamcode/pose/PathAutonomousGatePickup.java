@@ -16,12 +16,12 @@ import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public class PathAutonomousGatePickup extends PathAutonomousGoal {
     
-    public static final double X_GATE_INCHES_BLUE =                 -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
-    public static final double X_GATE_INCHES_RED =                  -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
-    public static final double Y_GATE_INCHES_BLUE =                 FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
-    public static final double Y_GATE_INCHES_RED =                  -FIELD_SIZE_INCHES / 2 + 9 + 52 + 5;
-    public static final double ANGLE_GATE_RADIANS_BLUE =           Math.PI / 4;
-    public static final double ANGLE_GATE_RADIANS_RED =            -Math.PI / 4;
+    public static final double X_GATE_INCHES_BLUE =                 -12;
+    public static final double X_GATE_INCHES_RED =                  -12;
+    public static final double Y_GATE_INCHES_BLUE =                 60;
+    public static final double Y_GATE_INCHES_RED =                  -60;
+    public static final double ANGLE_GATE_RADIANS_BLUE =           Math.PI / 3;
+    public static final double ANGLE_GATE_RADIANS_RED =            -Math.PI / 3;
     
 
     Pose2d                  mStartGate    = new Pose2d(0,0,0);

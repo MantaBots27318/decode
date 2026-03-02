@@ -122,20 +122,11 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Pose2d start = mPath.start();
         Pose2d shoot = mPath.shootingFar();
+
         mRobot.initialize(start, Robot.Mode.AUTONOMOUS);
         mDrive = new MecanumDrive(hardwareMap, start);
         mRobot.start_stop_intake();
         mRobot.start_stop_flywheel();
-
-        Action startStopIntakeAction = p -> {
-            mRobot.start_stop_intake();
-            return false;
-        };
-
-        Action engageAction = p -> {
-            mRobot.start_stop_flywheel();
-            return false;
-        };
 
         Action loopAction = p -> {
             mRobot.loop();

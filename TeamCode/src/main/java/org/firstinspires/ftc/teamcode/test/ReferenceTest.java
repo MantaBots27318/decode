@@ -31,6 +31,12 @@ public class ReferenceTest extends LinearOpMode {
 
     private Logger  mLogger;
 
+    public static double DELTA_X_POSITION= 7;
+
+    public static double DELTA_Y_POSITION= 2.75;
+
+    public static double DELTA_ANGLE_POSITION= 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -49,15 +55,17 @@ public class ReferenceTest extends LinearOpMode {
 
                 Pose3D output = mVision.getPosition();
                 if (output != null) {
+
                        Pose2d robot_position = Posable.derivePose(
                                new Pose2d(
                                        -output.getPosition().x * Path.M_TO_INCHES,
                                        -output.getPosition().y * Path.M_TO_INCHES,
                                        (output.getOrientation().getYaw() + 180) * Math.PI / 180),
-                               new Pose2d(7, 2.75, 0));
-                        mLogger.metric("X",""+robot_position.position.x);
-                    mLogger.metric("Y",""+robot_position.position.y);
-                    mLogger.metric("H",""+robot_position.heading.toDouble() / Math.PI * 180);
+                               new Pose2d(DELTA_X_POSITION, DELTA_Y_POSITION, DELTA_ANGLE_POSITION));
+
+                       mLogger.metric("X",""+robot_position.position.x);
+                       mLogger.metric("Y",""+robot_position.position.y);
+                       mLogger.metric("H",""+robot_position.heading.toDouble() / Math.PI * 180);
                 }
 
             }

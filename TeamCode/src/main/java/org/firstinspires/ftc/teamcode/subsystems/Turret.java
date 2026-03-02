@@ -57,7 +57,7 @@ public class Turret implements Posable{
 
     static final double     sRotationAmplitude = 4 * Math.PI;
     static final int        sRotationEncoderAmplitude = 20370;
-    static final double     sMaxSpeed = 15000;
+    static final double     sMaxSpeed = 1950;
     static final double     sStartPosition = 0.5;
 
     Logger                  mLogger;
@@ -235,14 +235,16 @@ public class Turret implements Posable{
             mHood.setPosition(hood_servo_position);
             double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
             mLogger.metric("FLYWHEEL SPEED : " , ""+flywheel_speed);
-            mFlywheel.setVelocity(flywheel_speed);
+            if(mIsShooting) { mFlywheel.setVelocity(flywheel_speed); }
 
         }
     }
 
     public void start() {
         if(mReady) {
-            mFlywheel.setVelocity(sMaxSpeed);
+            double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
+            mLogger.metric("FLYWHEEL SPEED : " , ""+flywheel_speed);
+            mFlywheel.setVelocity(flywheel_speed);
             mIsShooting = true;
         }
     }
