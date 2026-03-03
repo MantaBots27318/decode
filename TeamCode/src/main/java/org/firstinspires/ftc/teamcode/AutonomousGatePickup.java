@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 /* Java includes */
+import java.util.ArrayList;
 import java.util.List;
 
 /* Android includes */
@@ -33,32 +34,29 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGatePickup;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
-
 
 @Autonomous
 public class AutonomousGatePickup extends LinearOpMode {
 
-    static final int            sAttempts = 3;
+    Logger mLogger;
 
-    Logger                      mLogger;
-    SmartTimer                  mTimer;
+    Controller mGamepad1;
+    MecanumDrive mDrive;
+    Robot mRobot;
 
-    Controller                  mGamepad1;
-    MecanumDrive                mDrive;
-    Robot                       mRobot;
+    Alliance mAlliance = Alliance.NONE;
+    PathAutonomousGatePickup mPath;
 
-    Alliance                    mAlliance = Alliance.NONE;
-    PathAutonomousGatePickup    mPath;
+    List<AutonomousStep> mSteps;
 
+    int mAttempts = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-gate-pickup");
+        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
-        mTimer = new SmartTimer(mLogger);
 
         mGamepad1 = new Controller(gamepad1, mLogger);
 
@@ -69,7 +67,37 @@ public class AutonomousGatePickup extends LinearOpMode {
         mRobot = new Robot();
         mRobot.setHW(Configuration.s_Current, hardwareMap, mLogger, mGamepad1, null, mPath);
 
+        mSteps = new ArrayList<>();
+        mSteps.add(AutonomousStep.NONE);
+        int current_step = mSteps.size() - 1;
+
         while (opModeInInit()) {
+
+            if (mGamepad1.buttons.dpad_right.pressedOnce()) {
+                current_step++;
+                if (current_step >= mSteps.size()) {
+                    mSteps.add(AutonomousStep.NONE);
+                }
+            }
+            if (mGamepad1.buttons.dpad_left.pressedOnce()) {
+                current_step--;
+                if (current_step < 0) {
+                    current_step = 0;
+                }
+            }
+
+            if (mGamepad1.buttons.dpad_up.pressedOnce()) {
+                mSteps.set(current_step, mSteps.get(current_step).next());
+            }
+            if (mGamepad1.buttons.dpad_down.pressedOnce()) {
+                mSteps.set(current_step, mSteps.get(current_step).previous());
+            }
+
+            if (mGamepad1.buttons.y.pressedOnce()) {
+                mSteps.clear();
+                current_step = 0;
+                mSteps.add(AutonomousStep.NONE);
+            }
 
             if (mGamepad1.buttons.right_trigger.pressedOnce()) {
                 mAlliance = Alliance.RED;
@@ -80,12 +108,28 @@ public class AutonomousGatePickup extends LinearOpMode {
                 mPath.initialize(mAlliance);
             }
 
-            mLogger.info("=========== MENU ============");
-            mLogger.info("Choose Alliance : TRIGGER LEFT/RIGHT");
-            mLogger.info("");
+            if(mGamepad1.buttons.left_bumper.pressedOnce()) {
+                mAttempts --;
+                mAttempts = Math.max(mAttempts,0);
+            }
+            if(mGamepad1.buttons.right_bumper.pressedOnce()) {
+                mAttempts ++;
+                mAttempts = Math.min(mAttempts,6);
+            }
 
-            mLogger.info("======= CONFIGURATION =======");
-            mLogger.info("==> ALLIANCE : " + mAlliance.name());
+            mLogger.info(Logger.Target.DRIVER_STATION,"=========== MENU ============");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Choose Alliance       : TRIGGER LEFT/RIGHT");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Add a step            : DPAD LEFT/RIGHT");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Modify step           : DPAD UP/DOWN");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Clear all steps : Y");
+            mLogger.info(Logger.Target.DRIVER_STATION,"Add/remove an attempt : BUMPER LEFT/RIGHT");
+            mLogger.info(Logger.Target.DRIVER_STATION,"");
+
+            mLogger.info(Logger.Target.DRIVER_STATION,"======= CONFIGURATION =======");
+            mLogger.info(Logger.Target.DRIVER_STATION,"==> ALLIANCE : " + mAlliance.name());
+            StringBuilder steps = getStringBuilder(current_step, mSteps);
+            mLogger.info(Logger.Target.DRIVER_STATION,"==> STEPS : " + steps);
+            mLogger.info(Logger.Target.DRIVER_STATION,"==> ATTEMPTS : " + mAttempts);
 
             mPath.log();
             mLogger.update();
@@ -94,19 +138,17 @@ public class AutonomousGatePickup extends LinearOpMode {
 
         Pose2d start = mPath.start();
         Pose2d shoot = mPath.shootingFar();
+
         mRobot.initialize(start, Robot.Mode.AUTONOMOUS);
         mDrive = new MecanumDrive(hardwareMap, start);
-        mRobot.start_stop_intake();
+
         mRobot.start_stop_flywheel();
+        Thread.sleep(200);
+        mRobot.start_stop_intake();
 
         Action loopAction = p -> {
             mRobot.loop();
             return true;
-        };
-
-        Action transferAction = p -> {
-            mRobot.start_stop_transfer();
-            return false;
         };
 
         mLogger.metric("STEP", "GO TO SHOOTING");
@@ -116,10 +158,11 @@ public class AutonomousGatePickup extends LinearOpMode {
                 new RaceAction(
                         mDrive.actionBuilder(start)
                                 .setTangent(start.heading.toDouble() + Math.PI)
-                                .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30, 30))
+                                .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-30, 50))
                                 .build(),
                         loopAction
                 ));
+
 
 
         mRobot.loop();
@@ -131,59 +174,67 @@ public class AutonomousGatePickup extends LinearOpMode {
 
         mLogger.update();
 
-        mLogger.metric("STEP", "GO TO PPG AND BACK" );
-        mLogger.update();
+        for (AutonomousStep step : mSteps) {
 
-        Pose2d start_intake = mPath.startIntake(Pattern.PPG);
-        Pose2d end_intake = mPath.endIntake(Pattern.PPG);
-        Pose2d back_intake = mPath.backIntake(Pattern.PPG);
+            if (step != AutonomousStep.NONE) {
 
-        Actions.runBlocking(
-                new RaceAction(
-                        mDrive.actionBuilder(mDrive.getPose())
-                                .afterTime(2,transferAction)
-                                .setTangent(-Math.PI)
-                                .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
-                                .setTangent(start_intake.heading.toDouble())
-                                .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                .setTangent(-end_intake.heading.toDouble())
-                                .splineToLinearHeading(back_intake, -back_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-                                .setTangent(mPath.tgtIntakeToShootRadians())
-                                .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
-                                .build(),
-                        loopAction
-                ));
+                Pattern pattern;
+                if (step == AutonomousStep.GPP) { pattern = Pattern.GPP; }
+                else if (step == AutonomousStep.PGP) { pattern = Pattern.PGP; }
+                else { pattern = Pattern.PPG; }
 
-        mRobot.loop();
-        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
-        mLogger.metric("STEP", "SHOOT");
-        mLogger.update();
-        mRobot.shoot();
-        mRobot.loop();
+                Pose2d start_intake = mPath.startIntake(pattern);
+                Pose2d end_intake = mPath.endIntake(pattern);
 
-        mLogger.update();
+                mLogger.metric("STEP", "GO TO AND BACK " + pattern.text() );
+                mLogger.update();
 
-        for (int i_attempt = 0; i_attempt < sAttempts; i_attempt ++) {
+                Actions.runBlocking(
+                        new RaceAction(
+                                mDrive.actionBuilder(mDrive.getPose())
+                                        .setTangent(-Math.PI)
+                                        .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                        .setTangent(start_intake.heading.toDouble())
+                                        .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 10))
+                                        .setTangent(mPath.tgtIntakeToShootRadians())
+                                        .splineToConstantHeading(shoot.position,mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
+                                        .build(),
+                                loopAction
+                        ));
 
-            mLogger.metric("STEP", "GO GATE TO AND BACK" );
-            mLogger.update();
+                mRobot.loop();
+                Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+                mLogger.metric("STEP", "SHOOT");
+                mLogger.update();
+                mRobot.shoot();
+                mRobot.loop();
+
+                mLogger.update();
+
+            }
+
+        }
+
+        for (int i_attempt = 0; i_attempt < mAttempts; i_attempt ++) {
 
             Pose2d start_gate = mPath.startGate();
             Pose2d end_gate = mPath.endGate();
+            Pose2d intake_gate = mPath.intakeGate();
             Pose2d back_gate = mPath.backGate();
+
+
+            mLogger.metric("STEP", "GO TO AND BACK GATE");
 
             Actions.runBlocking(
                     new RaceAction(
                             mDrive.actionBuilder(mDrive.getPose())
-                                    .afterTime(2,transferAction)
                                     .setTangent(-Math.PI)
-                                    .splineToLinearHeading(start_gate, start_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
-                                    .setTangent(start_gate.heading.toDouble())
-                                    .splineToLinearHeading(end_gate, end_gate.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                    .setTangent(-end_gate.heading.toDouble())
-                                    .splineToLinearHeading(back_gate, -back_gate.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                    .splineToLinearHeading(start_gate, start_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30, 30))
+                                    .setTangent(Math.PI)
+                                    .splineToLinearHeading(intake_gate, intake_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-40, 40))
+                                    .lineToXConstantHeading(intake_gate.position.x + 4)
                                     .setTangent(mPath.tgtIntakeToShootRadians())
-                                    .splineToLinearHeading(shoot, 0, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-25, 50))
+                                    .splineToLinearHeading(shoot,mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
                                     .build(),
                             loopAction
                     ));
@@ -194,10 +245,7 @@ public class AutonomousGatePickup extends LinearOpMode {
             mLogger.update();
             mRobot.shoot();
             mRobot.loop();
-
-            mLogger.update();
         }
-
 
         Pose2d leave = mPath.leave();
 
@@ -205,13 +253,13 @@ public class AutonomousGatePickup extends LinearOpMode {
         mLogger.update();
 
         Actions.runBlocking(
-            new RaceAction(
-                mDrive.actionBuilder(shoot)
-                    .setTangent(shoot.heading.toDouble() + Math.PI)
-                    .splineToLinearHeading(leave, leave.heading.toDouble() + Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
-                    .build(),
-                loopAction
-            ));
+                new RaceAction(
+                        mDrive.actionBuilder(shoot)
+                                .setTangent(mPath.tgtIntakeToShootRadians() + Math.PI )
+                                .splineToLinearHeading(leave, Math.PI, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                .build(),
+                        loopAction
+                ));
 
         Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
         Configuration.s_Current.persist("x", mDrive.getPose().position.x);
@@ -222,4 +270,19 @@ public class AutonomousGatePickup extends LinearOpMode {
 
     }
 
+    @NonNull
+    private static StringBuilder getStringBuilder(int current_step, List<AutonomousStep> mSteps) {
+        StringBuilder steps = new StringBuilder("[");
+        for (int i_step = 0; i_step < mSteps.size(); i_step++) {
+            if (i_step == current_step) {
+                steps.append(mSteps.get(i_step).text().toUpperCase());
+            } else {
+                steps.append(mSteps.get(i_step).text().toLowerCase());
+            }
+            if (i_step < (mSteps.size() - 1)) { steps.append(" , "); }
+        }
+
+        steps.append("]");
+        return steps;
+    }
 }
