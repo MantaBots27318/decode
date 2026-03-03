@@ -46,5 +46,6 @@ public abstract class ServoComponent {
     public abstract void	            setDirection(Servo.Direction direction);
     public abstract void	            setPosition(double position);
     public abstract void	            reset();
+    public abstract void                setPwmRange(double min, double max);
 
 }

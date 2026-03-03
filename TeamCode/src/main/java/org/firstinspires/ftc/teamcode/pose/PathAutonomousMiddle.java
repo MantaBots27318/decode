@@ -49,18 +49,18 @@ public class PathAutonomousMiddle extends Path {
     private static final double TGT_SHOOT_TO_LEAVE_RADIANS_BLUE =           Math.PI/2;
     private static final double TGT_SHOOT_TO_LEAVE_RADIANS_RED =            -Math.PI/2;
 
-    private static final double X_LEAVE_VERY_FAR_INCHES = -52;
-    private static final double Y_LEAVE_VERY_FAR_INCHES_BLUE = 19;
-    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE = 0.365424564;
-    private static final double Y_LEAVE_VERY_FAR_INCHES_RED = -19;
-    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_RED = -0.365424564;
+    private static final double X_LEAVE_INCHES = -52;
+    private static final double Y_LEAVE_INCHES_BLUE = 19;
+    private static final double ANGLE_LEAVE_RADIANS_BLUE = 0.365424564;
+    private static final double Y_LEAVE_INCHES_RED = -19;
+    private static final double ANGLE_LEAVE_RADIANS_RED = -0.365424564;
 
 
     Pose2d  mStart                          = new Pose2d(0,0,0);
     Map<Pattern, Pose2d>    mStartIntake    = new LinkedHashMap<>();
     Map<Pattern, Pose2d>    mEndIntake      = new LinkedHashMap<>();
     Map<Pattern, Pose2d>    mBackIntake     = new LinkedHashMap<>();
-    Pose2d  mLeaveVeryFar                   = new Pose2d(0,0,0);
+    Pose2d  mLeave                          = new Pose2d(0,0,0);
     double  mTgtShootToLeaveRadians         = 0;
 
     public PathAutonomousMiddle(Logger logger) {
@@ -110,7 +110,7 @@ public class PathAutonomousMiddle extends Path {
             }
 
             mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_RED + ANGLE_START_RADIANS;
-            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_RED,ANGLE_LEAVE_VERY_FAR_RADIANS_RED);
+            mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED);
 
         }
         if (alliance == Alliance.BLUE) {
@@ -150,7 +150,7 @@ public class PathAutonomousMiddle extends Path {
             }
 
             mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_BLUE + ANGLE_START_RADIANS;
-            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_BLUE,ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE);
+            mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE);
 
         }
     }
@@ -159,7 +159,7 @@ public class PathAutonomousMiddle extends Path {
     public Pose2d   startIntake(Pattern pattern)    { return mStartIntake.get(pattern); }
     public Pose2d   endIntake(Pattern pattern)      { return mEndIntake.get(pattern); }
     public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
-    public Pose2d   leaveVeryFar()                  { return mLeaveVeryFar; }
+    public Pose2d   leave()                         { return mLeave; }
 
     public double   tgtShootToLeaveRadians()       { return mTgtShootToLeaveRadians;}
 
@@ -181,7 +181,7 @@ public class PathAutonomousMiddle extends Path {
             mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE PPG X : " + mEndIntake.get(Pattern.PPG).position.x + " Y: " + mEndIntake.get(Pattern.PPG).position.y + " H: " + mEndIntake.get(Pattern.PPG).heading.toDouble());
             mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
         }
-        mLogger.info(Logger.Target.DRIVER_STATION,"LEAVE : " + mLeaveVeryFar.position.x + " Y: " + mLeaveVeryFar.position.y + " H: " + mLeaveVeryFar.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"LEAVE : " + mLeave.position.x + " Y: " + mLeave.position.y + " H: " + mLeave.heading.toDouble());
         mLogger.info(Logger.Target.DRIVER_STATION,"TGT SHOOT TO LEAVE : " + mTgtShootToLeaveRadians);
         super.log();
     }

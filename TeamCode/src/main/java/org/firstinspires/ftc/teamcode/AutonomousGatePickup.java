@@ -104,6 +104,11 @@ public class AutonomousGatePickup extends LinearOpMode {
             return true;
         };
 
+        Action transferAction = p -> {
+            mRobot.start_stop_transfer();
+            return false;
+        };
+
         mLogger.metric("STEP", "GO TO SHOOTING");
         mLogger.update();
 
@@ -115,11 +120,13 @@ public class AutonomousGatePickup extends LinearOpMode {
                         loopAction
                 ));
 
+        mRobot.loop();
+        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
-
         mRobot.shoot();
         mRobot.loop();
+
         mLogger.update();
 
         mLogger.metric("STEP", "GO TO PPG AND BACK" );
@@ -132,6 +139,7 @@ public class AutonomousGatePickup extends LinearOpMode {
         Actions.runBlocking(
                 new RaceAction(
                         mDrive.actionBuilder(mDrive.getPose())
+                                .afterTime(2,transferAction)
                                 .setTangent(-Math.PI)
                                 .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(start_intake.heading.toDouble())
@@ -144,12 +152,13 @@ public class AutonomousGatePickup extends LinearOpMode {
                         loopAction
                 ));
 
-        mLogger.metric("STEP", "SHOOT" );
-        mLogger.update();
-
         mRobot.loop();
+        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+        mLogger.metric("STEP", "SHOOT");
+        mLogger.update();
         mRobot.shoot();
         mRobot.loop();
+
         mLogger.update();
 
         for (int i_attempt = 0; i_attempt < sAttempts; i_attempt ++) {
@@ -164,6 +173,7 @@ public class AutonomousGatePickup extends LinearOpMode {
             Actions.runBlocking(
                     new RaceAction(
                             mDrive.actionBuilder(mDrive.getPose())
+                                    .afterTime(2,transferAction)
                                     .setTangent(-Math.PI)
                                     .splineToLinearHeading(start_gate, start_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                     .setTangent(start_gate.heading.toDouble())
@@ -176,12 +186,14 @@ public class AutonomousGatePickup extends LinearOpMode {
                             loopAction
                     ));
 
-            mLogger.metric("STEP", "SHOOT" );
-            mLogger.update();
-
             mRobot.loop();
+            Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+            mLogger.metric("STEP", "SHOOT");
+            mLogger.update();
             mRobot.shoot();
             mRobot.loop();
+
+            mLogger.update();
         }
 
 

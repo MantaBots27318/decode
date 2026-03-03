@@ -128,10 +128,10 @@ public class Transfer {
     }
 
     public void loop() {
-        if (mState != State.NONE) { open_loop(); }
+        if (mState != State.NONE) { open_and_close_loop(); }
     }
 
-    public boolean open() { return mOpen; }
+    public boolean isOpen() { return mOpen; }
     public boolean ongoing() { return mOngoing; }
 
     public void close() {
@@ -139,27 +139,9 @@ public class Transfer {
         mOpen = false;
     }
 
-    public void open_loop() {
-        if (mState == State.NONE) {
-            mState = State.WAITING;
-        }
-        else if (mState == State.WAITING) {
-            setPosition(Transfer.Position.DOWN);
-            if (mPosition == Transfer.Position.DOWN)  {
-                mState = State.DOWN;
-            }
-        }
-        else if(mState == State.DOWN && !isMoving()) {
-            setPosition(Transfer.Position.LET);
-            if (getPosition() == Transfer.Position.LET)  {
-                mState = State.LET;
-            }
-        }
-        else if (mState == State.LET && !isMoving()) {
-            mState = State.NONE;
-            mOpen = true;
-        }
-        mOngoing = mState != State.NONE;
+    public void open() {
+        this.setPosition(Position.LET);
+        mOpen = true;
     }
 
     public void open_and_close_loop() {
@@ -168,14 +150,8 @@ public class Transfer {
             mState = State.WAITING;
         }
         else if (mState == State.WAITING) {
-            setPosition(Transfer.Position.DOWN);
-            if (mPosition == Transfer.Position.DOWN)  {
-                mState = State.DOWN;
-            }
-        }
-        else if(mState == State.DOWN && !isMoving()) {
-            setPosition(Transfer.Position.LET, 2000);
-            if (getPosition() == Transfer.Position.LET)  {
+            setPosition(Transfer.Position.LET,3000);
+            if (mPosition == Transfer.Position.LET)  {
                 mState = State.LET;
             }
         }

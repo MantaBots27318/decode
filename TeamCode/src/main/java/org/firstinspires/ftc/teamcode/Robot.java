@@ -162,7 +162,7 @@ public class Robot {
                 }
             }
 
-            mPreciseMovements = mGamepadChassis.buttons.left_bumper.pressed();
+            mPreciseMovements = mGamepadChassis.buttons.right_bumper.pressed();
 
             mY = mGamepadChassis.axes.left_stick_x.value();
             mX = mGamepadChassis.axes.left_stick_y.value();
@@ -174,10 +174,8 @@ public class Robot {
             if (mGamepadAttachments.buttons.left_bumper.pressedOnce()) { start_stop_intake(); }
             if (mGamepadAttachments.buttons.left_trigger.pressedOnce()) { start_stop_flywheel(); }
             if (mGamepadAttachments.buttons.x.pressedOnce()) { reverse_stop_intake(); }
-            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {
-                if (mTransfer.open()) { mTransfer.close(); }
-                else { mTransfer.open_loop(); }
-            }
+            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) { mTransfer.open_and_close_loop(); }
+
         }
 
         if (mReady) {
@@ -195,7 +193,7 @@ public class Robot {
 
         if(mReady) {
 
-            if(mTransfer.ongoing()) {mTransfer.open_loop(); }
+            if(mTransfer.ongoing()) {mTransfer.open_and_close_loop(); }
 
             if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
 
@@ -259,9 +257,16 @@ public class Robot {
 
 
     public void start_stop_flywheel() {
-        mLogger.info("==> SHOOT");
+        mLogger.info("==> FLYWHEEL");
         if(mTurret.isShooting()) { mTurret.stop(); }
         else { mTurret.start(); }
+    }
+
+
+    public void start_stop_transfer() {
+        mLogger.info("==> TRANSFER");
+        if(mTransfer.isOpen()) { mTransfer.close(); }
+        else { mTransfer.open(); }
     }
 
     public void shoot() {

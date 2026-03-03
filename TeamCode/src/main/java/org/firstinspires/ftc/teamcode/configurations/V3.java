@@ -56,15 +56,15 @@ public class V3 extends Configuration {
         mServos.get("turret-rotation").addPosition("min", 0.35);
         mServos.get("turret-rotation").addPosition("max", 0.63);
         mServos.put("turret-hood", new ConfServo("turretHood", false));
-        mServos.get("turret-hood").addPosition("min", 0.454);
-        mServos.get("turret-hood").addPosition("max", 0.58);
+        mServos.get("turret-hood").addPosition("min", 0.1);
+        mServos.get("turret-hood").addPosition("max", 0.7);
 
         // Turntable encoder is plugged on the intake wheels motor
         mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",false));
 
         /* Components relative positions in robot reference */
         mPositions.put("limelight-rotation-radius", new Pose2d(6,6,0));
-        mPositions.put("turret", new Pose2d(-10,0,0));
+        mPositions.put("turret", new Pose2d(-1,0,0));
 
     }
 

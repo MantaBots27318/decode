@@ -26,7 +26,9 @@ import java.util.List;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
@@ -40,8 +42,8 @@ public class ServoCoupled extends ServoComponent {
 
     Servo.Direction         mDirection;
     
-    Servo                   mFirst;
-    Servo                   mSecond;
+    ServoImplEx             mFirst;
+    ServoImplEx             mSecond;
 
     /* -------------- Constructors --------------- */
     public ServoCoupled(ConfServo conf, HardwareMap hwMap, String name, Logger logger)
@@ -58,12 +60,12 @@ public class ServoCoupled extends ServoComponent {
             ListIterator<Map.Entry<String, Boolean>> iterator = servos.listIterator();
 
             Map.Entry<String,Boolean> servo = iterator.next();
-            mFirst = hwMap.tryGet(Servo.class, servo.getKey());
+            mFirst = hwMap.tryGet(ServoImplEx.class, servo.getKey());
             if(mFirst != null && servo.getValue()) { mFirst.setDirection(Servo.Direction.REVERSE);}
             else if(mFirst != null)                { mFirst.setDirection(Servo.Direction.FORWARD);}
 
             servo = iterator.next();
-            mSecond = hwMap.tryGet(Servo.class, servo.getKey());
+            mSecond = hwMap.tryGet(ServoImplEx.class, servo.getKey());
             if(mSecond != null && servo.getValue()) { mSecond.setDirection(Servo.Direction.REVERSE);}
             else if(mSecond != null)                { mSecond.setDirection(Servo.Direction.FORWARD);}
         }
@@ -127,6 +129,14 @@ public class ServoCoupled extends ServoComponent {
         if(mReady) {
             mFirst.setPosition(position);
             mSecond.setPosition(position);
+        }
+    }
+
+    public void                         setPwmRange(double min, double max)
+    {
+        if(mReady) {
+            mFirst.setPwmRange( new PwmControl.PwmRange(min,max));
+            mSecond.setPwmRange( new PwmControl.PwmRange(min,max));
         }
     }
 }

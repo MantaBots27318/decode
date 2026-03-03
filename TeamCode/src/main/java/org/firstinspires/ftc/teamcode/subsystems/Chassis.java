@@ -142,6 +142,7 @@ public class Chassis implements Posable {
 
     @Override
     public Pose2d getFTCPosition() {
+        mLocalizer.update();
         return mLocalizer.getPose();
     }
 

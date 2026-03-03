@@ -147,12 +147,13 @@ public class AutonomousMiddleStart extends LinearOpMode {
                         .build(),
                 loopAction));
 
+        mRobot.loop();
+        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
-
-        mRobot.loop();
         mRobot.shoot();
         mRobot.loop();
+
         mLogger.update();
 
         for (AutonomousStep step : mSteps) {
@@ -186,12 +187,14 @@ public class AutonomousMiddleStart extends LinearOpMode {
                                 .build(),
                         loopAction));
 
-                mLogger.metric("STEP", "SHOOT" );
-                mLogger.update();
 
                 mRobot.loop();
+                Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+                mLogger.metric("STEP", "SHOOT");
+                mLogger.update();
                 mRobot.shoot();
                 mRobot.loop();
+
                 mLogger.update();
 
             }
@@ -200,7 +203,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mLogger.metric("STEP", "LEAVE" );
         mLogger.update();
 
-        Pose2d leave = mPath.leaveVeryFar();
+        Pose2d leave = mPath.leave();
         double tgt = mPath.tgtShootToLeaveRadians();
 
         Actions.runBlocking(

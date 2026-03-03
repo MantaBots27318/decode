@@ -16,7 +16,9 @@ import java.util.List;
 
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 /* Configuration includes */
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
@@ -30,7 +32,7 @@ public class ServoSingle extends ServoComponent {
 
     Servo.Direction         mDirection;
 
-    Servo                   mServo;
+    ServoImplEx             mServo;
 
     /* -------------- Constructors --------------- */
     public ServoSingle(ConfServo conf, HardwareMap hwMap, String name, Logger logger)
@@ -47,7 +49,7 @@ public class ServoSingle extends ServoComponent {
             ListIterator<Map.Entry<String, Boolean>> iterator = servos.listIterator();
 
             Map.Entry<String,Boolean> servo = iterator.next();
-            mServo = hwMap.tryGet(Servo.class, servo.getKey());
+            mServo = hwMap.tryGet(ServoImplEx.class, servo.getKey());
             if(mServo != null && servo.getValue()) { mServo.setDirection(Servo.Direction.REVERSE);}
             else if(mServo != null)                { mServo.setDirection(Servo.Direction.FORWARD);}
 
@@ -107,4 +109,12 @@ public class ServoSingle extends ServoComponent {
             mServo.setPosition(position);
         }
     }
-}
+
+    @Override
+        public void                         setPwmRange(double min, double max)
+        {
+            if(mReady) {
+                mServo.setPwmRange( new PwmControl.PwmRange(min,max));
+            }
+        }
+    }

@@ -25,15 +25,15 @@ import java.util.Objects;
 
 public class PathAutonomousGoal extends Path {
 
-    public static final double X_START_INCHES =                     51.5;
-    public static final double Y_START_INCHES_BLUE =                51.5;
-    public static final double Y_START_INCHES_RED =                 - 51.5;
-    public static final double ANGLE_START_RADIANS_RED =            - Math.PI / 180 * 51;
-    public static final double ANGLE_START_RADIANS_BLUE =           Math.PI / 180 * 51;
+    public static final double X_START_INCHES =                     50;
+    public static final double Y_START_INCHES_BLUE =                50;
+    public static final double Y_START_INCHES_RED =                 - 50;
+    public static final double ANGLE_START_RADIANS_RED =            - Math.PI / 180 * 50;
+    public static final double ANGLE_START_RADIANS_BLUE =           Math.PI / 180 * 50;
 
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      32;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED =       -32;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      16;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED =       -16;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
     public static final double X_PGP_PATTERN_INCHES_BLUE =          -13;
@@ -43,16 +43,25 @@ public class PathAutonomousGoal extends Path {
     public static final double X_PPG_PATTERN_INCHES_RED =           11.25;
 
 
-    public static final double Y_PATTERN_INCHES_BLUE =              35;
-    public static final double Y_PATTERN_INCHES_RED =               -35;
+    public static final double Y_PATTERN_INCHES_BLUE =              30;
+    public static final double Y_PATTERN_INCHES_RED =               -30;
     public static final double ANGLE_PATTERN_RADIANS_BLUE =         Math.PI / 2;
     public static final double ANGLE_PATTERN_RADIANS_RED =          -Math.PI / 2;
 
-    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_BLUE =   -Math.PI/2;
-    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_RED =    Math.PI/2;
+    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_BLUE =   -Math.PI/4;
+    public static final double TGT_INTAKE_TO_SHOOT_RADIANS_RED =    Math.PI/4;
+
+
+    private static final double X_LEAVE_INCHES                     = 16;
+    private static final double Y_LEAVE_INCHES_BLUE                = 40;
+    private static final double Y_LEAVE_INCHES_RED                 = -40;
+    private static final double ANGLE_LEAVE_RADIANS_RED            = Math.PI;
+    private static final double ANGLE_LEAVE_RADIANS_BLUE           = Math.PI;
+
 
 
     Pose2d                  mStart          = new Pose2d(0,0,0);
+    Pose2d                  mLeave          = new Pose2d(0,0,0);
 
     Map<Pattern, Pose2d>    mStartIntake    = new LinkedHashMap<>();
     Map<Pattern, Pose2d>    mEndIntake      = new LinkedHashMap<>();
@@ -94,6 +103,7 @@ public class PathAutonomousGoal extends Path {
             }
 
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_RED;
+            mLeave = new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED);
 
         }
 
@@ -124,6 +134,7 @@ public class PathAutonomousGoal extends Path {
             }
 
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_BLUE;
+            mLeave = new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE);
 
         }
     }
@@ -134,6 +145,7 @@ public class PathAutonomousGoal extends Path {
     public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
 
     public double   tgtIntakeToShootRadians()       { return mTgtIntakeToShootRadians;}
+    public Pose2d   leave()                         { return mLeave; }
 
     public void log() {
 
@@ -155,6 +167,7 @@ public class PathAutonomousGoal extends Path {
             mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
         }
         mLogger.info(Logger.Target.DRIVER_STATION,"TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
+        mLogger.info(Logger.Target.DRIVER_STATION,"LEAVE: " + mLeave.position.x + " Y: " + mLeave.position.y + " H: " + mLeave.heading.toDouble());
         super.log();
 
     }

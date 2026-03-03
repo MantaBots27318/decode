@@ -111,7 +111,6 @@ public class VisionTest extends LinearOpMode {
                                 -output.getPosition().x * Path.M_TO_INCHES,
                                 -output.getPosition().y * Path.M_TO_INCHES,
                                 (output.getOrientation().getYaw() + 180) * Math.PI / 180);
-                        newReference = Posable.derivePose(newReference, new Pose2d(7, 2.5, 0));
 
                         mLogger.metric("POSITION",""+newReference.position);
                         mLogger.metric("HEADING",""+newReference.heading.toDouble()/ Math.PI*180);

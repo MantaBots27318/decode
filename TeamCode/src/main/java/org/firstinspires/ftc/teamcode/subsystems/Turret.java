@@ -7,12 +7,14 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 /* Qualcomm includes */
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 /* Acmerobotics includes */
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /* Components includes */
 import org.firstinspires.ftc.teamcode.components.MotorComponent;
@@ -77,6 +79,7 @@ public class Turret implements Posable{
     ServoComponent          mRotation;
     ServoComponent          mHood;
     EncoderComponent        mRotationEncoder;
+    PIDFCoefficients        mCoefficients;
 
     double                  mInitialEncoderPosition;
     double                  mInitialServoPosition;
@@ -107,6 +110,10 @@ public class Turret implements Posable{
         else {
             mFlywheel = MotorComponent.factory(wheels, hwm, "outtake-wheels", logger);
             if (!mFlywheel.isReady()) { mReady = false; status += " HW FLYWHEEL";}
+            else {
+                mCoefficients = new PIDFCoefficients(300,50,100,0);
+                mFlywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
+            }
         }
 
         mRotationPositions   = new LinkedHashMap<>();
@@ -142,6 +149,7 @@ public class Turret implements Posable{
         else {
             mHood = ServoComponent.factory(hood, hwm, "turret-hood", logger);
             if (!mHood.isReady()) { mReady = false; status += " HW HD";}
+            else { mHood.setPwmRange(500,2500); }
 
             mHoodPositions.clear();
             Map<String, Double> confPosition = hood.getPositions();
@@ -234,8 +242,9 @@ public class Turret implements Posable{
             mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
             mHood.setPosition(hood_servo_position);
             double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
-            mLogger.metric("FLYWHEEL SPEED : " , ""+flywheel_speed);
+            mLogger.metric("FLYWHEEL SPEED COMMAND: " , ""+flywheel_speed);
             if(mIsShooting) { mFlywheel.setVelocity(flywheel_speed); }
+            if(mIsShooting) { mLogger.metric("FLYWHEEL SPEED VALUE: " , ""+mFlywheel.getVelocity()); }
 
         }
     }
@@ -244,6 +253,8 @@ public class Turret implements Posable{
         if(mReady) {
             double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
             mLogger.metric("FLYWHEEL SPEED : " , ""+flywheel_speed);
+            mFlywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            mFlywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mFlywheel.setVelocity(flywheel_speed);
             mIsShooting = true;
         }
@@ -251,51 +262,12 @@ public class Turret implements Posable{
     
     public void stop() {
         if(mReady) {
+            mFlywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            mFlywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             mFlywheel.setVelocity(0.0);
             mIsShooting = false;
         }
     }
-
-    public void orient(double heading) {
-
-        if(mReady && !(mInitTimer.isArmed())) {
-
-            if(mFirstLoop ) {
-                mInitialEncoderPosition = mRotationEncoder.getCurrentPosition();
-                mLogger.info("INITIAL ENCODER : " + mInitialEncoderPosition);
-                mInitialServoPosition = mRotation.getPosition();
-                mLogger.info("INITIAL SERVO : " + mInitialServoPosition);
-                mFirstLoop = false;
-            }
-
-            double delta_encoder = mRotationEncoder.getCurrentPosition() - mInitialEncoderPosition;
-            mLogger.trace("DELTA ENCODER : " + delta_encoder);
-            double position = delta_encoder / sRotationEncoderAmplitude + mInitialServoPosition;
-            mLogger.trace("CURRENT ROTATION SERVO POSITION : " + position);
-            Pose2d limelightTurret = this.calculerPoseLimelightInTurretReference(position, mDistanceCenterLimelight);
-            mLogger.trace("LIMELIGHT TURRET : " + limelightTurret.position + " " + limelightTurret.heading.toDouble() / Math.PI * 180);
-
-            Pose3D output = mVision.getPosition();
-            if (output != null) {
-                Pose2d  limelightFTC = this.convertLimelightPoseToFTC(output);
-                mLogger.trace("LIMELIGHT FTC : " + limelightFTC.position + " " + limelightFTC.heading.toDouble() / Math.PI * 180);
-                mCenterPositionFTC = Posable.derivePose(limelightFTC, limelightTurret);
-                mLogger.trace("TURRET FTC : " + mCenterPositionFTC.position + " " + mCenterPositionFTC.heading.toDouble() / Math.PI * 180);
-            }
-
-            Pose2d turret_orient = new Pose2d(mCenterPositionFTC.position.x, mCenterPositionFTC.position.y, mCenterPositionFTC.heading.toDouble() + limelightTurret.heading.toDouble());
-            mLogger.trace("TURRET FTC : " + turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
-            double deltaAngle = heading - turret_orient.heading.toDouble();
-            mLogger.trace("ANGULAR ERROR : " + deltaAngle / Math.PI * 180);
-            double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position);
-            mLogger.trace("NEXT ROTATION SERVO POSITION : " + rotation_servo_position);
-            mRotation.setPosition(rotation_servo_position);
-            double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
-            mLogger.trace("NEXT HOOD SERVO POSITION : " + hood_servo_position);
-            mHood.setPosition(hood_servo_position);
-        }
-    }
-
     private Pose2d convertLimelightPoseToFTC(Pose3D limelight){
 
         return new Pose2d(
