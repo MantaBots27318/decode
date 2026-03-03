@@ -150,7 +150,7 @@ public class Transfer {
             mState = State.WAITING;
         }
         else if (mState == State.WAITING) {
-            setPosition(Transfer.Position.LET,3000);
+            setPosition(Transfer.Position.LET,2000);
             if (mPosition == Transfer.Position.LET)  {
                 mState = State.LET;
             }

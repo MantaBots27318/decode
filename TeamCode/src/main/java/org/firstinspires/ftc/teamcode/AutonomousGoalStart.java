@@ -140,9 +140,9 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         Actions.runBlocking(
                 new RaceAction(
-                        mDrive.actionBuilder(start).
-                                setTangent(-start.heading.toDouble())
-                                .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30, 30))
+                        mDrive.actionBuilder(start)
+                                .setTangent(start.heading.toDouble() + Math.PI)
+                                .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-30, 50))
                                 .build(),
                         loopAction
                 ));
@@ -169,7 +169,6 @@ public class AutonomousGoalStart extends LinearOpMode {
 
                 Pose2d start_intake = mPath.startIntake(pattern);
                 Pose2d end_intake = mPath.endIntake(pattern);
-                Pose2d back_intake = mPath.backIntake(pattern);
 
                 mLogger.metric("STEP", "GO TO AND BACK " + pattern.text() );
                 mLogger.update();
@@ -178,10 +177,10 @@ public class AutonomousGoalStart extends LinearOpMode {
                         new RaceAction(
                                 mDrive.actionBuilder(mDrive.getPose())
                                         .setTangent(-Math.PI)
-                                        .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
+                                        .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                         .setTangent(start_intake.heading.toDouble())
-                                        .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                        .setTangent(-end_intake.heading.toDouble())
+                                        .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 10))
+                                        .setTangent(mPath.tgtIntakeToShootRadians())
                                         .splineToConstantHeading(shoot.position,mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
                                         .build(),
                                 loopAction

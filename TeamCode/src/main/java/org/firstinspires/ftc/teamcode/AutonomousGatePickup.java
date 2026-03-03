@@ -115,10 +115,12 @@ public class AutonomousGatePickup extends LinearOpMode {
         Actions.runBlocking(
                 new RaceAction(
                         mDrive.actionBuilder(start)
-                                .lineToXConstantHeading(shoot.position.x + 3, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-50, 50))
+                                .setTangent(start.heading.toDouble() + Math.PI)
+                                .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30, 30))
                                 .build(),
                         loopAction
                 ));
+
 
         mRobot.loop();
         Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
