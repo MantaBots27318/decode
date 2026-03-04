@@ -185,7 +185,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .setTangent(-Math.PI)
                                             .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                             .setTangent(start_intake.heading.toDouble())
-                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 10))
+                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 20))
                                             .setTangent(mPath.tgtIntakeToShootRadians())
                                             .splineToConstantHeading(shoot.position, mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
                                             .build(),
@@ -201,12 +201,18 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .setTangent(-Math.PI)
                                             .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                             .setTangent(start_intake.heading.toDouble())
-                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 10))
+                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 20))
                                             .setTangent(mPath.tgtIntakeToShootRadians())
                                             .splineToLinearHeading(leave, mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
                                             .build(),
                                     loopAction
                             ));
+
+
+                    Configuration.s_Current.persist("heading", mDrive.getPose().heading.toDouble());
+                    Configuration.s_Current.persist("x", mDrive.getPose().position.x);
+                    Configuration.s_Current.persist("y", mDrive.getPose().position.y);
+                    Configuration.s_Current.persist("alliance", mAlliance.getValue());
                 }
 
 

@@ -151,7 +151,7 @@ public class ShootingTest extends OpMode {
             mVision = new Vision(confli,hardwareMap,"vision",mLogger);
             if(mVision != null) { mVision.initialize(); }
             mPath = new PathAutonomousGoal(mLogger);
-            mPath.initialize(Alliance.BLUE);
+            mPath.initialize(Alliance.RED);
         }
         if(confli == null) { mLogger.warning("Could not find limelight named limelight in configuration " + Configuration.s_Current.getVersion()); }
         if(mVision == null) { mLogger.warning("Vision not initialized"); }

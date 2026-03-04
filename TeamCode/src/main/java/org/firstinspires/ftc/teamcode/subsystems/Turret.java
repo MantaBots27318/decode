@@ -111,7 +111,7 @@ public class Turret implements Posable{
             mFlywheel = MotorComponent.factory(wheels, hwm, "outtake-wheels", logger);
             if (!mFlywheel.isReady()) { mReady = false; status += " HW FLYWHEEL";}
             else {
-                mCoefficients = new PIDFCoefficients(300,50,100,0);
+                mCoefficients = new PIDFCoefficients(300,3,0,0);
                 mFlywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,mCoefficients);
             }
         }

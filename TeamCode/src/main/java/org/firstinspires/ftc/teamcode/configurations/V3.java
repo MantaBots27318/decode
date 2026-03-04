@@ -54,7 +54,7 @@ public class V3 extends Configuration {
                 "turretRotationLeft", false,
                 "turretRotationRight", false));
         mServos.get("turret-rotation").addPosition("min", 0.35);
-        mServos.get("turret-rotation").addPosition("max", 0.63);
+        mServos.get("turret-rotation").addPosition("max", 0.64);
         mServos.put("turret-hood", new ConfServo("turretHood", false));
         mServos.get("turret-hood").addPosition("min", 0.1);
         mServos.get("turret-hood").addPosition("max", 0.7);

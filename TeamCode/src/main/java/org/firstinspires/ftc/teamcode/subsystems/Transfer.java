@@ -168,4 +168,36 @@ public class Transfer {
         mOngoing = mState != State.NONE;
     }
 
+
+
+    public void open_down_and_close_loop() {
+
+        if (mState == State.NONE) {
+            mState = State.WAITING;
+        }
+        else if (mState == State.WAITING) {
+            setPosition(Position.DOWN,100);
+            if (mPosition == Transfer.Position.DOWN)  {
+                mState = State.DOWN;
+            }
+        }
+        else if (mState == State.DOWN) {
+            setPosition(Transfer.Position.LET,2000);
+            if (mPosition == Transfer.Position.LET)  {
+                mState = State.LET;
+            }
+        }
+        else if(mState == State.LET && !isMoving()) {
+            setPosition(Transfer.Position.BLOCK);
+            if (getPosition() == Transfer.Position.BLOCK)  {
+                mState = State.BLOCK;
+            }
+        }
+        else if (mState == State.BLOCK && !isMoving()) {
+            mState = State.NONE;
+        }
+
+        mOngoing = mState != State.NONE;
+    }
+
 }

@@ -55,7 +55,7 @@ public class AutonomousGatePickup extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-goal-start");
+        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-gate-pickup");
         mLogger.level(Logger.Severity.INFO);
 
         mGamepad1 = new Controller(gamepad1, mLogger);

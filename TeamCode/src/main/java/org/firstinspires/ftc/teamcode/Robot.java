@@ -296,8 +296,8 @@ public class Robot {
     }
 
     public void shoot() {
-        mTransfer.open_and_close_loop();
-        while(mTransfer.ongoing()) { mTransfer.open_and_close_loop(); }
+        mTransfer.open_down_and_close_loop();
+        while(mTransfer.ongoing()) { mTransfer.open_down_and_close_loop(); }
     }
 
 }
