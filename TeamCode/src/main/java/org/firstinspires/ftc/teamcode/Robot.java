@@ -7,7 +7,11 @@
 package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.LynxFirmware;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,6 +21,7 @@ import org.firstinspires.ftc.teamcode.components.Controller;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.Posable;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Chassis;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Transfer;
@@ -57,6 +62,7 @@ public class Robot {
     Intake                  mIntake;
     Turret                  mTurret;
     Transfer                mTransfer;
+    MecanumDrive            mDrive;
 
     // Controllers
     Controller              mGamepadChassis;
@@ -66,6 +72,7 @@ public class Robot {
     double                  mX;
     double                  mY;
     double                  mRotation;
+    Action                  mAction;
 
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
@@ -92,6 +99,9 @@ public class Robot {
 
             if (mMode == Mode.FIELD_CENTRIC)      { mLogger.info("==>  FIELD CENTRIC"); }
             else if (mMode == Mode.ROBOT_CENTRIC) { mLogger.info("==>  ROBOT CENTRIC"); }
+
+            mDrive = new MecanumDrive(hwm,new Pose2d(0,0,0));
+            mAction = null;
 
             mChassis = new Chassis();
             mChassis.setHW(config, hwm, mLogger);
@@ -152,7 +162,7 @@ public class Robot {
 
         if(mReady && mGamepadChassis != null) {
 
-            if (mGamepadChassis.buttons.a.pressedOnce()) {
+            if (mGamepadChassis.buttons.y.pressedOnce()) {
                 if (mMode == Mode.FIELD_CENTRIC) {
                     mLogger.info("==> ROBOT CENTRIC MODE");
                     mMode = Mode.ROBOT_CENTRIC;
@@ -160,6 +170,16 @@ public class Robot {
                     mLogger.info("==> FIELD CENTRIC MODE");
                     mMode = Mode.FIELD_CENTRIC;
                 }
+            }
+
+            if (mGamepadChassis.buttons.x.pressedOnce()) {
+                Pose2d position = mChassis.getFTCPosition();
+                double direction = Math.atan2(mPath.park().position.y - position.position.y,mPath.park().position.x - position.position.x);
+                mAction = mDrive.actionBuilder(new Pose2d(mDrive.getPose().position.x,mDrive.getPose().position.y,mPath.park().heading.toDouble()))
+                        .setTangent(direction)
+                        .splineToLinearHeading(mPath.park(),direction,new TranslationalVelConstraint(100),new ProfileAccelConstraint(-50,50))
+                        .build();
+                mAction.run(new TelemetryPacket());
             }
 
             mPreciseMovements = mGamepadChassis.buttons.right_bumper.pressed();
@@ -196,6 +216,12 @@ public class Robot {
             if(mTransfer.ongoing()) {mTransfer.open_and_close_loop(); }
 
             if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
+
+            if((mX * mX + mY * mY) > 0.01) { mAction = null; }
+            if(mAction != null) {
+                boolean isNotFinished = mAction.run(new TelemetryPacket());
+                if(!isNotFinished) { mAction = null; }
+            }
 
             Pose2d chassis_ftc_position = mChassis.getFTCPosition();
             if(chassis_ftc_position != null) {

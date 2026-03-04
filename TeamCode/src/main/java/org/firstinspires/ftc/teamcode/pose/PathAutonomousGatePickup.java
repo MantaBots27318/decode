@@ -21,7 +21,7 @@ public class PathAutonomousGatePickup extends PathAutonomousGoal {
     public static final double Y_GATE_INCHES_BLUE =                 53;
     public static final double Y_GATE_INCHES_RED =                  -53;
     public static final double ANGLE_GATE_RADIANS_BLUE =           68.0 / 180 * Math.PI;
-    public static final double ANGLE_GATE_RADIANS_RED =            -72.0 / 180 * Math.PI;
+    public static final double ANGLE_GATE_RADIANS_RED =            -68.0 / 180 * Math.PI;
 
     public static final double X_GATE_INTAKE_INCHES_BLUE =                 -22;
     public static final double X_GATE_INTAKE_INCHES_RED =                  -22;

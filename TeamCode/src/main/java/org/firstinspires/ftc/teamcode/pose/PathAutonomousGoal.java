@@ -54,7 +54,7 @@ public class PathAutonomousGoal extends Path {
 
     private static final double X_LEAVE_INCHES                     = 48;
     private static final double Y_LEAVE_INCHES_BLUE                = 20;
-    private static final double Y_LEAVE_INCHES_RED                 = 20;
+    private static final double Y_LEAVE_INCHES_RED                 = -20;
     private static final double ANGLE_LEAVE_RADIANS_RED            = Math.PI;
     private static final double ANGLE_LEAVE_RADIANS_BLUE           = Math.PI;
 

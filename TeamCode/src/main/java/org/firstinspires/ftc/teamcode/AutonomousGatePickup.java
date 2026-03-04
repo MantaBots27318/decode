@@ -232,7 +232,7 @@ public class AutonomousGatePickup extends LinearOpMode {
                                     .splineToLinearHeading(start_gate, start_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-30, 30))
                                     .setTangent(Math.PI)
                                     .splineToLinearHeading(intake_gate, intake_gate.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-40, 40))
-                                    .lineToXConstantHeading(intake_gate.position.x + 4)
+                                    .lineToXConstantHeading(intake_gate.position.x + 5.5)
                                     .setTangent(mPath.tgtIntakeToShootRadians())
                                     .splineToLinearHeading(shoot,mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
                                     .build(),

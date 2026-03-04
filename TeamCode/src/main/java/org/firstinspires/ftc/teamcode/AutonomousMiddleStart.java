@@ -127,8 +127,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
         Pose2d shoot = mPath.shootingVeryFar();
         mRobot.initialize(start, Robot.Mode.AUTONOMOUS);
         mDrive = new MecanumDrive(hardwareMap, start);
-        mRobot.start_stop_intake();
+
         mRobot.start_stop_flywheel();
+        Thread.sleep(200);
+        mRobot.start_stop_intake();
+
 
         Action loopAction = p -> {
             mRobot.loop();

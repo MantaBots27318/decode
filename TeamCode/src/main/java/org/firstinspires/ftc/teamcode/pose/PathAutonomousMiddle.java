@@ -25,29 +25,26 @@ import java.util.Objects;
 
 public class PathAutonomousMiddle extends Path {
 
-    private static final double X_START_INCHES =                            -53.5 - 5;
-    private static final double Y_START_INCHES_BLUE =                       18;
-    private static final double Y_START_INCHES_RED =                        -18;
+    private static final double X_START_INCHES =                            -65;
+    private static final double Y_START_INCHES_BLUE =                       9;
+    private static final double Y_START_INCHES_RED =                        -9;
     private static final double ANGLE_START_RADIANS =                       0;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      16;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED =       -16;
+
+    public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =          -12;
+    public static final double X_PPG_PATTERN_INCHES_BLUE =          11.25;
+    public static final double X_GPP_PATTERN_INCHES_RED =           -36.25;
+    public static final double X_PGP_PATTERN_INCHES_RED =           -12;
+    public static final double X_PPG_PATTERN_INCHES_RED =           11.25;
 
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =              41;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED =               -41;
+    public static final double Y_PATTERN_INCHES_BLUE =              30;
+    public static final double Y_PATTERN_INCHES_RED =               -30;
+    public static final double ANGLE_PATTERN_RADIANS_BLUE =         Math.PI / 2;
+    public static final double ANGLE_PATTERN_RADIANS_RED =          -Math.PI / 2;
 
-
-    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE =           19;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE =           40;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE =           68;
-    private static final double X_DELTA_GPP_PATTERN_INCHES_RED =            24;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_RED =            45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_RED =            71;
-    private static final double Y_DELTA_PATTERN_INCHES_BLUE =               10;
-    private static final double Y_DELTA_PATTERN_INCHES_RED =                -10;
-    private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE =          Math.PI / 2;
-    private static final double ANGLE_DELTA_PATTERN_RADIANS_RED =           -Math.PI / 2;
-
-    private static final double TGT_SHOOT_TO_LEAVE_RADIANS_BLUE =           Math.PI/2;
-    private static final double TGT_SHOOT_TO_LEAVE_RADIANS_RED =            -Math.PI/2;
 
     private static final double X_LEAVE_INCHES = -52;
     private static final double Y_LEAVE_INCHES_BLUE = 19;
@@ -77,20 +74,9 @@ public class PathAutonomousMiddle extends Path {
 
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS);
 
-            mStartIntake.put(Pattern.GPP, new Pose2d(
-                        X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED));
-
-            mStartIntake.put(Pattern.PGP, new Pose2d(
-                    X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
-                    Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                    ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED));
-
-            mStartIntake.put(Pattern.PPG, new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED));
+            mStartIntake.put(Pattern.GPP, new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
+            mStartIntake.put(Pattern.PGP, new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
+            mStartIntake.put(Pattern.PPG, new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
 
             for (Pattern pattern : Pattern.values()) {
                 if (pattern != Pattern.NONE) {
@@ -104,12 +90,11 @@ public class PathAutonomousMiddle extends Path {
                 if (pattern != Pattern.NONE) {
                     mBackIntake.put(pattern, new Pose2d(
                             Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.4 * Y_DELTA_INTAKE_INCHES_RED,
                             Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
                 }
             }
 
-            mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_RED + ANGLE_START_RADIANS;
             mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED);
 
         }
@@ -119,20 +104,12 @@ public class PathAutonomousMiddle extends Path {
 
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_BLUE;
 
-            mStartIntake.put(Pattern.GPP, new Pose2d(
-                        X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE));
-            mStartIntake.put(Pattern.PGP, new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE));
-            mStartIntake.put(Pattern.PPG, new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE));
+            mStartIntake.put(Pattern.GPP, new Pose2d(X_GPP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
+            mStartIntake.put(Pattern.PGP, new Pose2d(X_PGP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
+            mStartIntake.put(Pattern.PPG, new Pose2d(X_PPG_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
 
             for (Pattern pattern : Pattern.values()) {
+
                 if (pattern != Pattern.NONE) {
                     mEndIntake.put(pattern, new Pose2d(
                             Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
@@ -144,12 +121,11 @@ public class PathAutonomousMiddle extends Path {
                 if (pattern != Pattern.NONE) {
                     mBackIntake.put(pattern, new Pose2d(
                             Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.3 * Y_DELTA_INTAKE_INCHES_BLUE,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.4 * Y_DELTA_INTAKE_INCHES_BLUE,
                             Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
                 }
             }
 
-            mTgtShootToLeaveRadians = TGT_SHOOT_TO_LEAVE_RADIANS_BLUE + ANGLE_START_RADIANS;
             mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE);
 
         }
@@ -160,7 +136,6 @@ public class PathAutonomousMiddle extends Path {
     public Pose2d   endIntake(Pattern pattern)      { return mEndIntake.get(pattern); }
     public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
     public Pose2d   leave()                         { return mLeave; }
-
     public double   tgtShootToLeaveRadians()       { return mTgtShootToLeaveRadians;}
 
     public void log() {
