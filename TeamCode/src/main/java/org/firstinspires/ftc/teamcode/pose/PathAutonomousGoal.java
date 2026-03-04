@@ -52,9 +52,9 @@ public class PathAutonomousGoal extends Path {
     public static final double TGT_INTAKE_TO_SHOOT_RADIANS_RED =    Math.PI/4;
 
 
-    private static final double X_LEAVE_INCHES                     = 40;
-    private static final double Y_LEAVE_INCHES_BLUE                = 20;
-    private static final double Y_LEAVE_INCHES_RED                 = -20;
+    private static final double X_LEAVE_INCHES                     = 35;
+    private static final double Y_LEAVE_INCHES_BLUE                = 15;
+    private static final double Y_LEAVE_INCHES_RED                 = -15;
     private static final double ANGLE_LEAVE_RADIANS_RED            = -3 * Math.PI / 4;
     private static final double ANGLE_LEAVE_RADIANS_BLUE           = 3 * Math.PI / 4;
 

@@ -295,9 +295,9 @@ public class Robot {
         else { mTransfer.open(); }
     }
 
-    public void shoot() {
+    public boolean shoot() {
         mTransfer.open_down_and_close_loop();
-        while(mTransfer.ongoing()) { mTransfer.open_down_and_close_loop(); }
+        return mTransfer.ongoing();
     }
 
 }

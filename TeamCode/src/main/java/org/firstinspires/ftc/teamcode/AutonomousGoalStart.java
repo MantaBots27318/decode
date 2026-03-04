@@ -135,6 +135,10 @@ public class AutonomousGoalStart extends LinearOpMode {
             return true;
         };
 
+        Action shootAction = p -> {
+            return mRobot.shoot();
+        };
+
         mLogger.metric("STEP", "GO TO SHOOTING");
         mLogger.update();
 
@@ -143,20 +147,19 @@ public class AutonomousGoalStart extends LinearOpMode {
                         mDrive.actionBuilder(start)
                                 .setTangent(start.heading.toDouble() + Math.PI)
                                 .splineToLinearHeading(shoot, start.heading.toDouble() + Math.PI, new TranslationalVelConstraint(100), new ProfileAccelConstraint(-30, 50))
+                                .waitSeconds(0.1)
                                 .build(),
                         loopAction
                 ));
 
-
-
-        mRobot.loop();
-        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
-        mRobot.shoot();
-        mRobot.loop();
-
+        Actions.runBlocking(
+                new RaceAction(
+                        shootAction,
+                        loopAction));
         mLogger.update();
+
 
         int i_step = 0;
         for (AutonomousStep step : mSteps) {
@@ -177,20 +180,39 @@ public class AutonomousGoalStart extends LinearOpMode {
 
                 if(i_step < (mSteps.size() - 1)) {
 
-                    mLogger.metric("STEP", "TO SHOOT" );
+                    if(step == AutonomousStep.PGP) {
 
-                    Actions.runBlocking(
-                            new RaceAction(
-                                    mDrive.actionBuilder(mDrive.getPose())
-                                            .setTangent(-Math.PI)
-                                            .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
-                                            .setTangent(start_intake.heading.toDouble())
-                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 20))
-                                            .setTangent(mPath.tgtIntakeToShootRadians())
-                                            .splineToConstantHeading(shoot.position, mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
-                                            .build(),
-                                    loopAction
-                            ));
+                        mLogger.metric("STEP", "TO SHOOT");
+
+                        Actions.runBlocking(
+                                new RaceAction(
+                                        mDrive.actionBuilder(mDrive.getPose())
+                                                .setTangent(-Math.PI)
+                                                .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                                .setTangent(start_intake.heading.toDouble())
+                                                .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                                .setTangent(end_intake.heading.toDouble() + Math.PI)
+                                                .splineToConstantHeading(shoot.position, 0, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                                .build(),
+                                        loopAction
+                                ));
+                    }
+                    else {
+
+                        mLogger.metric("STEP", "TO SHOOT");
+
+                        Actions.runBlocking(
+                                new RaceAction(
+                                        mDrive.actionBuilder(mDrive.getPose())
+                                                .setTangent(-Math.PI)
+                                                .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                                .setTangent(start_intake.heading.toDouble())
+                                                .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                                .strafeToConstantHeading(shoot.position, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                                .build(),
+                                        loopAction
+                                ));
+                    }
                 }
                 else {
 
@@ -201,9 +223,8 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .setTangent(-Math.PI)
                                             .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                             .setTangent(start_intake.heading.toDouble())
-                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-10, 20))
-                                            .setTangent(mPath.tgtIntakeToShootRadians())
-                                            .splineToLinearHeading(leave, mPath.tgtIntakeToShootRadians(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-50, 50))
+                                            .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                            .strafeToLinearHeading(leave.position,leave.heading.toDouble(),new TranslationalVelConstraint(200), new ProfileAccelConstraint(-20, 50))
                                             .build(),
                                     loopAction
                             ));
@@ -215,13 +236,13 @@ public class AutonomousGoalStart extends LinearOpMode {
                     Configuration.s_Current.persist("alliance", mAlliance.getValue());
                 }
 
-
-                mRobot.loop();
-                Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
                 mLogger.metric("STEP", "SHOOT");
                 mLogger.update();
-                mRobot.shoot();
-                mRobot.loop();
+                Actions.runBlocking(
+                        new RaceAction(
+                                shootAction,
+                                loopAction));
+                mLogger.update();
 
                 i_step ++;
 
@@ -231,11 +252,8 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         }
 
-
-
         mLogger.metric("STEP", "LEAVE" );
         mLogger.update();
-
 
         mLogger.update();
 
