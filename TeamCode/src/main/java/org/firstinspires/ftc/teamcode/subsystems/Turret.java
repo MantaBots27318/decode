@@ -249,6 +249,10 @@ public class Turret implements Posable{
         }
     }
 
+    public void grouikgrouik() {
+        mRotation.setPosition(0.5);
+    }
+
     public void start() {
         if(mReady) {
             double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);

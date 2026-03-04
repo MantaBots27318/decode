@@ -296,8 +296,12 @@ public class Robot {
     }
 
     public boolean shoot() {
-        mTransfer.open_down_and_close_loop();
+        mTransfer.open_and_close_loop();
         return mTransfer.ongoing();
+    }
+
+    public void grouikgrouik() {
+        mTurret.grouikgrouik();
     }
 
 }

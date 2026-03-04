@@ -136,7 +136,9 @@ public class AutonomousGoalStart extends LinearOpMode {
         };
 
         Action shootAction = p -> {
-            return mRobot.shoot();
+            boolean ongoing = mRobot.shoot();
+            mLogger.info("SHOOT ACTION " + ongoing);
+            return ongoing;
         };
 
         mLogger.metric("STEP", "GO TO SHOOTING");
@@ -224,7 +226,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                             .setTangent(start_intake.heading.toDouble())
                                             .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
-                                            .strafeToLinearHeading(leave.position,leave.heading.toDouble(),new TranslationalVelConstraint(200), new ProfileAccelConstraint(-20, 50))
+                                            .strafeToLinearHeading(leave.position,start.heading.toDouble(),new TranslationalVelConstraint(200), new ProfileAccelConstraint(-20, 50))
                                             .build(),
                                     loopAction
                             ));
@@ -234,6 +236,9 @@ public class AutonomousGoalStart extends LinearOpMode {
                     Configuration.s_Current.persist("x", mDrive.getPose().position.x);
                     Configuration.s_Current.persist("y", mDrive.getPose().position.y);
                     Configuration.s_Current.persist("alliance", mAlliance.getValue());
+
+                    mRobot.grouikgrouik();
+                    Thread.sleep(250);
                 }
 
                 mLogger.metric("STEP", "SHOOT");

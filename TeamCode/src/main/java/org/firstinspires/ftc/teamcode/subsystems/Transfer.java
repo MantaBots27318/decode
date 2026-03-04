@@ -181,7 +181,7 @@ public class Transfer {
                 mState = State.DOWN;
             }
         }
-        else if (mState == State.DOWN) {
+        else if (mState == State.DOWN && !isMoving()) {
             setPosition(Transfer.Position.LET,2000);
             if (mPosition == Transfer.Position.LET)  {
                 mState = State.LET;
@@ -198,6 +198,8 @@ public class Transfer {
         }
 
         mOngoing = mState != State.NONE;
+        mLogger.info(""+mOngoing);
+        mLogger.info(""+mState);
     }
 
 }
