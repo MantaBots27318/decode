@@ -144,12 +144,18 @@ public class AutonomousGatePickup extends LinearOpMode {
 
         mRobot.start_stop_flywheel();
         Thread.sleep(200);
-        mRobot.start_stop_intake();
+        mRobot.start_stop_intake_front_only();
 
         Action loopAction = p -> {
             mRobot.loop();
             return true;
         };
+        Action shootAction = p -> {
+            boolean ongoing = mRobot.shoot();
+            mLogger.info("SHOOT ACTION " + ongoing);
+            return ongoing;
+        };
+
 
         mLogger.metric("STEP", "GO TO SHOOTING");
         mLogger.update();
@@ -164,12 +170,14 @@ public class AutonomousGatePickup extends LinearOpMode {
                 ));
 
 
-
         mRobot.loop();
         Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
         mLogger.metric("STEP", "SHOOT");
         mLogger.update();
-        mRobot.shoot();
+        Actions.runBlocking(
+                new RaceAction(
+                        shootAction,
+                        loopAction));
         mRobot.loop();
 
         mLogger.update();
@@ -206,7 +214,10 @@ public class AutonomousGatePickup extends LinearOpMode {
                 Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
                 mLogger.metric("STEP", "SHOOT");
                 mLogger.update();
-                mRobot.shoot();
+                Actions.runBlocking(
+                        new RaceAction(
+                                shootAction,
+                                loopAction));
                 mRobot.loop();
 
                 mLogger.update();

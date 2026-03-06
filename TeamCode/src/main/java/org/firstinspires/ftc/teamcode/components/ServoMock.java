@@ -58,4 +58,10 @@ public class ServoMock extends ServoComponent {
 
     public void                         setPwmRange(double min, double max)  {}
 
+
+    @Override
+    public void                         disablePwm() { }
+    @Override
+    public void                         enablePwm() {}
+
 }

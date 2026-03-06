@@ -139,4 +139,15 @@ public class ServoCoupled extends ServoComponent {
             mSecond.setPwmRange( new PwmControl.PwmRange(min,max));
         }
     }
+
+    public void                         disablePwm() {
+        if(mReady) {
+            mSecond.setPwmDisable();
+        }
+    }
+    public void                         enablePwm() {
+        if(mReady) {
+            mSecond.setPwmEnable();
+        }
+    }
 }

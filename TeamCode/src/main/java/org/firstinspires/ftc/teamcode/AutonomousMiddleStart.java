@@ -129,13 +129,21 @@ public class AutonomousMiddleStart extends LinearOpMode {
         mDrive = new MecanumDrive(hardwareMap, start);
 
         mRobot.start_stop_flywheel();
-        Thread.sleep(200);
-        mRobot.start_stop_intake();
+
 
 
         Action loopAction = p -> {
             mRobot.loop();
             return true;
+        };
+        Action nothingAction = p -> {
+            return true;
+        };
+
+        Action shootAction = p -> {
+            boolean ongoing = mRobot.shoot();
+            mLogger.info("SHOOT ACTION " + ongoing);
+            return ongoing;
         };
 
         mLogger.metric("STEP", "GO TO SHOOTING");
@@ -145,16 +153,27 @@ public class AutonomousMiddleStart extends LinearOpMode {
             new RaceAction(
                 mDrive.actionBuilder(start)
                         .setTangent(start.heading.toDouble())
-                        .splineToLinearHeading(new Pose2d(shoot.position.x, shoot.position.y, start.heading.toDouble()), start.heading.toDouble())
-                        .turnTo(shoot.heading.toDouble())
+                        .splineToLinearHeading(shoot, start.heading.toDouble(), new TranslationalVelConstraint(10), new ProfileAccelConstraint(-10, 10))
                         .build(),
                 loopAction));
 
-        mRobot.loop();
-        Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+
+        Thread.sleep(2500);// Give the flywheel time to reach back its velocity, now that wheel motors are stopped
+
         mLogger.metric("STEP", "SHOOT");
+
+        mRobot.start_stop_transfer();
+        mRobot.start_stop_intake_ramp_only();
+        mRobot.loop();
+        Thread.sleep(3000);
+        mRobot.start_stop_transfer();
+        Thread.sleep(200);
+        mRobot.start_stop_intake();
+        mRobot.start_stop_intake();
+        mRobot.start_stop_transfer();
+        Thread.sleep(4000);
         mLogger.update();
-        mRobot.shoot();
+
         mRobot.loop();
 
         mLogger.update();
@@ -195,7 +214,10 @@ public class AutonomousMiddleStart extends LinearOpMode {
                 Thread.sleep(100); // Give the flywheel time to reach back its velocity, now that wheel motors are stopped
                 mLogger.metric("STEP", "SHOOT");
                 mLogger.update();
-                mRobot.shoot();
+                Actions.runBlocking(
+                        new RaceAction(
+                                shootAction,
+                                loopAction));
                 mRobot.loop();
 
                 mLogger.update();

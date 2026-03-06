@@ -203,7 +203,7 @@ public class Turret implements Posable{
         }
     }
 
-    public void loop(double velocityX, double velocityY, double deltaTime) {
+    public void loop(double velocityX, double velocityY, double deltaTime, boolean shallMoveTurret) {
 
         if(mReady && !mInitTimer.isArmed()) {
 
@@ -235,9 +235,13 @@ public class Turret implements Posable{
             mLogger.metric("TURRET FTC : " , turret_orient.position + " " + turret_orient.heading.toDouble() / Math.PI * 180);
             double deltaAngle = this.angularError(mPath.target(), turret_orient, velocityX, velocityY, deltaTime);
             mLogger.metric("ANGULAR ERROR : " , "" + deltaAngle / Math.PI * 180);
+
+            if(Math.abs(deltaAngle/ Math.PI * 180) < 10) { mRotation.disablePwm(); }
+            else { mRotation.enablePwm();}
+
             double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position);
             mLogger.metric("NEXT ROTATION SERVO POSITION : " , ""+rotation_servo_position);
-            mRotation.setPosition(rotation_servo_position);
+            if(shallMoveTurret) { mRotation.setPosition(rotation_servo_position);}
             double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
             mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
             mHood.setPosition(hood_servo_position);
@@ -249,8 +253,8 @@ public class Turret implements Posable{
         }
     }
 
-    public void grouikgrouik() {
-        mRotation.setPosition(0.5);
+    public void grouikgrouik(double position) {
+        mRotation.setPosition(position);
     }
 
     public void start() {
@@ -293,9 +297,6 @@ public class Turret implements Posable{
     }
     private double angularError(Pose2d target, Pose2d turret, double vx, double vy, double deltaTime){
 
-        mLogger.info(String.format("==> TRT : X: %2.2f Y: %2.2f HD : %2.2f" , turret.position.x,turret.position.y,turret.heading.toDouble() / Math.PI * 180));
-        mLogger.info(String.format("==> TGT : X: %2.2f Y: %2.2f HD : %2.2f" , target.position.x,target.position.y,target.heading.toDouble() / Math.PI * 180));
-
         Vector2d pos_ftc = new Vector2d(target.position.x - turret.position.x, target.position.y - turret.position.y);
         double length = pos_ftc.norm();
         double theta1 = Math.atan2(pos_ftc.y,pos_ftc.x);
@@ -305,12 +306,8 @@ public class Turret implements Posable{
         double yaw = -Math.atan2(mDirection.x, mDirection.y);
         double error = turret.heading.toDouble() - yaw - target.heading.toDouble() ;
 
-        mLogger.trace(String.format("==> TRT ERROR: %2.2f ",error / Math.PI * 180));
-
         double rotation_speed = (pos_ftc.y * vx - pos_ftc.x * vy) / length / length;
         error += rotation_speed * deltaTime;
-
-        mLogger.trace(String.format("==> TRT ERROR + SPD: %2.2f ",error / Math.PI * 180));
 
         return error;
 

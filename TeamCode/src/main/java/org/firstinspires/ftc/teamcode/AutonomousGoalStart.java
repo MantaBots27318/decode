@@ -237,8 +237,6 @@ public class AutonomousGoalStart extends LinearOpMode {
                     Configuration.s_Current.persist("y", mDrive.getPose().position.y);
                     Configuration.s_Current.persist("alliance", mAlliance.getValue());
 
-                    mRobot.grouikgrouik();
-                    Thread.sleep(250);
                 }
 
                 mLogger.metric("STEP", "SHOOT");

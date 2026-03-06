@@ -111,10 +111,27 @@ public class ServoSingle extends ServoComponent {
     }
 
     @Override
-        public void                         setPwmRange(double min, double max)
-        {
-            if(mReady) {
-                mServo.setPwmRange( new PwmControl.PwmRange(min,max));
-            }
+    public void                         setPwmRange(double min, double max)
+    {
+        if(mReady) {
+            mServo.setPwmRange( new PwmControl.PwmRange(min,max));
         }
     }
+
+    @Override
+    public void                         disablePwm() {
+        if(mReady) {
+            mServo.setPwmDisable();
+        }
+    }
+    @Override
+    public void                         enablePwm() {
+        if(mReady) {
+            mServo.setPwmEnable();
+        }
+    }
+}
+
+
+
+

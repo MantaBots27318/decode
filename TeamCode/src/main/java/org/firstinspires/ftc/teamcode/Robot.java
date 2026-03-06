@@ -53,6 +53,7 @@ public class Robot {
     Path                    mPath;
     Mode                    mMode = Mode.FIELD_CENTRIC;
     boolean                 mPreciseMovements;
+    boolean                 mShallMoveTurret;
 
     // Relative position
     Pose2d                  mTurretPositionInRR;
@@ -87,6 +88,7 @@ public class Robot {
             mGamepadAttachments = gamepad2;
             mPath               = path;
             mPreciseMovements   = false;
+            mShallMoveTurret    = true;
 
             LynxFirmware.throwIfModulesAreOutdated(hwm);
 
@@ -182,6 +184,9 @@ public class Robot {
                 mAction.run(new TelemetryPacket());
             }
 
+            if(mGamepadChassis.buttons.dpad_down.pressed()) { mShallMoveTurret = false; }
+            else { mShallMoveTurret= true; }
+
             mPreciseMovements = mGamepadChassis.buttons.right_bumper.pressed();
 
             mY = mGamepadChassis.axes.left_stick_x.value();
@@ -215,12 +220,13 @@ public class Robot {
 
             if(mTransfer.ongoing()) {mTransfer.open_and_close_loop(); }
 
-            if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
-
             if((mX * mX + mY * mY) > 0.01) { mAction = null; }
             if(mAction != null) {
                 boolean isNotFinished = mAction.run(new TelemetryPacket());
                 if(!isNotFinished) { mAction = null; }
+            }
+            else {
+                if(mMode != Mode.AUTONOMOUS) { move(mX, mY, mRotation); }
             }
 
             Pose2d chassis_ftc_position = mChassis.getFTCPosition();
@@ -231,7 +237,7 @@ public class Robot {
                 mTurret.setFTCPosition(turret_ftc_position);
             }
 
-            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04);
+            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04,mShallMoveTurret);
 
             Pose2d turret_ftc_position = mTurret.getFTCPosition();
             if (turret_ftc_position != null) {
@@ -257,7 +263,6 @@ public class Robot {
             else if (mMode == Mode.FIELD_CENTRIC) {
 
                 double heading = mChassis.getFTCPosition().heading.toDouble() - mHeadingOffset;
-                mLogger.trace("yaw : " + heading / Math.PI * 180);
                 mChassis.drive(x,y,rotation, heading, multiplier);
             }
         }
@@ -295,13 +300,39 @@ public class Robot {
         else { mTransfer.open(); }
     }
 
+
+    public void start_stop_transfer_down() {
+        mLogger.info("==> TRANSFER");
+        mTransfer.open_down_and_close_loop();
+        while(mTransfer.ongoing()) { mTransfer.open_down_and_close_loop();}
+    }
+
+
+
     public boolean shoot() {
         mTransfer.open_and_close_loop();
         return mTransfer.ongoing();
     }
 
-    public void grouikgrouik() {
-        mTurret.grouikgrouik();
+    public void start_stop_intake_front_only() {
+        mLogger.info("==> STR INTAKE");
+        if(mIntake.isMoving()) {
+            if(mIntake.isReversed()) { mIntake.start(sIntakePower,0); }
+            else { mIntake.stop(); }
+        }
+        else { mIntake.start(sIntakePower,0); }
+    }
+    public void start_stop_intake_ramp_only() {
+        mLogger.info("==> STR INTAKE");
+        if(mIntake.isMoving()) {
+            if(mIntake.isReversed()) { mIntake.start(0,sGuidingPower); }
+            else { mIntake.stop(); }
+        }
+        else { mIntake.start(0,sGuidingPower); }
+    }
+
+    public void grouikgrouik(double position) {
+        mTurret.grouikgrouik(position);
     }
 
 }

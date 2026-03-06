@@ -23,10 +23,10 @@ public class Path {
     public static final double FIELD_SIZE_INCHES                                 = 12 * 12;
     public static final double M_TO_INCHES                                       = 39.37;
 
-    private static final double X_PARK_INCHES_RED                                = -39;
-    private static final double X_PARK_INCHES_BLUE                               = -35;
-    private static final double Y_PARK_INCHES_BLUE                               = -24;
-    private static final double Y_PARK_INCHES_RED                                = 24;
+    private static final double X_PARK_INCHES_RED                                = -42;
+    private static final double X_PARK_INCHES_BLUE                               = -42;
+    private static final double Y_PARK_INCHES_BLUE                               = -34;
+    private static final double Y_PARK_INCHES_RED                                = 34;
     private static final double ANGLE_PARK_RADIANS_BLUE                          = Math.PI / 2;
     private static final double ANGLE_PARK_RADIANS_RED                           = - Math.PI / 2;
 
@@ -43,10 +43,10 @@ public class Path {
     private static final double ANGLE_SHOOTING_FAR_RADIANS_RED                   = - Math.PI / 2;
 
     private static final double X_SHOOTING_VERY_FAR_INCHES                      = -59;
-    private static final double Y_SHOOTING_VERY_FAR_INCHES_BLUE                 = 19;
-    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE            = 0.365424564;
-    private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -19;
-    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = -0.365424564;
+    private static final double Y_SHOOTING_VERY_FAR_INCHES_BLUE                 = 20;
+    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE            = 0;
+    private static final double Y_SHOOTING_VERY_FAR_INCHES_RED                  = -20;
+    private static final double ANGLE_SHOOTING_VERY_FAR_RADIANS_RED             = 0;
 
     private static final double X_READY_INCHES                     = -FIELD_SIZE_INCHES / 2 + 9 + 72 + 7;
     private static final double Y_READY_INCHES_BLUE                = 40;

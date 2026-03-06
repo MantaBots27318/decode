@@ -47,5 +47,7 @@ public abstract class ServoComponent {
     public abstract void	            setPosition(double position);
     public abstract void	            reset();
     public abstract void                setPwmRange(double min, double max);
+    public abstract void                disablePwm();
+    public abstract void                enablePwm();
 
 }
