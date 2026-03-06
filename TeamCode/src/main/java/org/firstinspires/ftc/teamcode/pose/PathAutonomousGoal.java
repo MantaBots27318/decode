@@ -87,10 +87,18 @@ public class PathAutonomousGoal extends Path {
 
             for (Pattern pattern : Pattern.values()) {
                 if (pattern != Pattern.NONE) {
-                    mEndIntake.put(pattern, new Pose2d(
+                    if((pattern == Pattern.PGP) || (pattern == Pattern.GPP)){
+                        mEndIntake.put(pattern, new Pose2d(
                             Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED - 2,
                             Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                    }
+                    else {
+                        mEndIntake.put(pattern, new Pose2d(
+                                Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                                Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED,
+                                Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                    }
                 }
             }
             for (Pattern pattern : Pattern.values()) {
@@ -118,10 +126,18 @@ public class PathAutonomousGoal extends Path {
             for (Pattern pattern : Pattern.values()) {
 
                 if (pattern != Pattern.NONE) {
-                    mEndIntake.put(pattern, new Pose2d(
+                    if((pattern == Pattern.PGP) || (pattern == Pattern.GPP)){
+                        mEndIntake.put(pattern, new Pose2d(
                             Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
-                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_BLUE,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_BLUE + 2,
                             Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                    }
+                    else {
+                        mEndIntake.put(pattern, new Pose2d(
+                                Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                                Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_BLUE,
+                                Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                    }
                 }
             }
             for (Pattern pattern : Pattern.values()) {

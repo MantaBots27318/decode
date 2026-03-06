@@ -195,6 +195,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                                 .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
                                                 .setTangent(end_intake.heading.toDouble() + Math.PI)
                                                 .splineToConstantHeading(shoot.position, 0, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                                .waitSeconds(0.2)
                                                 .build(),
                                         loopAction
                                 ));
@@ -211,6 +212,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                                 .setTangent(start_intake.heading.toDouble())
                                                 .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
                                                 .strafeToConstantHeading(shoot.position, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
+                                                .waitSeconds(0.2)
                                                 .build(),
                                         loopAction
                                 ));
@@ -227,6 +229,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .setTangent(start_intake.heading.toDouble())
                                             .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
                                             .strafeToLinearHeading(leave.position,start.heading.toDouble(),new TranslationalVelConstraint(200), new ProfileAccelConstraint(-20, 50))
+                                            .waitSeconds(0.2)
                                             .build(),
                                     loopAction
                             ));
