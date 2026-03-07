@@ -32,7 +32,10 @@ import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 public class Robot {
 
     static final double    sDefaultMovementsMultiplier = 1.0;
-    static final double    sPreciseMovementsMultiplier = 0.3;
+    static final double    sPreciseMovementsMultiplierRightTrigger = 0.5;
+
+    static final double    sPreciseMovementsMultiplierRightBumper = 0.3;
+
     static final double    sGamepadChassisDeadZone     = 0.1;
     static final double    sIntakePower                = 0.85;
     static final double    sGuidingPower               = 0.6;
@@ -52,7 +55,8 @@ public class Robot {
     double                  mHeadingOffset;
     Path                    mPath;
     Mode                    mMode = Mode.FIELD_CENTRIC;
-    boolean                 mPreciseMovements;
+    boolean                 mPreciseMovements1;
+    boolean                 mPreciseMovements2;
     boolean                 mShallMoveTurret;
 
     // Relative position
@@ -87,7 +91,8 @@ public class Robot {
             mGamepadChassis     = gamepad1;
             mGamepadAttachments = gamepad2;
             mPath               = path;
-            mPreciseMovements   = false;
+            mPreciseMovements1   = false;
+            mPreciseMovements2   = false;
             mShallMoveTurret    = true;
 
             LynxFirmware.throwIfModulesAreOutdated(hwm);
@@ -187,7 +192,9 @@ public class Robot {
             if(mGamepadChassis.buttons.dpad_down.pressed()) { mShallMoveTurret = false; }
             else { mShallMoveTurret= true; }
 
-            mPreciseMovements = mGamepadChassis.buttons.right_bumper.pressed();
+            mPreciseMovements1 = mGamepadChassis.buttons.right_bumper.pressed();
+            mPreciseMovements2 = mGamepadChassis.buttons.right_trigger.pressed();
+
 
             mY = mGamepadChassis.axes.left_stick_x.value();
             mX = mGamepadChassis.axes.left_stick_y.value();
@@ -255,7 +262,8 @@ public class Robot {
 
         if(mReady) {
             double multiplier = sDefaultMovementsMultiplier;
-            if (mPreciseMovements) { multiplier = sPreciseMovementsMultiplier; }
+            if (mPreciseMovements1) { multiplier = sPreciseMovementsMultiplierRightTrigger; }
+            if (mPreciseMovements2) { multiplier = sPreciseMovementsMultiplierRightBumper; }
 
             mLogger.info(String.format("==>  X : %6.1f Y : %6.1f R:%6.1f", x, y, rotation));
 
