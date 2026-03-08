@@ -203,7 +203,7 @@ public class Turret implements Posable{
         }
     }
 
-    public void loop(double velocityX, double velocityY, double deltaTime, boolean shallMoveTurret) {
+    public void loop(double velocityX, double velocityY, double deltaTime, boolean shallCorrect) {
 
         if(mReady && !mInitTimer.isArmed()) {
 
@@ -241,7 +241,9 @@ public class Turret implements Posable{
 
             double rotation_servo_position = this.calculateRotationServoPosition(-deltaAngle, position);
             mLogger.metric("NEXT ROTATION SERVO POSITION : " , ""+rotation_servo_position);
-            if(shallMoveTurret) { mRotation.setPosition(rotation_servo_position);}
+            if(shallCorrect) {
+                mRotation.setPosition(rotation_servo_position);
+            }
             double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
             mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
             mHood.setPosition(hood_servo_position);
@@ -253,9 +255,6 @@ public class Turret implements Posable{
         }
     }
 
-    public void grouikgrouik(double position) {
-        mRotation.setPosition(position);
-    }
 
     public void start() {
         if(mReady) {

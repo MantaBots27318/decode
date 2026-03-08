@@ -78,13 +78,14 @@ public class Robot {
     double                  mY;
     double                  mRotation;
     Action                  mAction;
-
+    boolean                 mShallCorrect;
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
 
         mLogger = logger;
 
         mReady = true;
+        mShallCorrect = true;
 
         if(mReady) {
             mTimer              = new SmartTimer(mLogger);
@@ -178,6 +179,12 @@ public class Robot {
                     mMode = Mode.FIELD_CENTRIC;
                 }
             }
+            if(mGamepadChassis.buttons.left_bumper.pressed()){
+                mShallCorrect = false;
+            }
+            else{
+                mShallCorrect = true;
+            }
 
             if (mGamepadChassis.buttons.x.pressedOnce()) {
                 Pose2d position = mChassis.getFTCPosition();
@@ -188,9 +195,6 @@ public class Robot {
                         .build();
                 mAction.run(new TelemetryPacket());
             }
-
-            if(mGamepadChassis.buttons.dpad_down.pressed()) { mShallMoveTurret = false; }
-            else { mShallMoveTurret= true; }
 
             mPreciseMovements1 = mGamepadChassis.buttons.right_bumper.pressed();
             mPreciseMovements2 = mGamepadChassis.buttons.right_trigger.pressed();
@@ -244,7 +248,7 @@ public class Robot {
                 mTurret.setFTCPosition(turret_ftc_position);
             }
 
-            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04,mShallMoveTurret);
+            mTurret.loop(mChassis.getXVelocity(), mChassis.getYVelocity(), 0.04, mShallCorrect);
 
             Pose2d turret_ftc_position = mTurret.getFTCPosition();
             if (turret_ftc_position != null) {
@@ -339,8 +343,5 @@ public class Robot {
         else { mIntake.start(0,sGuidingPower); }
     }
 
-    public void grouikgrouik(double position) {
-        mTurret.grouikgrouik(position);
-    }
 
 }

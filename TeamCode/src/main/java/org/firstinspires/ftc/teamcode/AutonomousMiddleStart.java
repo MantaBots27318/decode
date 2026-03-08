@@ -136,9 +136,6 @@ public class AutonomousMiddleStart extends LinearOpMode {
             mRobot.loop();
             return true;
         };
-        Action nothingAction = p -> {
-            return true;
-        };
 
         Action shootAction = p -> {
             boolean ongoing = mRobot.shoot();
