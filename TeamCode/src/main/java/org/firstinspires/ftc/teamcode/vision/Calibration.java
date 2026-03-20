@@ -12,7 +12,7 @@ import org.opencv.core.Point;
 public class Calibration {
 
 
-    static Point[] dstPoints = new Point[]{
+    static final Point[] dstPoints = new Point[]{
             new Point(0,3 ),
             new Point(-3,6 ),
             new Point(3,6 ),
@@ -28,7 +28,7 @@ public class Calibration {
             new Point(-12,21),
 
     };
-    static Point[] srcPoints = new Point[] {
+    static final Point[] srcPoints = new Point[] {
             new Point(317, 474),
             new Point(207, 369),
             new Point(426, 361),

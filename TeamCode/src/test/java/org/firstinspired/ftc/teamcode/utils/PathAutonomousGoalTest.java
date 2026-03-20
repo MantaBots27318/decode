@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /* Project includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
-import org.firstinspires.ftc.teamcode.vision.Vision;
+import org.firstinspires.ftc.teamcode.vision.Pattern;
 
 /* Component Under Test */
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousGoal;
@@ -59,24 +59,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedGPPLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.GPP,true);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
+        checkLaunchPosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -85,24 +80,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedGPPGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.GPP,false);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP),Pattern.GPP,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
+        checkGatePosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -111,24 +101,19 @@ public class PathAutonomousGoalTest {
     public void positionsBlueGPPLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.GPP,true);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
+        checkLaunchPosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -137,24 +122,20 @@ public class PathAutonomousGoalTest {
     public void positionsBlueGPPGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.GPP,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
 
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP),Pattern.GPP,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
+        checkGatePosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -163,24 +144,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedPGPLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PGP,true);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
+        checkLaunchPosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -189,24 +165,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedPGPGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PGP,false);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP),Pattern.PGP,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
+        checkGatePosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -215,24 +186,19 @@ public class PathAutonomousGoalTest {
     public void positionsBluePGPLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PGP,true);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
+        checkLaunchPosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -241,24 +207,19 @@ public class PathAutonomousGoalTest {
     public void positionsBluePGPGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PGP,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP),Pattern.PGP,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
+        checkGatePosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -267,23 +228,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedPPGLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PPG,true);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
+        checkLaunchPosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -292,23 +249,19 @@ public class PathAutonomousGoalTest {
     public void positionsRedPPGGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PPG,false);
+        mPath.initialize(Alliance.RED);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.RED);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG),Pattern.PPG,Alliance.RED);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
+        checkGatePosition(mPath.leave(),Alliance.RED);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -317,25 +270,19 @@ public class PathAutonomousGoalTest {
     public void positionsBluePPGLaunch() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PPG,true);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
+        checkLaunchPosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -344,25 +291,19 @@ public class PathAutonomousGoalTest {
     public void positionsBluePPGGate() {
 
         mPath = new PathAutonomousGoal(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PPG,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
 
         checkStartPosition(mPath.start(),Alliance.BLUE);
 
-        assertEquals(mPath.xCalibrationFromGoal(),-38.18376618407357,0.01);
-
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG),Pattern.PPG,Alliance.BLUE);
         checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
         checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
+        checkGatePosition(mPath.leave(),Alliance.BLUE);
 
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-        assertEquals(mPath.hObeliskFTCRadians(),-Math.PI / 3,0.01);
+        assertEquals(mPath.tgtIntakeToShootRadians(),-Math.PI / 2,0.01);
 
         mLogger.update();
     }
@@ -449,18 +390,18 @@ public class PathAutonomousGoalTest {
     }
 
 
-    private void checkPatternPosition(Pose2d position, Vision.Pattern pattern, Alliance alliance) {
+    private void checkPatternPosition(Pose2d position, Pattern pattern, Alliance alliance) {
         if(alliance == Alliance.RED) {
             assertEquals(position.position.y,-36,0.01);
             assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-25,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-6,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,20,0.01);
             }
         }
@@ -468,31 +409,31 @@ public class PathAutonomousGoalTest {
             assertEquals(position.position.y,36,0.01);
             assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-30,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-5,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,17,0.01);
             }
         }
     }
 
-    private void checkEndIntakePosition(Pose2d position, Vision.Pattern pattern, Alliance alliance)
+    private void checkEndIntakePosition(Pose2d position, Pattern pattern, Alliance alliance)
     {
         if(alliance == Alliance.RED) {
             assertEquals(position.position.y,-76,0.01);
             assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-25,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-6,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,20,0.01);
             }
         }
@@ -500,31 +441,31 @@ public class PathAutonomousGoalTest {
             assertEquals(position.position.y,76,0.01);
             assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-30,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-5,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,17,0.01);
             }
         }
 
     }
-    private void checkBackIntakePosition(Pose2d position, Vision.Pattern pattern, Alliance alliance) {
+    private void checkBackIntakePosition(Pose2d position, Pattern pattern, Alliance alliance) {
 
         if(alliance == Alliance.RED) {
             assertEquals(position.position.y,-52,0.01);
             assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-25,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-6,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,20,0.01);
             }
         }
@@ -532,13 +473,13 @@ public class PathAutonomousGoalTest {
             assertEquals(position.position.y,52,0.01);
             assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
 
-            if(pattern == Vision.Pattern.GPP) {
+            if(pattern == Pattern.GPP) {
                 assertEquals(position.position.x,-30,0.01);
             }
-            if(pattern == Vision.Pattern.PGP) {
+            if(pattern == Pattern.PGP) {
                 assertEquals(position.position.x,-5,0.01);
             }
-            if(pattern == Vision.Pattern.PPG) {
+            if(pattern == Pattern.PPG) {
                 assertEquals(position.position.x,17,0.01);
             }
         }

@@ -3,20 +3,21 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
-public class VelocityAbacus {
-
-    public static double MULTIPLIER = 1.0;
+public class ServoAbacus {
 
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {0,0.84615385},
-            {40,0.84615385},
-            {85,0.84615385},
-            {110, 0.84615385},
-            {111, 1.0},
-            {130, 1.0},
-            {150, 1.0}
+            {0,0.43},
+            {49,0.43},
+            {50,0.43},
+            {57,0.41},//
+            {70,0.43},//
+            {90,0.45},//
+            {99,0.46},//
+            {129, 0.4},
+            {139, 0.4},
+            {500, 0.42}
     };
 
     /**
@@ -25,7 +26,7 @@ public class VelocityAbacus {
      * @param distance Distance to the target
      * @return Interpolated power value
      */
-    public static double getVelocity(double distance) {
+    public static double getPosition(double distance) {
 
         double result = 0;
 
@@ -52,6 +53,6 @@ public class VelocityAbacus {
             }
         }
 
-        return result * MULTIPLIER;
+        return result;
     }
 }

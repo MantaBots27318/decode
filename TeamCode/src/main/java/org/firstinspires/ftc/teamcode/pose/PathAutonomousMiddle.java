@@ -19,66 +19,52 @@ import org.firstinspires.ftc.teamcode.vision.Pattern;
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
 public class PathAutonomousMiddle extends Path {
 
-    private static final double X_START_INCHES                               = -53.5;
-    private static final double Y_START_INCHES_BLUE                          = 18;
-    private static final double Y_START_INCHES_RED                           = -18;
-    private static final double ANGLE_START_RADIANS                          = 0;
+    private static final double X_START_INCHES =                            -65;
+    private static final double Y_START_INCHES_BLUE =                       9;
+    private static final double Y_START_INCHES_RED =                        -9;
+    private static final double ANGLE_START_RADIANS =                       0;
+    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      16;
+    protected static final double Y_DELTA_INTAKE_INCHES_RED =       -16;
+
+    public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =          -12;
+    public static final double X_PPG_PATTERN_INCHES_BLUE =          11.25;
+    public static final double X_GPP_PATTERN_INCHES_RED =           -36.25;
+    public static final double X_PGP_PATTERN_INCHES_RED =           -12;
+    public static final double X_PPG_PATTERN_INCHES_RED =           11.25;
 
 
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE                 = 41;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED                  = -41;
+    public static final double Y_PATTERN_INCHES_BLUE =              30;
+    public static final double Y_PATTERN_INCHES_RED =               -30;
+    public static final double ANGLE_PATTERN_RADIANS_BLUE =         Math.PI / 2;
+    public static final double ANGLE_PATTERN_RADIANS_RED =          -Math.PI / 2;
 
 
-    private static final double X_DELTA_GPP_PATTERN_INCHES_BLUE              = 22;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_BLUE              = 45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_BLUE              = 71;
-    private static final double X_DELTA_GPP_PATTERN_INCHES_RED               = 24;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_RED               = 45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_RED               = 71;
-
-    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE         = 45;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE         = 70;
-    private static final double X_DELTA_PGP_PATTERN_INCHES_NEXT_RED          = 46;
-    private static final double X_DELTA_PPG_PATTERN_INCHES_NEXT_RED          = 71;
-    private static final double Y_DELTA_PATTERN_INCHES_BLUE                  = 10;
-    private static final double Y_DELTA_PATTERN_INCHES_RED                   = -10;
-    private static final double ANGLE_DELTA_PATTERN_RADIANS_BLUE             = Math.PI / 2;
-    private static final double ANGLE_DELTA_PATTERN_RADIANS_RED              = -Math.PI / 2;
-
-    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE = -Math.PI/2;
-    private static final double TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED  = Math.PI/2;
-
-    private static final double X_LEAVE_VERY_FAR_INCHES                      = -52;
-    private static final double Y_LEAVE_VERY_FAR_INCHES_BLUE                 = 39;
-    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE            = 0;
-    private static final double Y_LEAVE_VERY_FAR_INCHES_RED                  = -39;
-    private static final double ANGLE_LEAVE_VERY_FAR_RADIANS_RED             = -0;
-
-    private static final double X_ZELIE_INCHES                      = -52;
-    private static final double Y_ZELIE_INCHES_BLUE                 = 19;
-    private static final double ANGLE_ZELIE_RADIANS_BLUE            = 0.365424564;
-    private static final double Y_ZELIE_INCHES_RED                  = -19;
-    private static final double ANGLE_ZELIE_RADIANS_RED             = -0.365424564;
+    private static final double X_LEAVE_INCHES = -52;
+    private static final double Y_LEAVE_INCHES_BLUE = 19;
+    private static final double ANGLE_LEAVE_RADIANS_BLUE = 0.365424564;
+    private static final double Y_LEAVE_INCHES_RED = -19;
+    private static final double ANGLE_LEAVE_RADIANS_RED = -0.365424564;
 
 
     Pose2d  mStart                          = new Pose2d(0,0,0);
-    Pose2d  mPattern                        = new Pose2d(0,0,0);
-    Pose2d  mEndIntake                      = new Pose2d(0,0,0);
-    Pose2d  mBackIntake                     = new Pose2d(0,0,0);
-    Pose2d  mNextPattern                    = new Pose2d(0,0,0);
-    Pose2d  mEndNextIntake                  = new Pose2d(0,0,0);
-    Pose2d  mBackNextIntake                 = new Pose2d(0,0,0);
-    Pose2d  mLeaveVeryFar                 = new Pose2d(0,0,0);
-    Pose2d  mZelie                 = new Pose2d(0,0,0);
-    double  mTgtIntakeToShootRadians  = 0;
+    Map<Pattern, Pose2d>    mStartIntake    = new LinkedHashMap<>();
+    Map<Pattern, Pose2d>    mEndIntake      = new LinkedHashMap<>();
+    Map<Pattern, Pose2d>    mBackIntake     = new LinkedHashMap<>();
+    Pose2d  mLeave                          = new Pose2d(0,0,0);
+    double  mTgtShootToLeaveRadians         = 0;
 
     public PathAutonomousMiddle(Logger logger) {
         super(logger);
     }
 
-    public void initialize(Alliance alliance, Pattern pattern) {
+    public void initialize(Alliance alliance) {
 
         super.initialize(alliance);
 
@@ -86,64 +72,30 @@ public class PathAutonomousMiddle extends Path {
 
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_RED;
 
-
             mStart = new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS);
 
-            if (pattern == Pattern.GPP) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
+            mStartIntake.put(Pattern.GPP, new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
+            mStartIntake.put(Pattern.PGP, new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
+            mStartIntake.put(Pattern.PPG, new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED));
+
+            for (Pattern pattern : Pattern.values()) {
+                if (pattern != Pattern.NONE) {
+                    mEndIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
-            if (pattern == Pattern.PGP) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
-            }
-            if (pattern == Pattern.PPG) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_RED,
-                        Y_START_INCHES_RED + Y_DELTA_PATTERN_INCHES_RED,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_RED);
+            for (Pattern pattern : Pattern.values()) {
+                if (pattern != Pattern.NONE) {
+                    mBackIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.4 * Y_DELTA_INTAKE_INCHES_RED,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
 
-            mEndIntake = new Pose2d(
-                    mPattern.position.x,
-                    mPattern.position.y + Y_DELTA_INTAKE_INCHES_RED,
-                    mPattern.heading.toDouble());
-
-            mBackIntake = new Pose2d(
-                    mPattern.position.x,
-                    mPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_RED,
-                    mPattern.heading.toDouble());
-
-            mEndNextIntake = new Pose2d(
-                    mNextPattern.position.x,
-                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_RED,
-                    mNextPattern.heading.toDouble());
-
-            mBackNextIntake = new Pose2d(
-                    mNextPattern.position.x,
-                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_RED,
-                    0);
-
-            mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_RED + ANGLE_START_RADIANS;
-            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_RED,ANGLE_LEAVE_VERY_FAR_RADIANS_RED);
-            mZelie = new Pose2d(X_ZELIE_INCHES,Y_ZELIE_INCHES_RED,ANGLE_ZELIE_RADIANS_RED);
-
+            mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED);
 
         }
         if (alliance == Alliance.BLUE) {
@@ -152,83 +104,60 @@ public class PathAutonomousMiddle extends Path {
 
             mYDeltaIntakeInches = Y_DELTA_INTAKE_INCHES_BLUE;
 
-            if (pattern == Pattern.GPP) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_GPP_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
+            mStartIntake.put(Pattern.GPP, new Pose2d(X_GPP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
+            mStartIntake.put(Pattern.PGP, new Pose2d(X_PGP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
+            mStartIntake.put(Pattern.PPG, new Pose2d(X_PPG_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE));
+
+            for (Pattern pattern : Pattern.values()) {
+
+                if (pattern != Pattern.NONE) {
+                    mEndIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + Y_DELTA_INTAKE_INCHES_BLUE,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
-            if (pattern == Pattern.PGP) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_NEXT_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
-            }
-            if (pattern == Pattern.PPG) {
-                mPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PPG_PATTERN_INCHES_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
-                mNextPattern = new Pose2d(
-                        X_START_INCHES + X_DELTA_PGP_PATTERN_INCHES_NEXT_BLUE,
-                        Y_START_INCHES_BLUE + Y_DELTA_PATTERN_INCHES_BLUE,
-                        ANGLE_START_RADIANS + ANGLE_DELTA_PATTERN_RADIANS_BLUE);
+            for (Pattern pattern : Pattern.values()) {
+                if (pattern != Pattern.NONE) {
+                    mBackIntake.put(pattern, new Pose2d(
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.x,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).position.y + 0.4 * Y_DELTA_INTAKE_INCHES_BLUE,
+                            Objects.requireNonNull(mStartIntake.get(pattern)).heading.toDouble()));
+                }
             }
 
-            mEndIntake = new Pose2d(
-                    mPattern.position.x,
-                    mPattern.position.y + Y_DELTA_INTAKE_INCHES_BLUE,
-                    mPattern.heading.toDouble());
-
-            mBackIntake = new Pose2d(
-                    mPattern.position.x,
-                    mPattern.position.y + 0.3 * Y_DELTA_INTAKE_INCHES_BLUE,
-                    mPattern.heading.toDouble());
-            
-            mEndNextIntake = new Pose2d(
-                    mNextPattern.position.x,
-                    mNextPattern.position.y + Y_DELTA_INTAKE_INCHES_BLUE,
-                    mNextPattern.heading.toDouble());
-
-            mBackNextIntake = new Pose2d(
-                    mNextPattern.position.x,
-                    mNextPattern.position.y + 0.7 * Y_DELTA_INTAKE_INCHES_BLUE,
-                    0);
-
-           mTgtIntakeToShootRadians = TGT_DELTA_INTAKE_TO_SHOOT_RADIANS_BLUE + ANGLE_START_RADIANS;
-            mLeaveVeryFar = new Pose2d(X_LEAVE_VERY_FAR_INCHES,Y_LEAVE_VERY_FAR_INCHES_BLUE,ANGLE_LEAVE_VERY_FAR_RADIANS_BLUE);
-            mZelie = new Pose2d(X_ZELIE_INCHES,Y_ZELIE_INCHES_BLUE,ANGLE_ZELIE_RADIANS_BLUE);
+            mLeave = new Pose2d(X_LEAVE_INCHES,Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE);
 
         }
     }
 
     public Pose2d   start()                         { return mStart; }
-    public Pose2d   pattern()                       { return mPattern; }
-    public Pose2d   endIntake()                     { return mEndIntake; }
-    public Pose2d   backIntake()                    { return mBackIntake; }
-    public Pose2d   nextPattern()                   { return mNextPattern; }
-    public Pose2d   endNextIntake()                 { return mEndNextIntake; }
-    public Pose2d   backNextIntake()                { return mBackNextIntake; }
-    public Pose2d   leaveVeryFar()                 { return mLeaveVeryFar; }
-    public Pose2d   zelie()                { return mZelie; }
-
-    public double   tgtIntakeToShootRadians() { return mTgtIntakeToShootRadians;}
+    public Pose2d   startIntake(Pattern pattern)    { return mStartIntake.get(pattern); }
+    public Pose2d   endIntake(Pattern pattern)      { return mEndIntake.get(pattern); }
+    public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
+    public Pose2d   leave()                         { return mLeave; }
+    public double   tgtShootToLeaveRadians()       { return mTgtShootToLeaveRadians;}
 
     public void log() {
 
-        mLogger.info("START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
-        mLogger.info("PATTERN X : " + mPattern.position.x + " Y: " + mPattern.position.y + " H: " + mPattern.heading.toDouble());
-        mLogger.info("END INTAKE X : " + mEndIntake.position.x + " Y: " + mEndIntake.position.y + " H: " + mEndIntake.heading.toDouble());
-        mLogger.info("BACK INTAKE X : " + mBackIntake.position.x + " Y: " + mBackIntake.position.y + " H: " + mBackIntake.heading.toDouble());
-        mLogger.info("TGT INTAKE TO SHOOT INIT : " + mTgtIntakeToShootRadians);
+        mLogger.info(Logger.Target.DRIVER_STATION,"START X : " + mStart.position.x + " Y: " + mStart.position.y + " H: " + mStart.heading.toDouble());
+        if(mStartIntake.get(Pattern.GPP) != null) {
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE GPP X : " + mStartIntake.get(Pattern.GPP).position.x + " Y: " + mStartIntake.get(Pattern.GPP).position.y + " H: " + mStartIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE GPP X : " + mEndIntake.get(Pattern.GPP).position.x + " Y: " + mEndIntake.get(Pattern.GPP).position.y + " H: " + mEndIntake.get(Pattern.GPP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE GPP X : " + mBackIntake.get(Pattern.GPP).position.x + " Y: " + mBackIntake.get(Pattern.GPP).position.y + " H: " + mBackIntake.get(Pattern.GPP).heading.toDouble());
+        }
+        if(mStartIntake.get(Pattern.PGP) != null) {
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE PGP X : " + mStartIntake.get(Pattern.PGP).position.x + " Y: " + mStartIntake.get(Pattern.PGP).position.y + " H: " + mStartIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE PGP X : " + mEndIntake.get(Pattern.PGP).position.x + " Y: " + mEndIntake.get(Pattern.PGP).position.y + " H: " + mEndIntake.get(Pattern.PGP).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PGP X : " + mBackIntake.get(Pattern.PGP).position.x + " Y: " + mBackIntake.get(Pattern.PGP).position.y + " H: " + mBackIntake.get(Pattern.PGP).heading.toDouble());
+        }
+        if(mStartIntake.get(Pattern.PPG) != null) {
+            mLogger.info(Logger.Target.DRIVER_STATION,"START INTAKE PPG X : " + mStartIntake.get(Pattern.PPG).position.x + " Y: " + mStartIntake.get(Pattern.PPG).position.y + " H: " + mStartIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"END INTAKE PPG X : " + mEndIntake.get(Pattern.PPG).position.x + " Y: " + mEndIntake.get(Pattern.PPG).position.y + " H: " + mEndIntake.get(Pattern.PPG).heading.toDouble());
+            mLogger.info(Logger.Target.DRIVER_STATION,"BACK INTAKE PPG X : " + mBackIntake.get(Pattern.PPG).position.x + " Y: " + mBackIntake.get(Pattern.PPG).position.y + " H: " + mBackIntake.get(Pattern.PPG).heading.toDouble());
+        }
+        mLogger.info(Logger.Target.DRIVER_STATION,"LEAVE : " + mLeave.position.x + " Y: " + mLeave.position.y + " H: " + mLeave.heading.toDouble());
+        mLogger.info(Logger.Target.DRIVER_STATION,"TGT SHOOT TO LEAVE : " + mTgtShootToLeaveRadians);
         super.log();
     }
 

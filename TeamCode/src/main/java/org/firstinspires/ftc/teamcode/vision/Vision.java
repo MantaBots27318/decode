@@ -9,6 +9,7 @@ package org.firstinspires.ftc.teamcode.vision;
 // Java includes
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // Qualcomm includes
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -92,7 +93,7 @@ public class Vision {
 
             int apriltagId = 0;
 
-            if(mCurrentPipeline != mAprilTagPipeline) {
+            if(!Objects.equals(mCurrentPipeline, mAprilTagPipeline)) {
                 mLimelight.pipelineSwitch(mAprilTagPipeline);
                 mCurrentPipeline = mAprilTagPipeline;
             }

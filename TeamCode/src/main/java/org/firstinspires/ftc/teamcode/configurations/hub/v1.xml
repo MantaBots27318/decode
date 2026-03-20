@@ -4,7 +4,7 @@
         <LynxModule name="Expansion Hub 4" port="4">
             <goBILDA5202SeriesMotor name="intakeBrushes" port="0" />
             <goBILDA5202SeriesMotor name="backLeft" port="2" />
-            <goBILDA5202SeriesMotor name="frontLeft" port="3" />
+            <goBILDA5202eriesMotor name="frontLeft" port="3" />
             <Servo name="outtakeLeverArm" port="0" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">

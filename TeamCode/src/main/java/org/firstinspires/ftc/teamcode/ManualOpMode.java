@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 /* Qualcomm includes */
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,6 @@ import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-
 
 @TeleOp(name="Manual OpMode")
 public class ManualOpMode extends LinearOpMode {
@@ -29,23 +29,31 @@ public class ManualOpMode extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
-        mLogger.level(Logger.Severity.INFO);
-
-        mAlliance = Alliance.NONE;
-        Double alliance_value = Configuration.s_Current.retrieve("alliance");
-        if(alliance_value == null) { alliance_value = Alliance.RED.getValue(); }
-        if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01)  { mAlliance = Alliance.RED;}
-        if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01) { mAlliance = Alliance.BLUE;}
+        mLogger   = new Logger(telemetry, FtcDashboard.getInstance(),"manual");
+        mLogger.level(Logger.Severity.TRACE);
 
         mGamepad1 = new Controller(gamepad1,mLogger);
         mGamepad2 = new Controller(gamepad2,mLogger);
+
+        mAlliance = Alliance.NONE;
+        Double alliance_value = Configuration.s_Current.retrieve("alliance");
+        if(alliance_value == null) { alliance_value = Alliance.BLUE.getValue(); }
+        if(Math.abs(alliance_value - Alliance.RED.getValue()) < 0.01)  { mAlliance = Alliance.RED;}
+        if(Math.abs(alliance_value - Alliance.BLUE.getValue()) < 0.01) { mAlliance = Alliance.BLUE;}
 
         mPath = new Path(mLogger);
         mPath.initialize(mAlliance);
 
         mRobot = new Robot();
         mRobot.setHW(Configuration.s_Current,hardwareMap,mLogger, mGamepad1, mGamepad2, mPath);
+
+        Double initial_heading = Configuration.s_Current.retrieve("heading");
+        if (initial_heading == null) { initial_heading = 0.0; }
+        Double initial_x = Configuration.s_Current.retrieve("x");
+        if (initial_x == null) { initial_x = 0.0; }
+        Double initial_y = Configuration.s_Current.retrieve("y");
+        if (initial_y == null) { initial_y = 0.0; }
+        mRobot.initialize(new Pose2d(initial_x,initial_y,initial_heading),Robot.Mode.FIELD_CENTRIC);
 
         mLogger.info("ALL : " +  mAlliance);
         mLogger.update();

@@ -10,12 +10,37 @@ package org.firstinspires.ftc.teamcode.components;
 /* Qualcomm includes */
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
+/* Local includes */
+import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
+import org.firstinspires.ftc.teamcode.utils.Logger;
 
 public abstract class MotorComponent {
 
     protected boolean  mReady;
     protected String   mName;
+
+    public static MotorComponent factory(ConfMotor config, HardwareMap hwm, String name, Logger logger) {
+
+        MotorComponent result = null;
+
+        // Build motor based on configuration
+        if (config.shallMock()) { result = new MotorMock(name); }
+        else if (config.getHw().size() == 1) { result = new MotorSingle(config, hwm, name, logger); }
+        else if (config.getHw().size() == 2) { result = new MotorCoupled(config, hwm, name, logger); }
+
+        // Default configuration
+        if (result != null && result.isReady()) {
+            // Initialize motor
+            result.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            result.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        return result;
+    }
+
 
     public abstract String                      logPositions();
 

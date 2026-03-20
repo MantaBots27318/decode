@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.vision;
 import org.opencv.core.Point;
 
 public class Ball {
-    Point matPoint;
-    String color;
+    final Point matPoint;
+    final String color;
 
     public Ball(String color, Point matPoint) {
         this.color = color;

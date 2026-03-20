@@ -8,6 +8,8 @@
 package org.firstinspires.ftc.teamcode.configurations;
 
 /* System includes */
+import com.acmerobotics.roadrunner.Pose2d;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ abstract public class Configuration {
     public enum Version {
         V1,
         V2,
+        V3,
         NONE
     }
 
@@ -25,13 +28,15 @@ abstract public class Configuration {
     protected final  Map<String, ConfMotor>     mMotors         = new LinkedHashMap<>();
     protected final  Map<String, ConfImu>       mImus           = new LinkedHashMap<>();
     protected final  Map<String, ConfServo>     mServos         = new LinkedHashMap<>();
+    protected final  Map<String, ConfEncoder>   mEncoders       = new LinkedHashMap<>();
     protected final  Map<String, ConfLimelight> mLimelights     = new LinkedHashMap<>();
     protected final  Map<String, ConfLed>       mLeds           = new LinkedHashMap<>();
     protected final  Map<String, ConfDistance>  mDistances      = new LinkedHashMap<>();
     protected        Map<String, Double>        mInterOpModes   = new LinkedHashMap<>();
+    protected        Map<String, Pose2d>        mPositions      = new LinkedHashMap<>();
 
     // Current selected configuration
-    public static Configuration s_Current = new V2();
+    public static Configuration s_Current = new V3();
 
     // Method to retrieve configuration version
     public Version          getVersion()                { return mVersion; }
@@ -48,11 +53,17 @@ abstract public class Configuration {
     // Method to retrieve a servo by its reference name
     public ConfServo        getServo(String name)       { return mServos.getOrDefault(name, null);  }
 
+    // Method to retrieve an encoder by its reference name
+    public ConfEncoder      getEncoder(String name)     { return mEncoders.getOrDefault(name, null);  }
+
     // Method to retrieve a led by its reference name
     public ConfLed          getLed(String name)         { return mLeds.getOrDefault(name, null);  }
 
     // Method to retrieve a led by its reference name
     public ConfDistance     getDistance(String name)    { return mDistances.getOrDefault(name, null);  }
+
+    // Method to retrieve the relative position of the robot components
+    public Pose2d           getPosition(String name)    { return mPositions.getOrDefault(name, null); }
 
     // Method to retrieve all servos uncoupled for tuning
     public Map<String, ConfServo>   getForTuning()      { return mServos; }

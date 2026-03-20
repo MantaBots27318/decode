@@ -71,15 +71,14 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
 
-        public double inPerTick = 0.0019680681;
-        public double lateralInPerTick = 0.001325911381078723; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 7485.690440328057;
+        public double inPerTick = 0.0019602291;
+        public double lateralInPerTick = 0.0012050204032937953; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 6744.634907195088;
 
         // feedforward parameters (in tick units)
-        // feedforward parameters (in tick units)
-        public double kS = 0.98428244088846;
-        public double kV = 0.00027017991524851717;
-        public double kA = 0.00001;
+        public double kS = 1.4952954788791368;
+        public double kV = 0.00025851053828015265;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -95,9 +94,9 @@ public final class MecanumDrive {
         public double lateralGain = 4.0;
         public double headingGain = 6.0; // shared with turn
 
-        public double axialVelGain = 0.0;
-        public double lateralVelGain = 0.0;
-        public double headingVelGain = 0.0; // shared with turn
+        public double axialVelGain = 1.0;
+        public double lateralVelGain = 1.0;
+        public double headingVelGain = 2.0; // shared with turn
 
 
     }
@@ -264,11 +263,8 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
+        localizer = PinpointLocalizer.build(hardwareMap,pinpoint.getName(),PARAMS.inPerTick,pinpoint.getParReversed(), pinpoint.getPerpReversed(), pose);
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
-    }
-    public void updatePose (Pose2d newPose ){
-        localizer.setPose(newPose);
     }
 
     public Pose2d getPose() { return localizer.getPose(); }

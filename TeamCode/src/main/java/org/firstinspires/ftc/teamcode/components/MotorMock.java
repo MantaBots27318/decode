@@ -71,31 +71,31 @@ public class MotorMock extends MotorComponent {
     public void	                        setPower(double power) { mPower = power; }
 
     @Override
-    public PIDFCoefficients getPIDFCoefficients(DcMotor.RunMode mode) { return null; }
+    public PIDFCoefficients             getPIDFCoefficients(DcMotor.RunMode mode) { return null; }
 
     @Override
-    public void                        setPIDFCoefficients(DcMotor.RunMode mode, PIDFCoefficients pidfCoefficients){
+    public void                         setPIDFCoefficients(DcMotor.RunMode mode, PIDFCoefficients pidfCoefficients){
     }
 
     @Override
-    public void                        setTargetPositionTolerance(int tolerance)
+    public void                         setTargetPositionTolerance(int tolerance)
     {
         mTolerance = tolerance;
     }
 
     @Override
-    public int                         getTargetPositionTolerance()
+    public int                          getTargetPositionTolerance()
     {
         return mTolerance;
     }
 
     @Override
-    public double                      getVelocity()
+    public double                       getVelocity()
     {
         return 0.0;
     }
 
     @Override
-    public void                        setVelocity(double rate) { }
+    public void                         setVelocity(double rate) { }
 
 }

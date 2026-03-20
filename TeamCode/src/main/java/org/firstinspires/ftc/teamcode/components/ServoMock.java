@@ -11,6 +11,7 @@ package org.firstinspires.ftc.teamcode.components;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ServoMock extends ServoComponent {
@@ -51,5 +52,16 @@ public class ServoMock extends ServoComponent {
         mPosition = min(position,mMax);
         mPosition = max(mPosition,mMin);
     }
+
+    public void                         reset() {}
+
+
+    public void                         setPwmRange(double min, double max)  {}
+
+
+    @Override
+    public void                         disablePwm() { }
+    @Override
+    public void                         enablePwm() {}
 
 }
