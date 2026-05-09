@@ -32,6 +32,9 @@ import org.firstinspires.ftc.teamcode.configurations.Configuration;
 import org.firstinspires.ftc.teamcode.pose.Path;
 import org.firstinspires.ftc.teamcode.pose.Posable;
 
+/* SolversLib includes */
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.ServoAbacus;
 import org.firstinspires.ftc.teamcode.utils.Logger;
@@ -44,7 +47,7 @@ import org.firstinspires.ftc.teamcode.vision.Vision;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Turret implements Posable{
+public class Turret extends SubsystemBase implements Posable {
 
 
     public enum Position {
@@ -201,6 +204,23 @@ public class Turret implements Posable{
         if(mReady) {
             mCenterPositionFTC = position;
         }
+    }
+
+    double  mVelocityX    = 0;
+    double  mVelocityY    = 0;
+    double  mDeltaTime    = 0.04;
+    boolean mShallCorrect = true;
+
+    public void setLoopParams(double velocityX, double velocityY, double deltaTime, boolean shallCorrect) {
+        mVelocityX    = velocityX;
+        mVelocityY    = velocityY;
+        mDeltaTime    = deltaTime;
+        mShallCorrect = shallCorrect;
+    }
+
+    @Override
+    public void periodic() {
+        loop(mVelocityX, mVelocityY, mDeltaTime, mShallCorrect);
     }
 
     public void loop(double velocityX, double velocityY, double deltaTime, boolean shallCorrect) {

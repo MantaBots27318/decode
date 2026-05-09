@@ -229,7 +229,7 @@ public class Robot {
 
         if(mReady) {
 
-            if(mTransfer.ongoing()) {mTransfer.open_and_close_loop(); }
+            if(mTransfer.ongoing()) { mTransfer.periodic(); }
 
             if((mX * mX + mY * mY) > 0.01) { mAction = null; }
             if(mAction != null) {

@@ -14,7 +14,7 @@ import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.PoseConvertion;
+import org.firstinspires.ftc.teamcode.utils.PoseConversion;
 
 public class PathPedro {
 
@@ -87,27 +87,27 @@ public class PathPedro {
     public void initialize(Alliance alliance) {
 
         if (alliance == Alliance.RED) {
-            mShootingFar = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_RED,ANGLE_SHOOTING_FAR_RADIANS_RED));
-            mShootingVeryFar = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_RED,ANGLE_SHOOTING_VERY_FAR_RADIANS_RED));
-            mShootingClose = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_RED,ANGLE_SHOOTING_CLOSE_RADIANS_RED));
+            mShootingFar = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_RED,ANGLE_SHOOTING_FAR_RADIANS_RED));
+            mShootingVeryFar = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_RED,ANGLE_SHOOTING_VERY_FAR_RADIANS_RED));
+            mShootingClose = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_RED,ANGLE_SHOOTING_CLOSE_RADIANS_RED));
 
-            mTarget = PoseConvertion.toPedroPose(new Pose2d(X_TARGET_INCHES,Y_TARGET_INCHES_RED,ANGLE_TARGET_RADIANS_RED));
+            mTarget = PoseConversion.topedroPose(new Pose2d(X_TARGET_INCHES,Y_TARGET_INCHES_RED,ANGLE_TARGET_RADIANS_RED));
             
-            mReady = PoseConvertion.toPedroPose(new Pose2d(X_READY_INCHES,Y_READY_INCHES_RED,ANGLE_READY_RADIANS_RED));
-            mPark = PoseConvertion.toPedroPose(new Pose2d(X_PARK_INCHES_RED,Y_PARK_INCHES_RED,ANGLE_PARK_RADIANS_RED));
+            mReady = PoseConversion.topedroPose(new Pose2d(X_READY_INCHES,Y_READY_INCHES_RED,ANGLE_READY_RADIANS_RED));
+            mPark = PoseConversion.topedroPose(new Pose2d(X_PARK_INCHES_RED,Y_PARK_INCHES_RED,ANGLE_PARK_RADIANS_RED));
 
             mFC2FTC = ANGLE_FC_TO_FTC_RED;
         }
 
         if (alliance == Alliance.BLUE) {
-            mShootingClose = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_BLUE,ANGLE_SHOOTING_CLOSE_RADIANS_BLUE));
-            mShootingFar = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_BLUE,ANGLE_SHOOTING_FAR_RADIANS_BLUE));
-            mShootingVeryFar = PoseConvertion.toPedroPose(new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_BLUE,ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE));
+            mShootingClose = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_CLOSE_INCHES,Y_SHOOTING_CLOSE_INCHES_BLUE,ANGLE_SHOOTING_CLOSE_RADIANS_BLUE));
+            mShootingFar = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_FAR_INCHES,Y_SHOOTING_FAR_INCHES_BLUE,ANGLE_SHOOTING_FAR_RADIANS_BLUE));
+            mShootingVeryFar = PoseConversion.topedroPose(new Pose2d(X_SHOOTING_VERY_FAR_INCHES,Y_SHOOTING_VERY_FAR_INCHES_BLUE,ANGLE_SHOOTING_VERY_FAR_RADIANS_BLUE));
 
-            mTarget = PoseConvertion.toPedroPose(new Pose2d(X_TARGET_INCHES,Y_TARGET_INCHES_BLUE,ANGLE_TARGET_RADIANS_BLUE));
+            mTarget = PoseConversion.topedroPose(new Pose2d(X_TARGET_INCHES,Y_TARGET_INCHES_BLUE,ANGLE_TARGET_RADIANS_BLUE));
 
-            mReady = PoseConvertion.toPedroPose(new Pose2d(X_READY_INCHES,Y_READY_INCHES_BLUE,ANGLE_READY_RADIANS_BLUE));
-            mPark = PoseConvertion.toPedroPose(new Pose2d(X_PARK_INCHES_BLUE,Y_PARK_INCHES_BLUE,ANGLE_PARK_RADIANS_BLUE));
+            mReady = PoseConversion.topedroPose(new Pose2d(X_READY_INCHES,Y_READY_INCHES_BLUE,ANGLE_READY_RADIANS_BLUE));
+            mPark = PoseConversion.topedroPose(new Pose2d(X_PARK_INCHES_BLUE,Y_PARK_INCHES_BLUE,ANGLE_PARK_RADIANS_BLUE));
 
             mFC2FTC = ANGLE_FC_TO_FTC_BLUE;
         }

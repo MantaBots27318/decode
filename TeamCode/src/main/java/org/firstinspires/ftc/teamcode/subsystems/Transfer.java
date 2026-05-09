@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
 
 import org.firstinspires.ftc.teamcode.components.ServoComponent;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
@@ -21,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Config
-public class Transfer {
+public class Transfer extends SubsystemBase {
 
     public enum Position {
         BLOCK,
@@ -127,7 +128,8 @@ public class Transfer {
 
     }
 
-    public void loop() {
+    @Override
+    public void periodic() {
         if (mState != State.NONE) { open_and_close_loop(); }
     }
 

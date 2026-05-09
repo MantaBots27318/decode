@@ -7,8 +7,6 @@ import java.io.File;
 import android.os.Environment;
 
 /* Junit 5 includes */
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -26,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 /* Project includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
-import org.firstinspires.ftc.teamcode.vision.Vision;
+import org.firstinspires.ftc.teamcode.vision.Pattern;
 
 /* Component Under Test */
 import org.firstinspires.ftc.teamcode.pose.PathAutonomousMiddle;
@@ -56,451 +54,203 @@ public class PathAutonomousMiddleTest {
     }
 
     @Test
-    public void positionsRedGPPLaunch() {
+    public void positionsRedGPP() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.GPP,true);
+        mPath.initialize(Alliance.RED);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
+        checkStartPosition(mPath.start(), Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP), Pattern.GPP, Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP), Pattern.GPP, Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP), Pattern.GPP, Alliance.RED);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.RED);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.RED);
+        checkLeavePosition(mPath.leave(), Alliance.RED);
     }
 
     @Test
-    public void positionsRedGPPGate() {
+    public void positionsBlueGPP() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.GPP,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
-    }
-
-
-    @Test
-    public void positionsBlueGPPLaunch() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.GPP,true);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
+        checkStartPosition(mPath.start(), Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.GPP), Pattern.GPP, Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.GPP), Pattern.GPP, Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.GPP), Pattern.GPP, Alliance.BLUE);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.BLUE);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.BLUE);
+        checkLeavePosition(mPath.leave(), Alliance.BLUE);
     }
 
     @Test
-    public void positionsBlueGPPGate() {
+    public void positionsRedPGP() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.GPP,false);
+        mPath.initialize(Alliance.RED);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.GPP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
-    }
-
-
-    @Test
-    public void positionsRedPGPLaunch() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PGP,true);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
+        checkStartPosition(mPath.start(), Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP), Pattern.PGP, Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP), Pattern.PGP, Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP), Pattern.PGP, Alliance.RED);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.RED);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.RED);
+        checkLeavePosition(mPath.leave(), Alliance.RED);
     }
 
     @Test
-    public void positionsRedPGPGate() {
+    public void positionsBluePGP() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PGP,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
-    }
-
-
-    @Test
-    public void positionsBluePGPLaunch() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PGP,true);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
-
+        checkStartPosition(mPath.start(), Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PGP), Pattern.PGP, Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PGP), Pattern.PGP, Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PGP), Pattern.PGP, Alliance.BLUE);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.BLUE);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.BLUE);
+        checkLeavePosition(mPath.leave(), Alliance.BLUE);
     }
 
     @Test
-    public void positionsBluePGPGate() {
+    public void positionsRedPPG() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PGP,false);
+        mPath.initialize(Alliance.RED);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PGP,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
-
-    }
-
-
-    @Test
-    public void positionsRedPPGLaunch() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PPG,true);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkLaunchPosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),-Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
+        checkStartPosition(mPath.start(), Alliance.RED);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG), Pattern.PPG, Alliance.RED);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG), Pattern.PPG, Alliance.RED);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG), Pattern.PPG, Alliance.RED);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.RED);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.RED);
+        checkLeavePosition(mPath.leave(), Alliance.RED);
     }
 
     @Test
-    public void positionsRedPPGGate() {
+    public void positionsBluePPG() {
 
         mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.RED, Vision.Pattern.PPG,false);
+        mPath.initialize(Alliance.BLUE);
         mPath.log();
         mLogger.update();
 
-        checkStartPosition(mPath.start(),Alliance.RED);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.RED);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.RED);
-        checkCalibrationPosition(mPath.calibration(),Alliance.RED);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.RED);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.RED);
-        checkGatePosition(mPath.parking(),Alliance.RED);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),Math.PI / 2,0.01);
-
+        checkStartPosition(mPath.start(), Alliance.BLUE);
+        checkPatternPosition(mPath.startIntake(Pattern.PPG), Pattern.PPG, Alliance.BLUE);
+        checkEndIntakePosition(mPath.endIntake(Pattern.PPG), Pattern.PPG, Alliance.BLUE);
+        checkBackIntakePosition(mPath.backIntake(Pattern.PPG), Pattern.PPG, Alliance.BLUE);
+        checkFarShootingPosition(mPath.shootingFar(), Alliance.BLUE);
+        checkCloseShootingPosition(mPath.shootingClose(), Alliance.BLUE);
+        checkLeavePosition(mPath.leave(), Alliance.BLUE);
     }
 
-
-    @Test
-    public void positionsBluePPGLaunch() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PPG,true);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkLaunchPosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI / 2);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
-    }
-
-    @Test
-    public void positionsBluePPGGate() {
-
-        mPath = new PathAutonomousMiddle(mLogger);
-        mPath.initialize(Alliance.BLUE, Vision.Pattern.PPG,false);
-        mPath.log();
-        mLogger.update();
-
-        checkStartPosition(mPath.start(),Alliance.BLUE);
-        checkPatternPosition(mPath.pattern(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkEndIntakePosition(mPath.endIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkBackIntakePosition(mPath.backIntake(),Vision.Pattern.PPG,Alliance.BLUE);
-        checkCalibrationPosition(mPath.calibration(),Alliance.BLUE);
-        checkFarShootingPosition(mPath.shootingFar(),Alliance.BLUE);
-        checkCloseShootingPosition(mPath.shootingClose(),Alliance.BLUE);
-        checkGatePosition(mPath.parking(),Alliance.BLUE);
-
-        assertEquals(mPath.hAutoToTeleopRadians(),Math.PI);
-        assertEquals(mPath.tgtIntakeToCalibrationRadians(),-Math.PI / 2,0.01);
-
+    private void checkStartPosition(Pose2d position, Alliance alliance) {
+        assertEquals(PathAutonomousMiddle.X_START_INCHES, position.position.x, 0.01);
+        if (alliance == Alliance.RED) {
+            assertEquals(PathAutonomousMiddle.Y_START_INCHES_RED, position.position.y, 0.01);
+        }
+        if (alliance == Alliance.BLUE) {
+            assertEquals(PathAutonomousMiddle.Y_START_INCHES_BLUE, position.position.y, 0.01);
+        }
+        assertEquals(0, position.heading.toDouble(), 0.01);
     }
 
     private void checkFarShootingPosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,16,0.01);
-            assertEquals(position.position.y,-16,0.01);
-            assertEquals(position.heading.toDouble(),-Math.PI / 4,0.01);
-
+        if (alliance == Alliance.RED) {
+            assertEquals(24, position.position.x, 0.01);
+            assertEquals(-24, position.position.y, 0.01);
+            assertEquals(-Math.PI / 2, position.heading.toDouble(), 0.01);
         }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,16,0.01);
-            assertEquals(position.position.y,16,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 4,0.01);
+        if (alliance == Alliance.BLUE) {
+            assertEquals(24, position.position.x, 0.01);
+            assertEquals(24, position.position.y, 0.01);
+            assertEquals(Math.PI / 2, position.heading.toDouble(), 0.01);
         }
     }
 
     private void checkCloseShootingPosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,36,0.01);
-            assertEquals(position.position.y,-36,0.01);
-            assertEquals(position.heading.toDouble(),-Math.PI / 4,0.01);
-
+        if (alliance == Alliance.RED) {
+            assertEquals(36, position.position.x, 0.01);
+            assertEquals(-36, position.position.y, 0.01);
+            assertEquals(-Math.PI / 2, position.heading.toDouble(), 0.01);
         }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,36,0.01);
-            assertEquals(position.position.y,36,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 4,0.01);
-        }
-    }
-
-    private void checkLaunchPosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,60,0.01);
-            assertEquals(position.position.y,-30,0.01);
-            assertEquals(position.heading.toDouble(),-Math.PI,0.01);
-        }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,60,0.01);
-            assertEquals(position.position.y,30,0.01);
-            assertEquals(position.heading.toDouble(),-Math.PI,0.01);
+        if (alliance == Alliance.BLUE) {
+            assertEquals(36, position.position.x, 0.01);
+            assertEquals(36, position.position.y, 0.01);
+            assertEquals(Math.PI / 2, position.heading.toDouble(), 0.01);
         }
     }
 
-    private void checkGatePosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,32,0.01);
-            assertEquals(position.position.y,-53,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
+    private void checkLeavePosition(Pose2d position, Alliance alliance) {
+        if (alliance == Alliance.RED) {
+            assertEquals(PathAutonomousMiddle.X_LEAVE_INCHES, position.position.x, 0.01);
+            assertEquals(PathAutonomousMiddle.Y_LEAVE_INCHES_RED, position.position.y, 0.01);
         }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,32,0.01);
-            assertEquals(position.position.y,53,0.01);
-            assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
+        if (alliance == Alliance.BLUE) {
+            assertEquals(PathAutonomousMiddle.X_LEAVE_INCHES, position.position.x, 0.01);
+            assertEquals(PathAutonomousMiddle.Y_LEAVE_INCHES_BLUE, position.position.y, 0.01);
         }
     }
 
-    private void checkCalibrationPosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,11, 0.01);
-            assertEquals(position.position.y,- 20,0.01);
-            assertEquals(position.heading.toDouble(),- Math.PI / 4,0.01);
+    private void checkPatternPosition(Pose2d position, Pattern pattern, Alliance alliance) {
+        if (alliance == Alliance.RED) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_RED, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_RED, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_RED, position.position.x, 0.01); }
         }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,11,0.01);
-            assertEquals(position.position.y,20,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 4,0.01);
-        }
-    }
-
-    private void checkStartPosition(Pose2d position, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.x,-63,0.01);
-            assertEquals(position.position.y,-10,0.01);
-            assertEquals(position.heading.toDouble(),0,0.01);
-        }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.x,-63,0.01);
-            assertEquals(position.position.y,10,0.01);
-            assertEquals(position.heading.toDouble(),0,0.01);
-        }
-
-    }
-
-    private void checkPatternPosition(Pose2d position, Vision.Pattern pattern, Alliance alliance) {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.y,-10,0.01);
-            assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-33,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-11,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,12,0.01);
-            }
-        }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.y,10,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-38,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-13,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,9,0.01);
-            }
+        if (alliance == Alliance.BLUE) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_BLUE, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_BLUE, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
         }
     }
 
-    private void checkEndIntakePosition(Pose2d position, Vision.Pattern pattern, Alliance alliance)
-    {
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.y,-50,0.01);
-            assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-33,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-11,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,12,0.01);
-            }
+    private void checkEndIntakePosition(Pose2d position, Pattern pattern, Alliance alliance) {
+        if (alliance == Alliance.RED) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_RED + PathAutonomousMiddle.Y_DELTA_INTAKE_INCHES_RED, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_RED, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_RED, position.position.x, 0.01); }
         }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.y,50,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-38,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-13,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,9,0.01);
-            }
+        if (alliance == Alliance.BLUE) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_BLUE + PathAutonomousMiddle.Y_DELTA_INTAKE_INCHES_BLUE, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_BLUE, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
         }
-
-    }
-    private void checkBackIntakePosition(Pose2d position, Vision.Pattern pattern, Alliance alliance) {
-
-        if(alliance == Alliance.RED) {
-            assertEquals(position.position.y,-22,0.01);
-            assertEquals(position.heading.toDouble(),- Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-33,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-11,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,12,0.01);
-            }
-        }
-        if(alliance == Alliance.BLUE) {
-            assertEquals(position.position.y,22,0.01);
-            assertEquals(position.heading.toDouble(),Math.PI / 2,0.01);
-
-            if(pattern == Vision.Pattern.GPP) {
-                assertEquals(position.position.x,-38,0.01);
-            }
-            if(pattern == Vision.Pattern.PGP) {
-                assertEquals(position.position.x,-13,0.01);
-            }
-            if(pattern == Vision.Pattern.PPG) {
-                assertEquals(position.position.x,9,0.01);
-            }
-        }
-
     }
 
+    private void checkBackIntakePosition(Pose2d position, Pattern pattern, Alliance alliance) {
+        if (alliance == Alliance.RED) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_RED + 0.4 * PathAutonomousMiddle.Y_DELTA_INTAKE_INCHES_RED, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_RED, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_RED, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_RED, position.position.x, 0.01); }
+        }
+        if (alliance == Alliance.BLUE) {
+            assertEquals(PathAutonomousMiddle.Y_PATTERN_INCHES_BLUE + 0.4 * PathAutonomousMiddle.Y_DELTA_INTAKE_INCHES_BLUE, position.position.y, 0.01);
+            assertEquals(PathAutonomousMiddle.ANGLE_PATTERN_RADIANS_BLUE, position.heading.toDouble(), 0.01);
+            if (pattern == Pattern.GPP) { assertEquals(PathAutonomousMiddle.X_GPP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PGP) { assertEquals(PathAutonomousMiddle.X_PGP_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+            if (pattern == Pattern.PPG) { assertEquals(PathAutonomousMiddle.X_PPG_PATTERN_INCHES_BLUE, position.position.x, 0.01); }
+        }
+    }
 }

@@ -27,12 +27,15 @@ import org.firstinspires.ftc.teamcode.configurations.ConfImu;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
+/* SolversLib includes */
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class Chassis implements Posable {
+public class Chassis extends SubsystemBase implements Posable {
 
     Logger mLogger;
     boolean mReady;

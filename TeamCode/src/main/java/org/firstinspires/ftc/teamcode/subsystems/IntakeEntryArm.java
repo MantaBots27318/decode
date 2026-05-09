@@ -16,13 +16,15 @@ import org.firstinspires.ftc.teamcode.components.ServoMock;
 import org.firstinspires.ftc.teamcode.components.ServoSingle;
 import org.firstinspires.ftc.teamcode.configurations.ConfServo;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 import org.firstinspires.ftc.teamcode.utils.Logger;
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class IntakeEntryArm {
+public class IntakeEntryArm extends SubsystemBase {
 
     public enum Position {
         LET,

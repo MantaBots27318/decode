@@ -14,7 +14,7 @@ import com.pedropathing.geometry.Pose;
 
 import org.firstinspires.ftc.teamcode.configurations.Alliance;
 import org.firstinspires.ftc.teamcode.utils.Logger;
-import org.firstinspires.ftc.teamcode.utils.PoseConvertion;
+import org.firstinspires.ftc.teamcode.utils.PoseConversion;
 import org.firstinspires.ftc.teamcode.vision.Pattern;
 
 import java.util.LinkedHashMap;
@@ -77,11 +77,11 @@ public class PathAutonomousGoalPedro extends PathPedro {
 
         if (alliance == Alliance.RED) {
 
-            mStart = PoseConvertion.toPedroPose(new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS_RED));
+            mStart = PoseConversion.topedroPose(new Pose2d(X_START_INCHES, Y_START_INCHES_RED, ANGLE_START_RADIANS_RED));
 
-            mStartIntake.put(Pattern.GPP, PoseConvertion.toPedroPose(new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
-            mStartIntake.put(Pattern.PGP, PoseConvertion.toPedroPose(new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
-            mStartIntake.put(Pattern.PPG, PoseConvertion.toPedroPose(new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
+            mStartIntake.put(Pattern.GPP, PoseConversion.topedroPose(new Pose2d(X_GPP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
+            mStartIntake.put(Pattern.PGP, PoseConversion.topedroPose(new Pose2d(X_PGP_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
+            mStartIntake.put(Pattern.PPG, PoseConversion.topedroPose(new Pose2d(X_PPG_PATTERN_INCHES_RED,Y_PATTERN_INCHES_RED,ANGLE_PATTERN_RADIANS_RED)));
 
             for (Pattern pattern : Pattern.values()) {
                 if (pattern != Pattern.NONE) {
@@ -109,17 +109,17 @@ public class PathAutonomousGoalPedro extends PathPedro {
             }
 
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_RED;
-            mLeave = PoseConvertion.toPedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED));
+            mLeave = PoseConversion.topedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED));
 
         }
 
         if (alliance == Alliance.BLUE) {
 
-            mStart = PoseConvertion.toPedroPose(new Pose2d(X_START_INCHES, Y_START_INCHES_BLUE, ANGLE_START_RADIANS_BLUE));
+            mStart = PoseConversion.topedroPose(new Pose2d(X_START_INCHES, Y_START_INCHES_BLUE, ANGLE_START_RADIANS_BLUE));
 
-            mStartIntake.put(Pattern.GPP, PoseConvertion.toPedroPose(new Pose2d(X_GPP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
-            mStartIntake.put(Pattern.PGP, PoseConvertion.toPedroPose(new Pose2d(X_PGP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
-            mStartIntake.put(Pattern.PPG, PoseConvertion.toPedroPose(new Pose2d(X_PPG_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
+            mStartIntake.put(Pattern.GPP, PoseConversion.topedroPose(new Pose2d(X_GPP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
+            mStartIntake.put(Pattern.PGP, PoseConversion.topedroPose(new Pose2d(X_PGP_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
+            mStartIntake.put(Pattern.PPG, PoseConversion.topedroPose(new Pose2d(X_PPG_PATTERN_INCHES_BLUE,Y_PATTERN_INCHES_BLUE,ANGLE_PATTERN_RADIANS_BLUE)));
 
             for (Pattern pattern : Pattern.values()) {
 
@@ -148,7 +148,7 @@ public class PathAutonomousGoalPedro extends PathPedro {
             }
 
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_BLUE;
-            mLeave = PoseConvertion.toPedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE));
+            mLeave = PoseConversion.topedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE));
 
         }
     }

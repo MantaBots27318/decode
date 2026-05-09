@@ -21,11 +21,14 @@ import org.firstinspires.ftc.teamcode.components.MotorSingle;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
+/* SolversLib includes */
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.SmartTimer;
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class OuttakeWheels {
+public class OuttakeWheels extends SubsystemBase {
 
     private static final int    sTimeOut = 10000; // Timeout in ms
 

@@ -25,12 +25,12 @@ import java.util.Objects;
 
 public class PathAutonomousMiddle extends Path {
 
-    private static final double X_START_INCHES =                            -65;
-    private static final double Y_START_INCHES_BLUE =                       9;
-    private static final double Y_START_INCHES_RED =                        -9;
+    public static final double X_START_INCHES =                            -65;
+    public static final double Y_START_INCHES_BLUE =                       9;
+    public static final double Y_START_INCHES_RED =                        -9;
     private static final double ANGLE_START_RADIANS =                       0;
-    protected static final double Y_DELTA_INTAKE_INCHES_BLUE =      16;
-    protected static final double Y_DELTA_INTAKE_INCHES_RED =       -16;
+    public static final double Y_DELTA_INTAKE_INCHES_BLUE =      16;
+    public static final double Y_DELTA_INTAKE_INCHES_RED =       -16;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
     public static final double X_PGP_PATTERN_INCHES_BLUE =          -12;
@@ -46,10 +46,10 @@ public class PathAutonomousMiddle extends Path {
     public static final double ANGLE_PATTERN_RADIANS_RED =          -Math.PI / 2;
 
 
-    private static final double X_LEAVE_INCHES = -52;
-    private static final double Y_LEAVE_INCHES_BLUE = 19;
+    public static final double X_LEAVE_INCHES = -52;
+    public static final double Y_LEAVE_INCHES_BLUE = 19;
     private static final double ANGLE_LEAVE_RADIANS_BLUE = 0.365424564;
-    private static final double Y_LEAVE_INCHES_RED = -19;
+    public static final double Y_LEAVE_INCHES_RED = -19;
     private static final double ANGLE_LEAVE_RADIANS_RED = -0.365424564;
 
 

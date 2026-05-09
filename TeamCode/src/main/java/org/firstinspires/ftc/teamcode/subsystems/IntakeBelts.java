@@ -25,10 +25,13 @@ import org.firstinspires.ftc.teamcode.components.MotorMock;
 import org.firstinspires.ftc.teamcode.components.MotorCoupled;
 import org.firstinspires.ftc.teamcode.components.MotorSingle;
 
+/* SolversLib includes */
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class IntakeBelts {
+public class IntakeBelts extends SubsystemBase {
 
     Logger                  mLogger;      // Local logger
 

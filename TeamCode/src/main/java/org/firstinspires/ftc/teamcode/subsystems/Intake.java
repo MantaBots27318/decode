@@ -17,10 +17,13 @@ import org.firstinspires.ftc.teamcode.components.MotorComponent;
 import org.firstinspires.ftc.teamcode.configurations.ConfMotor;
 import org.firstinspires.ftc.teamcode.configurations.Configuration;
 
+/* SolversLib includes */
+import com.seattlesolvers.solverslib.command.SubsystemBase;
+
 /* Utils includes */
 import org.firstinspires.ftc.teamcode.utils.Logger;
 
-public class Intake {
+public class Intake extends SubsystemBase {
 
     Logger                  mLogger;      // Local logger
     boolean                 mReady;       // True if component is able to fulfil its mission
