@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /* Acmerobotics includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* Components includes */
@@ -43,7 +42,7 @@ public class LedTest extends OpMode {
     @Override
     public void init() {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"led-test");
+        mLogger         = new Logger(telemetry, "led-test");
 
         ConfLed conf = Configuration.s_Current.getLed(NAME);
         if(conf != null) {

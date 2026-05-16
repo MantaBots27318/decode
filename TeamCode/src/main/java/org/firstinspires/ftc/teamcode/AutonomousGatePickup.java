@@ -15,7 +15,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 
 /* Acme robotics includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -55,7 +54,7 @@ public class AutonomousGatePickup extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-gate-pickup");
+        mLogger = new Logger(telemetry, "autonomous-gate-pickup");
         mLogger.level(Logger.Severity.INFO);
 
         mGamepad1 = new Controller(gamepad1, mLogger);

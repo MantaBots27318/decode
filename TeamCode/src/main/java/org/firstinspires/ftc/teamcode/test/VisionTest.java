@@ -69,7 +69,7 @@ public class VisionTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"vision-test");
+        mLogger         = new Logger(telemetry, "vision-test");
 
 
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",mLogger);

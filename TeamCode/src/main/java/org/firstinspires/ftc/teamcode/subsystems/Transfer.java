@@ -130,6 +130,7 @@ public class Transfer extends SubsystemBase {
 
     @Override
     public void periodic() {
+        mLogger.info("Passé par periodic");
         if (mState != State.NONE) { open_and_close_loop(); }
     }
 
@@ -152,6 +153,7 @@ public class Transfer extends SubsystemBase {
             mState = State.WAITING;
         }
         else if (mState == State.WAITING) {
+            mLogger.info("Made it to WAITING");
             setPosition(Transfer.Position.LET,2000);
             if (mPosition == Transfer.Position.LET)  {
                 mState = State.LET;
@@ -168,6 +170,8 @@ public class Transfer extends SubsystemBase {
         }
 
         mOngoing = mState != State.NONE;
+        mLogger.info(""+mState);
+        mLogger.update();
     }
 
 

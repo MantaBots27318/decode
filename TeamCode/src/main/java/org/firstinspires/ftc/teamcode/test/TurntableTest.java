@@ -10,7 +10,6 @@ package org.firstinspires.ftc.teamcode.test;
 
 import android.os.Environment;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -49,7 +48,7 @@ public class TurntableTest extends OpMode {
     @Override
     public void init() {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"turntable-test");
+        mLogger         = new Logger(telemetry, "turntable-test");
         mTimer          = new SmartTimer(mLogger);
 
         ConfEncoder confenc = Configuration.s_Current.getEncoder("turret-rotation");

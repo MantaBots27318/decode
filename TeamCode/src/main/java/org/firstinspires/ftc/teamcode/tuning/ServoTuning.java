@@ -59,7 +59,7 @@ public class ServoTuning extends LinearOpMode {
 
         try {
 
-            mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"servo-tuning");
+            mLogger         = new Logger(telemetry, "servo-tuning");
 
             /* Load all servos name into list */
             mAllServos.clear();

@@ -10,7 +10,6 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -53,7 +52,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-middle-start");
+        mLogger = new Logger(telemetry, "autonomous-middle-start");
         mLogger.level(Logger.Severity.INFO);
         mTimer = new SmartTimer(mLogger);
 

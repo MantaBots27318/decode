@@ -103,7 +103,7 @@ public class ShootingTest extends OpMode {
     @Override
     public void init() {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"speed-test");
+        mLogger         = new Logger(telemetry, "speed-test");
 
         ConfMotor confmo = Configuration.s_Current.getMotor(MOTOR_OUTTAKE);
         if(confmo != null) {

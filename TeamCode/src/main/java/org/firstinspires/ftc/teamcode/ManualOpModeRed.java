@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 /* Qualcomm includes */
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,7 +29,7 @@ public class ManualOpModeRed extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"manual-blue");
+        mLogger         = new Logger(telemetry, "manual-blue");
         mLogger.level(Logger.Severity.INFO);
 
         mGamepad1 = new Controller(gamepad1,mLogger);

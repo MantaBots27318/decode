@@ -6,7 +6,6 @@
    ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.paths.PathChain;
@@ -60,7 +59,7 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
     public void initialize() {
         super.reset();
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-goal-start");
+        mLogger = new Logger(telemetry, "autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
 
         mGamepad1   = new Controller(gamepad1, mLogger);
@@ -80,9 +79,11 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
         mSteps = new ArrayList<>();
         mSteps.add(AutonomousStep.NONE);
         mCurrentStepIndex = mSteps.size() - 1;
+    }
 
-        // Init menu runs every loop tick during init phase
-        schedule(new RunCommand(this::runInitMenu));
+    @Override
+    public void initialize_loop() {
+        runInitMenu();
     }
 
     private void runInitMenu() {
@@ -159,6 +160,7 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
         // Start flywheel and intake, drive to shooting position, then shoot
         sequence.addCommands(
                 new InstantCommand(mTurret::start),
+                new WaitCommand(200),
                 new InstantCommand(() -> mIntake.start(sIntakePower, sGuidingPower)),
                 new FollowPathCommand(follower, buildPathToShoot(), true, 1.0).setGlobalMaxPower(1.0),
                 shootCommand()
@@ -170,9 +172,10 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
             if (step != AutonomousStep.NONE) {
                 Pattern  pattern = stepToPattern(step);
                 boolean  isLast  = (i_step >= mSteps.size() - 1);
-                PathChain path   = isLast ? buildIntakeAndLeave(pattern) : buildIntakeAndReturn(pattern);
                 sequence.addCommands(
-                        new FollowPathCommand(follower, path, true, 1.0).setGlobalMaxPower(1.0),
+                        new FollowPathCommand(follower, buildTravelToIntake(pattern), true, 1.0).setGlobalMaxPower(1.0),
+                        new FollowPathCommand(follower, buildSweepIntake(pattern), true, 1.0).setGlobalMaxPower(1.0),
+                        new FollowPathCommand(follower, isLast ? buildLeave(pattern) : buildReturnToShoot(pattern), true, 1.0).setGlobalMaxPower(1.0),
                         shootCommand()
                 );
                 i_step++;
@@ -182,6 +185,7 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
         schedule(
                 new RunCommand(() -> follower.update()),
                 new RunCommand(() -> mTurret.loop(0, 0, 0.04, true)),
+                new RunCommand(() -> mTransfer.periodic()),
                 sequence
         );
     }
@@ -197,23 +201,29 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
                 .build();
     }
 
-    private PathChain buildIntakeAndReturn(Pattern pattern) {
+    private PathChain buildTravelToIntake(Pattern pattern) {
         return follower.pathBuilder()
                 .addPath(new BezierLine(mPedroPaths.shootingFar(), mPedroPaths.startIntake(pattern)))
                 .setLinearHeadingInterpolation(mPedroPaths.shootingFar().getHeading(), mPedroPaths.startIntake(pattern).getHeading())
+                .build();
+    }
+
+    private PathChain buildSweepIntake(Pattern pattern) {
+        return follower.pathBuilder()
                 .addPath(new BezierLine(mPedroPaths.startIntake(pattern), mPedroPaths.endIntake(pattern)))
                 .setLinearHeadingInterpolation(mPedroPaths.startIntake(pattern).getHeading(), mPedroPaths.endIntake(pattern).getHeading())
+                .build();
+    }
+
+    private PathChain buildReturnToShoot(Pattern pattern) {
+        return follower.pathBuilder()
                 .addPath(new BezierLine(mPedroPaths.endIntake(pattern), mPedroPaths.shootingFar()))
                 .setLinearHeadingInterpolation(mPedroPaths.endIntake(pattern).getHeading(), mPedroPaths.shootingFar().getHeading())
                 .build();
     }
 
-    private PathChain buildIntakeAndLeave(Pattern pattern) {
+    private PathChain buildLeave(Pattern pattern) {
         return follower.pathBuilder()
-                .addPath(new BezierLine(mPedroPaths.shootingFar(), mPedroPaths.startIntake(pattern)))
-                .setLinearHeadingInterpolation(mPedroPaths.shootingFar().getHeading(), mPedroPaths.startIntake(pattern).getHeading())
-                .addPath(new BezierLine(mPedroPaths.startIntake(pattern), mPedroPaths.endIntake(pattern)))
-                .setLinearHeadingInterpolation(mPedroPaths.startIntake(pattern).getHeading(), mPedroPaths.endIntake(pattern).getHeading())
                 .addPath(new BezierLine(mPedroPaths.endIntake(pattern), mPedroPaths.leave()))
                 .setLinearHeadingInterpolation(mPedroPaths.endIntake(pattern).getHeading(), mPedroPaths.leave().getHeading())
                 .build();
@@ -225,8 +235,12 @@ public class AutonomousGoalStartPedro extends CommandOpMode {
 
     private SequentialCommandGroup shootCommand() {
         return new SequentialCommandGroup(
-                new WaitCommand(2500),
-                new FunctionalCommand(() -> {}, mTransfer::open_and_close_loop, interrupted -> {}, () -> !mTransfer.ongoing())
+                new FunctionalCommand(
+                        () -> { mTransfer.open_and_close_loop(); mLogger.info("here"); mLogger.update();},
+                        () -> {},
+                        interrupted -> {},
+                        () -> !mTransfer.ongoing()
+                )
         );
     }
 

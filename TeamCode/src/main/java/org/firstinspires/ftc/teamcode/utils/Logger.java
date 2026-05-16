@@ -31,8 +31,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /* FTC Controller includes */
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-/* ACME robotics includes */
-import com.acmerobotics.dashboard.FtcDashboard;
+/* Panels includes */
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 
 public class Logger {
 
@@ -83,7 +84,7 @@ public class Logger {
     // Json keys
     static  final   String          sFilenameKey       = "file";
     static  final   String          sDriverStationKey  = "driver-station";
-    static  final   String          sDashboardKey      = "dashboard";
+    static  final   String          sDashboardKey      = "panels";
     static  final   String          sLevelKey          = "level";
 
     // Formatting
@@ -100,7 +101,7 @@ public class Logger {
 
     // Loggers
     Telemetry                               mDriverStation;
-    FtcDashboard                            mDashboard;
+    TelemetryManager                        mPanels;
     BufferedWriter                          mFile;
     final String                            mFilename;
     final ElapsedTime                       mTimer;
@@ -122,22 +123,20 @@ public class Logger {
      * Builds a log manager from parameters
      *
      * @param station the driver station telemetry from opmode (may be null if shall not be used for logging)
-     * @param dashboard the FTC dashboard instance (may be null if shall not be used for logging)
      * @param filename the name of the file to log into (may be empty if shall not be used for logging)
      */
-    public Logger(Telemetry station, FtcDashboard dashboard, String filename) {
-        this(station, dashboard, filename, sStackLevel);
+    public Logger(Telemetry station, String filename) {
+        this(station, filename, sStackLevel);
     }
 
     /**
      * Builds a log manager from parameters
      *
      * @param station the driver station telemetry from opmode (may be null if shall not be used for logging)
-     * @param dashboard the FTC dashboard instance (may be null if shall not be used for logging)
      * @param filename the name of the file to log into (may be empty if shall not be used for logging)
      * @param stackLevel the stack level to get the function name
      */
-    public Logger(Telemetry station, FtcDashboard dashboard, String filename, int stackLevel) {
+    public Logger(Telemetry station, String filename, int stackLevel) {
 
         mConfigurationValid = true;
         mLevel = Severity.TRACE;
@@ -167,10 +166,7 @@ public class Logger {
             mDriverStation.setAutoClear(true);
         }
 
-        mDashboard = dashboard;
-        if(mDashboard != null) {
-            mDashboard.getTelemetry().log().setDisplayOrder(Telemetry.Log.DisplayOrder.NEWEST_FIRST);
-        }
+        mPanels = PanelsTelemetry.INSTANCE.getTelemetry();
 
         mFile = null;
         mFilename = filename;
@@ -223,7 +219,7 @@ public class Logger {
                 sMetricFontSize +
                 "px\"> " +
                 sDashboardKey +
-                ((mDashboard == null) ? " : false" : " : true") +
+                ((mPanels == null) ? " : false" : " : true") +
                 "</li>" +
                 "<li style=\"padding-left:10px;font-size:" +
                 sMetricFontSize +
@@ -255,7 +251,7 @@ public class Logger {
                 header +
                 "> " +
                 sDashboardKey +
-                ((mDashboard == null) ? " : false" : " : true") +
+                ((mPanels == null) ? " : false" : " : true") +
                 "\n" +
                 header +
                 "> " +
@@ -324,20 +320,20 @@ public class Logger {
 
         if(reader.has(sDashboardKey)) {
             try {
-                boolean shallUseDashboard = reader.getBoolean(sDashboardKey);
-                if(shallUseDashboard && mDashboard == null) {
-                    this.warning("Dashboard not provided so can't log to dashboard");
+                boolean shallUsePanels = reader.getBoolean(sDashboardKey);
+                if(shallUsePanels && mPanels == null) {
+                    this.warning("Panels not available so can't log to panels");
                     mConfigurationValid = false;
                 }
-                if(!shallUseDashboard) { mDashboard = null; }
+                if(!shallUsePanels) { mPanels = null; }
             }
             catch(JSONException e) {
-                this.error("Error in dashboard logging configuration");
-                mDashboard = null;
+                this.error("Error in panels logging configuration");
+                mPanels = null;
                 mConfigurationValid = false;
             }
         }
-        else { mDashboard = null; }
+        else { mPanels = null; }
 
         if(reader.has(sLevelKey)) {
             try {
@@ -348,8 +344,8 @@ public class Logger {
                 else { this.warning("Level " + level + " is not managed"); }
             }
             catch(JSONException e) {
-                this.error("Error in dashboard logging configuration");
-                mDashboard = null;
+                this.error("Error in panels logging configuration");
+                mPanels = null;
                 mConfigurationValid = false;
             }
         }
@@ -371,7 +367,7 @@ public class Logger {
                 if (mDriverStation != null) {
                     writer.put(sDriverStationKey, true);
                 }
-                if (mDashboard != null) {
+                if (mPanels != null) {
                     writer.put(sDashboardKey, true);
                 }
             }
@@ -542,52 +538,21 @@ public class Logger {
             mDriverStation.addLine("---------- TRACES ----------");
             mDriverStation.addLine(Objects.requireNonNull(mTraces.get(Target.DRIVER_STATION)).toString());
 
-        } else if (target == Target.DASHBOARD && mDashboard != null) {
+        } else if (target == Target.DASHBOARD && mPanels != null) {
 
-            String persistent = "<details open>\n" +
-                    "<summary style=\"font-size:" +
-                    sEntryFontSize +
-                    "px; font-weight: 500\"> ERRORS </summary>\n" +
-                    "<ul>\n" +
-                    Objects.requireNonNull(mErrors.get(Target.DASHBOARD)) +
-                    "</ul>\n" +
-                    "</details>\n" +
-                    "<details open>\n" +
-                    "<summary style=\"font-size:" +
-                    sEntryFontSize +
-                    "px; font-weight: 500\"> WARNINGS </summary>\n" +
-                    "<ul>\n" +
-                    Objects.requireNonNull(mWarnings.get(Target.DASHBOARD)) +
-                    "</ul>\n" +
-                    "</details>\n" +
-                    "<details open>\n" +
-                    "<summary style=\"font-size:" +
-                    sEntryFontSize +
-                    "px; font-weight: 500\"> INFOS </summary>\n" +
-                    "<ul>\n" +
-                    Objects.requireNonNull(mInfos.get(Target.DASHBOARD)) +
-                    "</ul>\n" +
-                    "</details>\n" +
-                    "<details open>\n" +
-                    "<summary style=\"font-size:" +
-                    sEntryFontSize +
-                    "px; font-weight: 500\"> DEBUG </summary>\n" +
-                    "<ul>\n" +
-                    Objects.requireNonNull(mDebugs.get(Target.DASHBOARD)) +
-                    "</ul>\n" +
-                    "</details>\n" +
-                    "<details open>\n" +
-                    "<summary style=\"font-size:" +
-                    sEntryFontSize +
-                    "px; font-weight: 500\"> TRACES </summary>\n" +
-                    "<ul>\n" +
-                    Objects.requireNonNull(mTraces.get(Target.DASHBOARD)) +
-                    "</ul>\n" +
-                    "</details>\n";
+            String errors   = Objects.requireNonNull(mErrors.get(Target.DASHBOARD)).toString();
+            String warnings = Objects.requireNonNull(mWarnings.get(Target.DASHBOARD)).toString();
+            String infos    = Objects.requireNonNull(mInfos.get(Target.DASHBOARD)).toString();
+            String debugs   = Objects.requireNonNull(mDebugs.get(Target.DASHBOARD)).toString();
+            String traces   = Objects.requireNonNull(mTraces.get(Target.DASHBOARD)).toString();
 
-            mDashboard.getTelemetry().addLine(persistent);
-        }
-        else if(target == Target.FILE && mFile != null) {
+            if (!errors.isEmpty())   { mPanels.addLine("--- ERRORS ---");   mPanels.addLine(errors); }
+            if (!warnings.isEmpty()) { mPanels.addLine("--- WARNINGS ---"); mPanels.addLine(warnings); }
+            if (!infos.isEmpty())    { mPanels.addLine("--- INFOS ---");    mPanels.addLine(infos); }
+            if (!debugs.isEmpty())   { mPanels.addLine("--- DEBUGS ---");   mPanels.addLine(debugs); }
+            if (!traces.isEmpty())   { mPanels.addLine("--- TRACES ---");   mPanels.addLine(traces); }
+
+        } else if(target == Target.FILE && mFile != null) {
             try {
                 mFile.write(mFileData.toString());
                 mFileData = new StringBuilder();
@@ -603,7 +568,7 @@ public class Logger {
         if( filterPriority != null && infoPriority != null && filterPriority >= infoPriority) {
             if (target == Target.DRIVER_STATION && mDriverStation != null) {
                 Objects.requireNonNull(mInfos.get(target)).append(raw);
-            } else if (target == Target.DASHBOARD && mDashboard != null) {
+            } else if (target == Target.DASHBOARD && mPanels != null) {
                 Objects.requireNonNull(mInfos.get(target)).append(raw);
             } else if (target == Target.FILE && mFile != null) {
                 mFileData.append(raw);
@@ -620,9 +585,9 @@ public class Logger {
         if (target == Target.DRIVER_STATION && mDriverStation != null) {
             this.write(target);
             mDriverStation.update();
-        } else if (target == Target.DASHBOARD && mDashboard != null) {
+        } else if (target == Target.DASHBOARD && mPanels != null) {
             this.write(target);
-            mDashboard.getTelemetry().update();
+            mPanels.update();
         } else if (target == Target.FILE && mFile != null) {
             this.write(target);
         }
@@ -648,10 +613,8 @@ public class Logger {
     public void clear(Target target) {
         if (target == Target.DRIVER_STATION && mDriverStation != null) {
             mDriverStation.clear();
-        } else if (target == Target.DASHBOARD && mDashboard != null) {
-            mDashboard.getTelemetry().clear();
         }
-
+        // Panels does not expose a clear method
     }
 
     /**
@@ -721,19 +684,16 @@ public class Logger {
             final String number = line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "";
             switch (target) {
                 case DASHBOARD:
-                    if (mDashboard != null) {
+                    if (mPanels != null) {
                         Objects.requireNonNull(mErrors.get(target))
-                                .append("<li style=\"color: black; margin-left:30px; list-style-type: square; font-size: ")
-                                .append(sErrorFontSize)
-                                .append("px\">")
                                 .append(className)
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(number).append(line) // Avoid String.format()
+                                .append(number).append(line)
                                 .append(" - ")
                                 .append(message)
-                                .append("</li>\n");
+                                .append("\n");
                     }
                     break;
                 case DRIVER_STATION:
@@ -743,24 +703,24 @@ public class Logger {
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(number).append(line) // Avoid String.format()
+                                .append(number).append(line)
                                 .append(" - ")
                                 .append(message)
                                 .append("\n");
                     }
                     break;
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [ERROR] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(number).append(line) // Avoid String.format()
+                            .append(number).append(line)
                             .append(" - ")
                             .append(message)
                             .append('\n');
@@ -787,19 +747,16 @@ public class Logger {
 
             switch (target) {
                 case DASHBOARD:
-                    if (mDashboard != null) {
+                    if (mPanels != null) {
                         Objects.requireNonNull(mWarnings.get(target))
-                                .append("<li style=\"color: black; margin-left:30px; list-style-type: square; font-size: ")
-                                .append(sWarningFontSize)
-                                .append("px\">")
                                 .append(className)
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                                 .append(" - ")
                                 .append(message)
-                                .append("</li>\n");
+                                .append("\n");
                     }
                     break;
                 case DRIVER_STATION:
@@ -809,24 +766,24 @@ public class Logger {
                                 .append(".")
                                 .append(methodName)
                                 .append(":")
-                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                                .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                                 .append(" - ")
                                 .append(message)
                                 .append("\n");
                     }
                     break;
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [WARNING] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                             .append(" - ")
                             .append(message)
                             .append('\n');
@@ -856,9 +813,8 @@ public class Logger {
             switch (target) {
                 case DASHBOARD:
                     Objects.requireNonNull(mMetrics.get(target)).put(metric, value);
-                    if (mDashboard != null) {
-                        Telemetry.Item data = mDashboard.getTelemetry().addData(metric, value);
-                        //mDashboard.getTelemetry().removeItem(data);
+                    if (mPanels != null) {
+                        mPanels.addData(metric, value);
                     }
                     break;
                 case DRIVER_STATION:
@@ -866,17 +822,17 @@ public class Logger {
                     break;
 
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [METRIC] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                             .append(" - ")
                             .append(metric)
                             .append(" : ")
@@ -903,13 +859,10 @@ public class Logger {
         if( filterPriority != null && infoPriority != null && filterPriority >= infoPriority) {
             switch (target) {
                 case DASHBOARD:
-                    if (mDashboard != null) {
+                    if (mPanels != null) {
                         Objects.requireNonNull(mInfos.get(target))
-                                .append("<li style=\"color: black; margin-left:30px; list-style-type: square; font-size: ")
-                                .append(sInfoFontSize)
-                                .append("px\">")
                                 .append(message)
-                                .append("</li>\n");
+                                .append("\n");
                     }
                     break;
                 case DRIVER_STATION:
@@ -920,17 +873,17 @@ public class Logger {
                     }
                     break;
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [INFO] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                             .append(" - ")
                             .append(message)
                             .append('\n');
@@ -956,13 +909,10 @@ public class Logger {
 
             switch (target) {
                 case DASHBOARD:
-                    if (mDashboard != null) {
+                    if (mPanels != null) {
                         Objects.requireNonNull(mDebugs.get(target))
-                                .append("<li style=\"color: black; margin-left:30px; list-style-type: square; font-size: ")
-                                .append(sInfoFontSize)
-                                .append("px\">")
                                 .append(message)
-                                .append("</li>\n");
+                                .append("\n");
                     }
                     break;
                 case DRIVER_STATION:
@@ -973,17 +923,17 @@ public class Logger {
                     }
                     break;
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [DEBUG] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                             .append(" - ")
                             .append(message)
                             .append('\n');
@@ -1009,13 +959,10 @@ public class Logger {
 
             switch (target) {
                 case DASHBOARD:
-                    if (mDashboard != null) {
+                    if (mPanels != null) {
                         Objects.requireNonNull(mTraces.get(target))
-                                .append("<li style=\"color: black; margin-left:30px; list-style-type: square; font-size: ")
-                                .append(sInfoFontSize)
-                                .append("px\">")
                                 .append(message)
-                                .append("</li>\n");
+                                .append("\n");
                     }
                     break;
                 case DRIVER_STATION:
@@ -1026,17 +973,17 @@ public class Logger {
                     }
                     break;
                 case FILE:
-                    double elapsedTime = mTimer.seconds(); // Get elapsed time in seconds
+                    double elapsedTime = mTimer.seconds();
                     int minutes = (int)(elapsedTime / 60);
                     int hours = (int)(elapsedTime / 3600);
                     double seconds = (double)((int)((elapsedTime - 60 * minutes - 3600 * hours) * 1000)) / 1000.0;
                     mFileData.append("[")
-                            .append(minutes).append(':') // Manually format two-digit minutes
-                            .append(seconds)  // Format only when necessary
+                            .append(minutes).append(':')
+                            .append(seconds)
                             .append("] [TRACE] - ")
                             .append(className).append('.')
                             .append(methodName).append(':')
-                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line) // Avoid String.format()
+                            .append(line < 1000 ? (line < 100 ? (line < 10 ? "000" : "00") : "0") : "").append(line)
                             .append(" - ")
                             .append(message)
                             .append('\n');

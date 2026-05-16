@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 /* Acmerobotics includes */
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 
 /* OpenCV includes */
@@ -38,7 +37,7 @@ public class CalibrationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"calibration-test");
+        mLogger         = new Logger(telemetry, "calibration-test");
         mCalibration = new Calibration();
 
         waitForStart();

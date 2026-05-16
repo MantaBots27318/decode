@@ -8,7 +8,6 @@ package org.firstinspires.ftc.teamcode.test;
 
 // Java includes
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -41,7 +40,7 @@ public class ReferenceTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger         = new Logger(telemetry, FtcDashboard.getInstance(),"reference-test");
+        mLogger         = new Logger(telemetry, "reference-test");
 
         mVision = new Vision(Configuration.s_Current.getLimelight("limelight"), hardwareMap,"vision",mLogger);
         mVision.initialize();

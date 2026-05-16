@@ -11,7 +11,6 @@ package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -50,7 +49,7 @@ public class AutonomousGoalStart extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mLogger = new Logger(telemetry, FtcDashboard.getInstance(), "autonomous-goal-start");
+        mLogger = new Logger(telemetry, "autonomous-goal-start");
         mLogger.level(Logger.Severity.INFO);
 
         mGamepad1 = new Controller(gamepad1, mLogger);
