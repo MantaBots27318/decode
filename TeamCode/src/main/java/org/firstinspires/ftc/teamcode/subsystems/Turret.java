@@ -324,10 +324,10 @@ public class Turret implements Posable{
         double result1 = result + 2 * Math.PI / sRotationAmplitude;
         double result2 = result - 2 * Math.PI / sRotationAmplitude;
 
-        if((result1 >= mRotationPositions.get(Position.MIN)) &&  (result1 <= mRotationPositions.get(Position.MIN))){
+        if((result1 >= mRotationPositions.get(Position.MIN)) &&  (result1 <= mRotationPositions.get(Position.MAX))){
             result = result1;
         }
-        if((result2 >= mRotationPositions.get(Position.MIN)) &&  (result2 <= mRotationPositions.get(Position.MIN))){
+        if((result2 >= mRotationPositions.get(Position.MIN)) &&  (result2 <= mRotationPositions.get(Position.MAX))){
             result = result2;
         }
         if(result > mRotationPositions.get(Position.MAX)) {
