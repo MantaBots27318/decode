@@ -37,8 +37,8 @@ public class Robot {
     static final double    sPreciseMovementsMultiplierRightBumper = 0.3;
 
     static final double    sGamepadChassisDeadZone     = 0.1;
-    static final double    sIntakePower                = 0.85;
-    static final double    sGuidingPower               = 0.6;
+    static final double    sIntakePower                = 1;
+    static final double    sGuidingPower               = 1;
 
     public enum Mode {
         ROBOT_CENTRIC,
