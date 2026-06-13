@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode;
-
+/*tis is a new auto*/
 import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 
 import com.pedropathing.follower.Follower;
