@@ -7,7 +7,7 @@
    ------------------------------------------------------- */
 package org.firstinspires.ftc.teamcode.pose;
 
-/* ACME robotics includes /*/
+/* ACME robotics includes */
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.pedropathing.geometry.Pose;
@@ -61,9 +61,10 @@ public class PathAutonomousGoalPedro extends PathPedro {
     Pose mStart          = new Pose(0,0,0);
     Pose                  mLeave          = new Pose(0,0,0);
 
-    Map<Pattern, Pose>    mStartIntake    = new LinkedHashMap<>();
-    Map<Pattern, Pose>    mEndIntake      = new LinkedHashMap<>();
-    Map<Pattern, Pose2d>    mBackIntake     = new LinkedHashMap<>();
+    Map<Pattern, Pose>    mStartIntake           = new LinkedHashMap<>();
+    Map<Pattern, Pose>    mEndIntake             = new LinkedHashMap<>();
+    Map<Pattern, Pose2d>  mBackIntake            = new LinkedHashMap<>();
+    Map<Pattern, Pose>    mTravelToIntakeControl = new LinkedHashMap<>();
 
     double                  mTgtIntakeToShootRadians  = 0;
 
@@ -108,6 +109,10 @@ public class PathAutonomousGoalPedro extends PathPedro {
                 }
             }
 
+            mTravelToIntakeControl.put(Pattern.GPP, new Pose(42.648, 57.495));
+            mTravelToIntakeControl.put(Pattern.PGP, new Pose(42.648, 57.495));
+            mTravelToIntakeControl.put(Pattern.PPG, new Pose(42.648, 57.495));
+
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_RED;
             mLeave = PoseConversion.topedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_RED,ANGLE_LEAVE_RADIANS_RED));
 
@@ -147,19 +152,24 @@ public class PathAutonomousGoalPedro extends PathPedro {
                 }
             }
 
+            mTravelToIntakeControl.put(Pattern.GPP, new Pose(42.648, 86.505));
+            mTravelToIntakeControl.put(Pattern.PGP, new Pose(42.648, 86.505));
+            mTravelToIntakeControl.put(Pattern.PPG, new Pose(42.648, 86.505));
+
             mTgtIntakeToShootRadians  = TGT_INTAKE_TO_SHOOT_RADIANS_BLUE;
             mLeave = PoseConversion.topedroPose(new Pose2d(X_LEAVE_INCHES, Y_LEAVE_INCHES_BLUE,ANGLE_LEAVE_RADIANS_BLUE));
 
         }
     }
 
-    public Pose   start()                         { return mStart; }
-    public Pose   startIntake(Pattern pattern)    { return mStartIntake.get(pattern); }
-    public Pose   endIntake(Pattern pattern)      { return mEndIntake.get(pattern); }
-    public Pose2d   backIntake(Pattern pattern)     { return mBackIntake.get(pattern); }
+    public Pose   start()                              { return mStart; }
+    public Pose   startIntake(Pattern pattern)         { return mStartIntake.get(pattern); }
+    public Pose   endIntake(Pattern pattern)           { return mEndIntake.get(pattern); }
+    public Pose2d backIntake(Pattern pattern)          { return mBackIntake.get(pattern); }
+    public Pose   travelToIntakeControl(Pattern p)     { return mTravelToIntakeControl.get(p); }
 
-    public double   tgtIntakeToShootRadians()       { return mTgtIntakeToShootRadians;}
-    public Pose   leave()                         { return mLeave; }
+    public double tgtIntakeToShootRadians()            { return mTgtIntakeToShootRadians; }
+    public Pose   leave()                              { return mLeave; }
 
     public void log() {
 
