@@ -162,7 +162,7 @@ public class HardwareMap implements Iterable<HardwareDevice>{
     }
 
 
-    private synchronized <T> T tryGet(Class<? extends T> classOrInterface, String deviceName){
+    public synchronized <T> T tryGet(Class<? extends T> classOrInterface, String deviceName){
         if (!active){
             System.out.println("ERROR: Cannot obtain references to hardware before INIT button is pressed.");
             return null;
