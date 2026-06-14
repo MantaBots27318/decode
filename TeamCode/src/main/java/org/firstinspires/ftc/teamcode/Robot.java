@@ -37,8 +37,8 @@ public class Robot {
     static final double    sPreciseMovementsMultiplierRightBumper = 0.3;
 
     static final double    sGamepadChassisDeadZone     = 0.1;
-    static final double    sIntakePower                = 1;
-    static final double    sGuidingPower               = 1;
+    static final double    sIntakePower                = 0.85;
+    static final double    sGuidingPower               = 0.7;
 
     public enum Mode {
         ROBOT_CENTRIC,
@@ -208,6 +208,8 @@ public class Robot {
         if(mReady && mGamepadAttachments != null) {
 
             if (mGamepadAttachments.buttons.left_bumper.pressedOnce()) { start_stop_intake(); }
+            if (mGamepadAttachments.buttons.a.pressedOnce()) { start_stop_intake_only(); }
+            if (mGamepadAttachments.buttons.b.pressedOnce()) { start_stop_guiding(); }
             if (mGamepadAttachments.buttons.left_trigger.pressedOnce()) { start_stop_flywheel(); }
             if (mGamepadAttachments.buttons.x.pressedOnce()) { reverse_stop_intake(); }
             if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) { mTransfer.open_and_close_loop(); }
@@ -289,6 +291,25 @@ public class Robot {
         else { mIntake.start(sIntakePower,sGuidingPower); }
     }
 
+    public void start_stop_intake_only() {
+        mLogger.info("==> STR INTAKE");
+        if(mIntake.isMoving()) {
+            if(mIntake.isReversed()) { mIntake.start(sIntakePower,0); }
+            else { mIntake.stop(); }
+        }
+        else { mIntake.start(sIntakePower,0); }
+    }
+
+
+    public void start_stop_guiding() {
+        mLogger.info("==> STR INTAKE");
+        if(mIntake.isMoving()) {
+            if(mIntake.isReversed()) { mIntake.start(0,sGuidingPower); }
+            else { mIntake.stop(); }
+        }
+        else { mIntake.start(0,sGuidingPower); }
+    }
+
     public void reverse_stop_intake() {
         mLogger.info("==> RVS INTAKE");
         if(mIntake.isMoving()) {
@@ -311,15 +332,6 @@ public class Robot {
         if(mTransfer.isOpen()) { mTransfer.close(); }
         else { mTransfer.open(); }
     }
-
-
-    public void start_stop_transfer_down() {
-        mLogger.info("==> TRANSFER");
-        mTransfer.open_down_and_close_loop();
-        while(mTransfer.ongoing()) { mTransfer.open_down_and_close_loop();}
-    }
-
-
 
     public boolean shoot() {
         mTransfer.open_and_close_loop();
