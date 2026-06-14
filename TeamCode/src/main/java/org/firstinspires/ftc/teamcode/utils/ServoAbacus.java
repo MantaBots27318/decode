@@ -8,16 +8,16 @@ public class ServoAbacus {
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {0,0.43},
-            {49,0.43},
-            {50,0.43},
-            {57,0.41},//
-            {70,0.43},//
-            {90,0.45},//
-            {99,0.46},//
-            {129, 0.4},
-            {139, 0.4},
-            {500, 0.42}
+            {0,0.43 + 0.3},
+            {49,0.43+0.3},
+            {50,0.43+0.3},
+            {57,0.41+0.3},//
+            {70,0.43+0.3},//
+            {90,0.45+0.3},//
+            {99,0.46+0.3},//
+            {129, 0.4+0.3},
+            {139, 0.4+0.3},
+            {500, 0.42+0.3}
     };
 
     /**

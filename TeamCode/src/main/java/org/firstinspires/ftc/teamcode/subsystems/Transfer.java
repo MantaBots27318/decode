@@ -28,14 +28,6 @@ public class Transfer {
         LET
     }
 
-    public enum State {
-        NONE,
-        WAITING,
-        DOWN,
-        LET,
-        BLOCK
-    }
-
     private static final Map<String, Position> sConfToPosition = Map.of(
             "let", Position.LET,
             "block", Position.BLOCK
@@ -48,13 +40,10 @@ public class Transfer {
     boolean                     mReady;       // True if component is able to fulfil its mission
     SmartTimer                  mTimer;       // Timer for timeout management
     boolean                     mOpen;        // True if component is able to fulfil its mission
-    boolean                     mOngoing;     // True if component is able to fulfil its mission
-
     Position                    mPosition;    // Current elbow position
     ServoComponent              mServo;       // Servos (coupled if specified by the configuration) driving the elbow
     Map<Position, Double>       mPositions;   // Link between positions enumerated and servos positions
 
-    State                       mState;
 
     // Return current reference position
     public boolean isMoving() { return mTimer.isArmed();}
@@ -67,8 +56,6 @@ public class Transfer {
 
         mLogger = logger;
         mReady = true;
-        mOngoing = false;
-        mState = State.NONE;
 
         mPositions   = new LinkedHashMap<>();
         mTimer = new SmartTimer(mLogger);
@@ -125,12 +112,7 @@ public class Transfer {
 
     }
 
-    public void loop() {
-        if (mState != State.NONE) { open_and_close_loop(); }
-    }
-
     public boolean isOpen() { return mOpen; }
-    public boolean ongoing() { return mOngoing; }
 
     public void close() {
         this.setPosition(Position.BLOCK);
@@ -140,30 +122,6 @@ public class Transfer {
     public void open() {
         this.setPosition(Position.LET);
         mOpen = true;
-    }
-
-    public void open_and_close_loop() {
-
-        if (mState == State.NONE) {
-            mState = State.WAITING;
-        }
-        else if (mState == State.WAITING) {
-            setPosition(Transfer.Position.LET,2000);
-            if (mPosition == Transfer.Position.LET)  {
-                mState = State.LET;
-            }
-        }
-        else if(mState == State.LET && !isMoving()) {
-            setPosition(Transfer.Position.BLOCK);
-            if (getPosition() == Transfer.Position.BLOCK)  {
-                mState = State.BLOCK;
-            }
-        }
-        else if (mState == State.BLOCK && !isMoving()) {
-            mState = State.NONE;
-        }
-
-        mOngoing = mState != State.NONE;
     }
 
 

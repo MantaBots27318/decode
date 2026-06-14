@@ -45,8 +45,16 @@ public class Robot {
         FIELD_CENTRIC,
         AUTONOMOUS
     }
+    public enum State {
+        NONE,
+        WAITING,
+        INTAKE,
+        LET,
+        BLOCK
+    }
 
-
+    boolean                 mOngoing;
+    State                   mState;
     Logger                  mLogger;
     boolean                 mReady;
     SmartTimer              mTimer;
@@ -79,10 +87,14 @@ public class Robot {
     double                  mRotation;
     Action                  mAction;
     boolean                 mShallCorrect;
+    long                    mShootStartTime = -1;
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
 
         mLogger = logger;
+
+        mOngoing = false;
+        mState = State.NONE;
 
         mReady = true;
         mShallCorrect = true;
@@ -212,7 +224,7 @@ public class Robot {
             if (mGamepadAttachments.buttons.b.pressedOnce()) { start_stop_guiding(); }
             if (mGamepadAttachments.buttons.left_trigger.pressedOnce()) { start_stop_flywheel(); }
             if (mGamepadAttachments.buttons.x.pressedOnce()) { reverse_stop_intake(); }
-            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) { mTransfer.open_and_close_loop(); }
+            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {transfer(); }
 
         }
 
@@ -231,7 +243,7 @@ public class Robot {
 
         if(mReady) {
 
-            if(mTransfer.ongoing()) {mTransfer.open_and_close_loop(); }
+            if(mOngoing) {transfer(); }
 
             if((mX * mX + mY * mY) > 0.01) { mAction = null; }
             if(mAction != null) {
@@ -334,8 +346,8 @@ public class Robot {
     }
 
     public boolean shoot() {
-        mTransfer.open_and_close_loop();
-        return mTransfer.ongoing();
+        transfer();
+        return mOngoing;
     }
 
     public void start_stop_intake_front_only() {
@@ -353,6 +365,34 @@ public class Robot {
             else { mIntake.stop(); }
         }
         else { mIntake.start(0,sGuidingPower); }
+    }
+
+    public void transfer() {
+
+        if (mState == State.NONE) {
+            mState = State.WAITING;
+        }
+        else if (mState == State.WAITING) {
+            mTransfer.setPosition(Transfer.Position.LET,1500);
+            if (mTransfer.getPosition() == Transfer.Position.LET)  {
+                mState = State.LET;
+            }
+        }
+        else if (mState == State.LET && !mTransfer.isMoving()) {
+            mIntake.start(sIntakePower,sGuidingPower);
+            mState = State.INTAKE;
+            mTimer.arm(500);
+        }
+        else if (mState == State.INTAKE && !mTimer.isArmed()) {
+            mTransfer.setPosition(Transfer.Position.BLOCK);
+            if (mTransfer.getPosition() == Transfer.Position.BLOCK) {
+                mState = State.BLOCK;
+            }
+        }
+        else if (mState == State.BLOCK && !mTransfer.isMoving()){
+            mState = State.NONE;
+        }
+        mOngoing = mState != State.NONE;
     }
 
 
