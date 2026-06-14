@@ -306,20 +306,20 @@ public class Robot {
     public void start_stop_intake_only() {
         mLogger.info("==> STR INTAKE");
         if(mIntake.isMoving()) {
-            if(mIntake.isReversed()) { mIntake.start(sIntakePower,0); }
-            else { mIntake.stop(); }
+            if(mIntake.isReversed()) { mIntake.start(sIntakePower,sGuidingPower); }
+            else { mIntake.start(0,-10000); }
         }
-        else { mIntake.start(sIntakePower,0); }
+        else { mIntake.start(sIntakePower,-10000); }
     }
 
 
     public void start_stop_guiding() {
         mLogger.info("==> STR INTAKE");
         if(mIntake.isMoving()) {
-            if(mIntake.isReversed()) { mIntake.start(0,sGuidingPower); }
-            else { mIntake.stop(); }
+            if(mIntake.isReversed()) { mIntake.start(sIntakePower,sGuidingPower); }
+            else { mIntake.start(-10000,0); }
         }
-        else { mIntake.start(0,sGuidingPower); }
+        else { mIntake.start(-10000,sGuidingPower); }
     }
 
     public void reverse_stop_intake() {
@@ -373,7 +373,7 @@ public class Robot {
             mState = State.WAITING;
         }
         else if (mState == State.WAITING) {
-            mTransfer.setPosition(Transfer.Position.LET,1500);
+            mTransfer.setPosition(Transfer.Position.LET,400);
             if (mTransfer.getPosition() == Transfer.Position.LET)  {
                 mState = State.LET;
             }
@@ -381,7 +381,7 @@ public class Robot {
         else if (mState == State.LET && !mTransfer.isMoving()) {
             mIntake.start(sIntakePower,sGuidingPower);
             mState = State.INTAKE;
-            mTimer.arm(500);
+            mTimer.arm(2500);
         }
         else if (mState == State.INTAKE && !mTimer.isArmed()) {
             mTransfer.setPosition(Transfer.Position.BLOCK);

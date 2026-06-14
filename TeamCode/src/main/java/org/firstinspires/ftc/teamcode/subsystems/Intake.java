@@ -69,12 +69,17 @@ public class Intake {
 
         if(mReady)
         {
-            mIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mIntake.setPower(power1);
-            mGuiding.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            mGuiding.setPower(power2);
-            mIsStarted = true;
-            mIsReversed = power1 < 0;
+            if(power1 != -10000) {
+                mIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                mIntake.setPower(power1);
+                mIsStarted = true;
+                mIsReversed = power1 < 0;
+            }
+            if(power2 != -10000) {
+                mGuiding.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                mGuiding.setPower(power2);
+                mIsStarted = true;
+            }
         }
 
     }
