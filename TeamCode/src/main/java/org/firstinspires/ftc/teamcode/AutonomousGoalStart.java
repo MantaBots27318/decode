@@ -141,6 +141,12 @@ public class AutonomousGoalStart extends LinearOpMode {
             return ongoing;
         };
 
+        Action shootActionLast = p -> {
+            boolean ongoing = mRobot.shoot(3500);
+            mLogger.info("SHOOT ACTION " + ongoing);
+            return ongoing;
+        };
+
         Action stopIntakeAction = p -> {
             mRobot.start_stop_intake();
             return false;
@@ -252,10 +258,19 @@ public class AutonomousGoalStart extends LinearOpMode {
 
                 mLogger.metric("STEP", "SHOOT");
                 mLogger.update();
-                Actions.runBlocking(
-                        new RaceAction(
-                                shootAction,
-                                loopAction));
+
+                if(i_step < (mSteps.size() - 1)) {
+                    Actions.runBlocking(
+                            new RaceAction(
+                                    shootAction,
+                                    loopAction));
+                }
+                else {
+                    Actions.runBlocking(
+                            new RaceAction(
+                                    shootActionLast,
+                                    loopAction));
+                }
                 mLogger.update();
 
                 i_step ++;
