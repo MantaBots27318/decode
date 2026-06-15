@@ -5,19 +5,21 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class ServoAbacus {
 
+    private static final double deltaServo = 0.3;
+
     // Measured data points (distance in meters, power from 0.0 to 1.0)
     // IMPORTANT: distances must be sorted in increasing order
     private static final double[][] sReferenceTable = {
-            {0,0.43 + 0.3},
-            {49,0.43+0.3},
-            {50,0.43+0.3},
-            {57,0.41+0.3},//
-            {70,0.43+0.3},//
-            {90,0.45+0.3},//
-            {99,0.46+0.3},//
-            {129, 0.4+0.3},
-            {139, 0.4+0.3},
-            {500, 0.42+0.3}
+            {0 ,0.43+deltaServo},
+            {49,0.43+deltaServo},
+            {50,0.43+deltaServo},
+            {57,0.41+deltaServo},
+            {70,0.43+deltaServo},
+            {90,0.45+deltaServo},
+            {99,0.46+deltaServo},
+            {129, 0.35+deltaServo},
+            {139, 0.35+deltaServo},
+            {500, 0.42+deltaServo}
     };
 
     /**

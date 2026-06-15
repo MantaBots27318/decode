@@ -38,7 +38,8 @@ public class Robot {
 
     static final double    sGamepadChassisDeadZone     = 0.1;
     static final double    sIntakePower                = 0.85;
-    static final double    sGuidingPower               = 0.7;
+    static final double    sGuidingPower               = 0.75;
+    static final int       sDefaultTimeout             = 3500;
 
     public enum Mode {
         ROBOT_CENTRIC,
@@ -58,6 +59,8 @@ public class Robot {
     Logger                  mLogger;
     boolean                 mReady;
     SmartTimer              mTimer;
+
+    int                     mShootTimeout;
 
     // Configuration
     double                  mHeadingOffset;
@@ -87,7 +90,6 @@ public class Robot {
     double                  mRotation;
     Action                  mAction;
     boolean                 mShallCorrect;
-    long                    mShootStartTime = -1;
 
     public void setHW(Configuration config, HardwareMap hwm, Logger logger, Controller gamepad1, Controller gamepad2, Path path) {
 
@@ -98,6 +100,7 @@ public class Robot {
 
         mReady = true;
         mShallCorrect = true;
+        mShootTimeout = sDefaultTimeout;
 
         if(mReady) {
             mTimer              = new SmartTimer(mLogger);
@@ -224,7 +227,7 @@ public class Robot {
             if (mGamepadAttachments.buttons.b.pressedOnce()) { start_stop_guiding(); }
             if (mGamepadAttachments.buttons.left_trigger.pressedOnce()) { start_stop_flywheel(); }
             if (mGamepadAttachments.buttons.x.pressedOnce()) { reverse_stop_intake(); }
-            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {transfer(); }
+            if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {shoot(); }
 
         }
 
@@ -346,6 +349,13 @@ public class Robot {
     }
 
     public boolean shoot() {
+        mShootTimeout = sDefaultTimeout;
+        transfer();
+        return mOngoing;
+    }
+
+    public boolean shoot(int timeout) {
+        mShootTimeout = timeout;
         transfer();
         return mOngoing;
     }
@@ -367,6 +377,7 @@ public class Robot {
         else { mIntake.start(0,sGuidingPower); }
     }
 
+
     public void transfer() {
 
         if (mState == State.NONE) {
@@ -374,6 +385,7 @@ public class Robot {
         }
         else if (mState == State.WAITING) {
             mTransfer.setPosition(Transfer.Position.LET,400);
+            mIntake.start(1,1);
             if (mTransfer.getPosition() == Transfer.Position.LET)  {
                 mState = State.LET;
             }
@@ -381,7 +393,7 @@ public class Robot {
         else if (mState == State.LET && !mTransfer.isMoving()) {
             mIntake.start(sIntakePower,sGuidingPower);
             mState = State.INTAKE;
-            mTimer.arm(2500);
+            mTimer.arm(mShootTimeout);
         }
         else if (mState == State.INTAKE && !mTimer.isArmed()) {
             mTransfer.setPosition(Transfer.Position.BLOCK);
@@ -391,6 +403,7 @@ public class Robot {
         }
         else if (mState == State.BLOCK && !mTransfer.isMoving()){
             mState = State.NONE;
+            mIntake.start(sIntakePower,sGuidingPower);
         }
         mOngoing = mState != State.NONE;
     }

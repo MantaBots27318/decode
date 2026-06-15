@@ -128,7 +128,7 @@ public class AutonomousGoalStart extends LinearOpMode {
 
         mRobot.start_stop_flywheel();
         Thread.sleep(200);
-        mRobot.start_stop_intake();
+        //mRobot.start_stop_guiding();
 
         Action loopAction = p -> {
             mRobot.loop();
@@ -136,9 +136,14 @@ public class AutonomousGoalStart extends LinearOpMode {
         };
 
         Action shootAction = p -> {
-            boolean ongoing = mRobot.shoot();
+            boolean ongoing = mRobot.shoot(1600);
             mLogger.info("SHOOT ACTION " + ongoing);
             return ongoing;
+        };
+
+        Action stopIntakeAction = p -> {
+            mRobot.start_stop_intake();
+            return false;
         };
 
         mLogger.metric("STEP", "GO TO SHOOTING");
@@ -193,6 +198,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                                 .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                                 .setTangent(start_intake.heading.toDouble())
                                                 .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                                .afterDisp(0.01,stopIntakeAction)
                                                 .setTangent(end_intake.heading.toDouble() + Math.PI)
                                                 .splineToConstantHeading(shoot.position, 0, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                                 .waitSeconds(0.2)
@@ -211,6 +217,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                                 .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                                 .setTangent(start_intake.heading.toDouble())
                                                 .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                                .afterDisp(0.01,stopIntakeAction)
                                                 .strafeToConstantHeading(shoot.position, new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                                 .waitSeconds(0.2)
                                                 .build(),
@@ -228,6 +235,7 @@ public class AutonomousGoalStart extends LinearOpMode {
                                             .splineToConstantHeading(start_intake.position, start_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
                                             .setTangent(start_intake.heading.toDouble())
                                             .splineToConstantHeading(end_intake.position, end_intake.heading.toDouble(), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-100, 10))
+                                            .afterDisp(0.01,stopIntakeAction)
                                             .strafeToLinearHeading(leave.position,start.heading.toDouble(),new TranslationalVelConstraint(200), new ProfileAccelConstraint(-20, 50))
                                             .waitSeconds(0.2)
                                             .build(),

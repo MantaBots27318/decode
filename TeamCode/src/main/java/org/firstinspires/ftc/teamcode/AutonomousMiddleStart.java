@@ -143,6 +143,11 @@ public class AutonomousMiddleStart extends LinearOpMode {
             return ongoing;
         };
 
+        Action stopIntakeAction = p -> {
+            mRobot.start_stop_intake_front_only();
+            return false;
+        };
+
         mLogger.metric("STEP", "GO TO SHOOTING");
         mLogger.update();
 
@@ -199,6 +204,7 @@ public class AutonomousMiddleStart extends LinearOpMode {
                                 .splineToLinearHeading(start_intake, start_intake.heading.toDouble(), new TranslationalVelConstraint(50), new ProfileAccelConstraint(-15, 15))
                                 .setTangent(start_intake.heading.toDouble())
                                 .splineToLinearHeading(end_intake, end_intake.heading.toDouble(), new TranslationalVelConstraint(30), new ProfileAccelConstraint(-15, 15))
+                                .afterDisp(0.01,stopIntakeAction)
                                 .setTangent(-end_intake.heading.toDouble())
                                 .splineToLinearHeading(back_intake, -end_intake.heading.toDouble(), new TranslationalVelConstraint(200), new ProfileAccelConstraint(-100, 100))
                                 .setTangent(-back_intake.heading.toDouble())

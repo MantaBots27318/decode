@@ -22,7 +22,7 @@ public class V3 extends Configuration {
         mMotors.put("front-left-wheel",new ConfMotor("frontLeft",false));
         mMotors.put("back-left-wheel",new ConfMotor("backLeft",false));
         mMotors.put("front-right-wheel",new ConfMotor("frontRight",true));
-        mMotors.put("back-right-wheel",new ConfMotor("backRight",true));
+        mMotors.put("back-right-wheel",new ConfMotor("backRight",false));
 
         /* IMUs configuration */
         mImus.put("built-in", new ConfImu("imu", RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
@@ -55,8 +55,8 @@ public class V3 extends Configuration {
         mServos.get("turret-rotation").addPosition("min", 0.35);
         mServos.get("turret-rotation").addPosition("max", 0.64);
         mServos.put("turret-hood", new ConfServo("turretHood", false));
-        mServos.get("turret-hood").addPosition("min", 0.1);
-        mServos.get("turret-hood").addPosition("max", 0.7);
+        mServos.get("turret-hood").addPosition("min", 0.0);
+        mServos.get("turret-hood").addPosition("max", 1.0);
 
         // Turntable encoder is plugged on the intake wheels motor
         mEncoders.put("turret-rotation", new ConfEncoder("intakeWheels",false));
