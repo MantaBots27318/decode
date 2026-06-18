@@ -223,8 +223,6 @@ public class Robot {
         if(mReady && mGamepadAttachments != null) {
 
             if (mGamepadAttachments.buttons.left_bumper.pressedOnce()) { start_stop_intake(); }
-            if (mGamepadAttachments.buttons.a.pressedOnce()) { start_stop_intake_only(); }
-            if (mGamepadAttachments.buttons.b.pressedOnce()) { start_stop_guiding(); }
             if (mGamepadAttachments.buttons.left_trigger.pressedOnce()) { start_stop_flywheel(); }
             if (mGamepadAttachments.buttons.x.pressedOnce()) { reverse_stop_intake(); }
             if (mGamepadAttachments.buttons.right_bumper.pressedOnce()) {shoot(); }

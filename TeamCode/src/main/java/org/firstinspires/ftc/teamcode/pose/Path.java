@@ -36,10 +36,10 @@ public class Path {
     private static final double Y_SHOOTING_CLOSE_INCHES_RED                      = -36;
     private static final double ANGLE_SHOOTING_CLOSE_RADIANS_RED                 = - Math.PI / 2;
 
-    private static final double X_SHOOTING_FAR_INCHES                            = 24;
-    private static final double Y_SHOOTING_FAR_INCHES_BLUE                       = 24;
+    private static final double X_SHOOTING_FAR_INCHES                            = 30;
+    private static final double Y_SHOOTING_FAR_INCHES_BLUE                       = 22;
     private static final double ANGLE_SHOOTING_FAR_RADIANS_BLUE                  = Math.PI / 2;
-    private static final double Y_SHOOTING_FAR_INCHES_RED                        = -24;
+    private static final double Y_SHOOTING_FAR_INCHES_RED                        = -22;
     private static final double ANGLE_SHOOTING_FAR_RADIANS_RED                   = - Math.PI / 2;
 
     private static final double X_SHOOTING_VERY_FAR_INCHES                      = -59;
