@@ -55,9 +55,9 @@ public class Path {
     private static final double ANGLE_READY_RADIANS_BLUE           = Math.PI / 6;
 
 
-    private static final double X_TARGET_INCHES                                  = FIELD_SIZE_INCHES / 2 - 9;
-    private static final double Y_TARGET_INCHES_BLUE                             = FIELD_SIZE_INCHES / 2 - 9;
-    private static final double Y_TARGET_INCHES_RED                              = - FIELD_SIZE_INCHES / 2 + 9;
+    private static final double X_TARGET_INCHES                                  = FIELD_SIZE_INCHES / 2 - 8;
+    private static final double Y_TARGET_INCHES_BLUE                             = FIELD_SIZE_INCHES / 2 - 10;
+    private static final double Y_TARGET_INCHES_RED                              = - FIELD_SIZE_INCHES / 2 + 10;
     private static final double ANGLE_TARGET_RADIANS_BLUE                        = 45 * Math.PI / 180;
     private static final double ANGLE_TARGET_RADIANS_RED                         = -45 * Math.PI / 180;
 

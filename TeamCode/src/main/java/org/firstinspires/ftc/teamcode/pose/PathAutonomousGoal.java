@@ -36,15 +36,15 @@ public class PathAutonomousGoal extends Path {
     protected static final double Y_DELTA_INTAKE_INCHES_RED =       -22;
 
     public static final double X_GPP_PATTERN_INCHES_BLUE =          -36.25;
-    public static final double X_PGP_PATTERN_INCHES_BLUE =          -13;
+    public static final double X_PGP_PATTERN_INCHES_BLUE =          -10;
     public static final double X_PPG_PATTERN_INCHES_BLUE =          11.25;
     public static final double X_GPP_PATTERN_INCHES_RED =           -36.25;
     public static final double X_PGP_PATTERN_INCHES_RED =           -13;
     public static final double X_PPG_PATTERN_INCHES_RED =           11.25;
 
 
-    public static final double Y_PATTERN_INCHES_BLUE =              30;
-    public static final double Y_PATTERN_INCHES_RED =               -30;
+    public static final double Y_PATTERN_INCHES_BLUE =              33;
+    public static final double Y_PATTERN_INCHES_RED =               -33;
     public static final double ANGLE_PATTERN_RADIANS_BLUE =         Math.PI / 2;
     public static final double ANGLE_PATTERN_RADIANS_RED =          -Math.PI / 2;
 
