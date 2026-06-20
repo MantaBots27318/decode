@@ -244,13 +244,14 @@ public class Turret implements Posable{
             if(shallCorrect) {
                 mRotation.setPosition(rotation_servo_position);
             }
-            double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC);
-            mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
-            mHood.setPosition(hood_servo_position);
             double flywheel_speed = this.calculateFlywheelSpeed(mPath.target(),mCenterPositionFTC);
             mLogger.metric("FLYWHEEL SPEED COMMAND: " , ""+flywheel_speed);
+            double actual_speed = mIsShooting ? mFlywheel.getVelocity() : flywheel_speed;
+            mLogger.metric("FLYWHEEL SPEED VALUE: " , ""+actual_speed);
+            double hood_servo_position = this.calculateHoodServoPosition(mPath.target(),mCenterPositionFTC, actual_speed);
+            mLogger.metric("NEXT HOOD SERVO POSITION : " , ""+hood_servo_position);
+            mHood.setPosition(hood_servo_position);
             if(mIsShooting) { mFlywheel.setVelocity(flywheel_speed); }
-            if(mIsShooting) { mLogger.metric("FLYWHEEL SPEED VALUE: " , ""+mFlywheel.getVelocity()); }
 
         }
     }
@@ -341,7 +342,7 @@ public class Turret implements Posable{
 
     }
 
-    private double calculateHoodServoPosition(Pose2d target, Pose2d center) {
+    private double calculateHoodServoPosition(Pose2d target, Pose2d center, double flywheelSpeed) {
 
         double distance = Math.sqrt(
                 (target.position.x - center.position.x) *
@@ -349,7 +350,7 @@ public class Turret implements Posable{
                 (target.position.y - center.position.y) *
                 (target.position.y - center.position.y));
 
-        double result = ServoAbacus.getPosition(distance);
+        double result = ServoAbacus.getPosition(distance, flywheelSpeed);
         if(result < mHoodPositions.get(Position.MIN)) { result = mHoodPositions.get(Position.MIN); }
         if(result > mHoodPositions.get(Position.MAX)) { result = mHoodPositions.get(Position.MAX); }
 
